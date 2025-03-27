@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 type RootStackParamList = {
     Dashboard: {
@@ -108,7 +108,8 @@ export default function Questionnaire() {
         };
 
         try {
-            await AsyncStorage.setItem('userData', JSON.stringify(userData));
+            // Store user data securely
+            await SecureStore.setItemAsync('userData', JSON.stringify(userData));
             
             Animated.timing(progress, {
                 toValue: 1,
@@ -119,6 +120,7 @@ export default function Questionnaire() {
             });
         } catch (error) {
             console.error('Error saving user data:', error);
+            // Handle error appropriately
         }
     };
 

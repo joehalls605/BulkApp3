@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import Meals from './Meals';
 import Workouts from './Workouts';
 
@@ -45,7 +45,7 @@ function HomeScreen() {
 
     const loadUserData = async () => {
         try {
-            const storedData = await AsyncStorage.getItem('userData');
+            const storedData = await SecureStore.getItemAsync('userData');
             if (storedData) {
                 setUserData(JSON.parse(storedData));
             }
@@ -124,7 +124,7 @@ function HomeScreen() {
                 ...userData,
                 [isCurrent ? 'currentWeight' : 'goalWeight']: parseFloat(newWeight)
             };
-            await AsyncStorage.setItem('userData', JSON.stringify(updatedData));
+            await SecureStore.setItemAsync('userData', JSON.stringify(updatedData));
             setUserData(updatedData);
         } catch (error) {
             console.error('Error updating weight:', error);
@@ -354,6 +354,16 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 12,
         marginHorizontal: 5,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
     },
     goalValue: {
         fontSize: 20,
@@ -375,6 +385,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         elevation: 2,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
     },
     progressItem: {
         alignItems: 'center',
@@ -428,6 +447,15 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         alignItems: 'center',
         elevation: 2,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
     },
     iconContainer: {
         width: 48,
@@ -449,6 +477,15 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 12,
         elevation: 2,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
     },
     tipHeader: {
         flexDirection: 'row',
@@ -474,6 +511,16 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF8E7',
         padding: 10,
         borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
     },
     progressEmoji: {
         fontSize: 24,

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import * as SecureStore from 'expo-secure-store';
 
 interface Meal {
     id: number;
@@ -20,6 +21,8 @@ interface UserData {
     dailyTip?: string;
     gender?: string;
     exerciseFrequency?: string;
+    mealsPerDay?: string;
+    foodPreference?: string;
 }
 
 const allMeals: Meal[] = [
@@ -224,15 +227,33 @@ const allMeals: Meal[] = [
 type MealType = 'All' | 'Breakfast' | 'Lunch' | 'Dinner' | 'Snack';
 
 export default function Meals() {
+    const navigation = useNavigation();
     const route = useRoute();
-    const userData = (route.params as { userData?: UserData })?.userData || {
+    const [userData, setUserData] = useState({
         currentWeight: 70,
         useMetric: true,
         gender: 'Male',
-        exerciseFrequency: 'Never'
-    };
+        exerciseFrequency: 'Never',
+        mealsPerDay: '3 times',
+        foodPreference: 'A mix of all'
+    });
     const [selectedMealType, setSelectedMealType] = useState<MealType>('All');
     const [displayedMeals, setDisplayedMeals] = useState<Meal[]>([]);
+
+    useEffect(() => {
+        loadUserData();
+    }, []);
+
+    const loadUserData = async () => {
+        try {
+            const storedData = await SecureStore.getItemAsync('userData');
+            if (storedData) {
+                setUserData(JSON.parse(storedData));
+            }
+        } catch (error) {
+            console.error('Error loading user data:', error);
+        }
+    };
 
     // Calculate calories based on weight (same as Dashboard)
     const calculateCalories = (weight: number) => {
