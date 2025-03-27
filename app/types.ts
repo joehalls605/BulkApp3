@@ -8,4 +8,5 @@ export type RootStackParamList = {
     Motivation: undefined;
     TermsAndConditions: undefined;
     TermsOfUse: undefined;
+    SubscriptionManagement: undefined;
 }; 

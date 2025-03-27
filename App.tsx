@@ -5,6 +5,7 @@ import StartJourney from './app/StartJourney';
 import Dashboard from './app/Dashboard';
 import TermsAndConditions from './app/TermsAndConditions';
 import TermsOfUse from './app/TermsOfUse';
+import SubscriptionManagement from './app/SubscriptionManagement';
 import { RootStackParamList } from './app/types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -23,6 +24,7 @@ export default function App() {
                 <Stack.Screen name="Dashboard" component={Dashboard} />
                 <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
                 <Stack.Screen name="TermsOfUse" component={TermsOfUse} />
+                <Stack.Screen name="SubscriptionManagement" component={SubscriptionManagement} />
             </Stack.Navigator>
         </NavigationContainer>
     );

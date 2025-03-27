@@ -134,6 +134,15 @@ function HomeScreen() {
     return (
         <SafeAreaView style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>BulkUp Member</Text>
+                    <TouchableOpacity 
+                        style={styles.profileButton}
+                        onPress={() => navigation.navigate('SubscriptionManagement')}
+                    >
+                        <Ionicons name="person-circle" size={32} color="#333" />
+                    </TouchableOpacity>
+                </View>
                 <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
                     <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                    
@@ -317,13 +326,20 @@ const styles = StyleSheet.create({
         paddingBottom: 40,
     },
     header: {
-        marginBottom: 30,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E0E0E0',
     },
     headerTitle: {
-        fontSize: 28,
-        fontWeight: '700',
+        fontSize: 20,
+        fontWeight: '600',
         color: '#333',
-        marginBottom: 8,
+    },
+    profileButton: {
+        padding: 8,
     },
     headerSubtitle: {
         fontSize: 16,

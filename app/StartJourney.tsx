@@ -14,37 +14,69 @@ export default function StartJourney() {
 
     const startTrial = async () => {
         try {
-            // Store trial start date
+            // Store trial start date and subscription details
             const trialStartDate = new Date().toISOString();
-            await SecureStore.setItemAsync('trialStartDate', trialStartDate);
-            
-            // Store subscription status
-            await SecureStore.setItemAsync('subscriptionStatus', JSON.stringify({
+            const subscriptionDetails = {
                 isActive: true,
                 isTrial: true,
                 startDate: trialStartDate,
-                endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days from now
-            }));
+                trialEndDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+                subscriptionPrice: 4,
+                subscriptionCurrency: 'GBP',
+                subscriptionPeriod: 'monthly',
+                autoRenewEnabled: true
+            };
+
+            await SecureStore.setItemAsync('subscriptionDetails', JSON.stringify(subscriptionDetails));
+            
+            // Set up a check for trial expiration
+            const checkTrialExpiration = async () => {
+                const details = await SecureStore.getItemAsync('subscriptionDetails');
+                if (details) {
+                    const subscription = JSON.parse(details);
+                    const trialEnd = new Date(subscription.trialEndDate);
+                    const now = new Date();
+
+                    if (now > trialEnd && subscription.isTrial) {
+                        // Trial has expired, update subscription status
+                        subscription.isTrial = false;
+                        subscription.startDate = trialEnd.toISOString();
+                        await SecureStore.setItemAsync('subscriptionDetails', JSON.stringify(subscription));
+                    }
+                }
+            };
+
+            // Check trial expiration every time the app starts
+            checkTrialExpiration();
 
             // Navigate to dashboard
             navigation.navigate('Dashboard');
         } catch (error) {
             console.error('Error starting trial:', error);
+            alert('Error starting trial. Please try again.');
         }
     };
 
     const restoreSubscription = async () => {
         try {
-            // Check for existing subscription in SecureStore
-            const subscriptionStatus = await SecureStore.getItemAsync('subscriptionStatus');
-            if (subscriptionStatus) {
-                const status = JSON.parse(subscriptionStatus);
-                if (status.isActive) {
+            const subscriptionDetails = await SecureStore.getItemAsync('subscriptionDetails');
+            if (subscriptionDetails) {
+                const subscription = JSON.parse(subscriptionDetails);
+                if (subscription.isActive) {
+                    // Check if trial has expired
+                    const trialEnd = new Date(subscription.trialEndDate);
+                    const now = new Date();
+                    
+                    if (now > trialEnd && subscription.isTrial) {
+                        subscription.isTrial = false;
+                        subscription.startDate = trialEnd.toISOString();
+                        await SecureStore.setItemAsync('subscriptionDetails', JSON.stringify(subscription));
+                    }
+                    
                     navigation.navigate('Dashboard');
                     return;
                 }
             }
-            // If no active subscription found, show error
             alert('No active subscription found. Please start a new trial or subscribe.');
         } catch (error) {
             console.error('Error restoring subscription:', error);
