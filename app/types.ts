@@ -11,10 +11,12 @@ export type RootStackParamList = {
     Shopping: undefined;
     Congratulations: undefined;
     You: undefined;
+    Workouts: undefined;
 };
 
 export type TabParamList = {
     Home: undefined;
     Meals: undefined;
+    Workouts: undefined;
     You: undefined;
 }; 

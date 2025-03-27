@@ -8,6 +8,7 @@ export default function You() {
     const [currentWeight, setCurrentWeight] = useState('');
     const [goalWeight, setGoalWeight] = useState('');
     const [userData, setUserData] = useState<any>(null);
+    const [useMetric, setUseMetric] = useState(true);
 
     useEffect(() => {
         loadUserData();
@@ -21,6 +22,7 @@ export default function You() {
                 setUserData(parsedData);
                 setCurrentWeight(parsedData.currentWeight?.toString() || '');
                 setGoalWeight(parsedData.goalWeight?.toString() || '');
+                setUseMetric(parsedData.useMetric ?? true);
             }
         } catch (error) {
             console.error('Error loading user data:', error);
@@ -37,7 +39,8 @@ export default function You() {
         try {
             const updatedData = {
                 ...userData,
-                currentWeight: weight
+                currentWeight: weight,
+                useMetric: useMetric
             };
             await SecureStore.setItemAsync('userData', JSON.stringify(updatedData));
             setUserData(updatedData);
@@ -48,6 +51,25 @@ export default function You() {
         }
     };
 
+    const toggleUnit = () => {
+        setUseMetric(!useMetric);
+        if (currentWeight) {
+            const weight = parseFloat(currentWeight);
+            if (!isNaN(weight)) {
+                const newWeight = useMetric 
+                    ? (weight * 2.20462).toFixed(1) // kg to lbs
+                    : (weight / 2.20462).toFixed(1); // lbs to kg
+                setCurrentWeight(newWeight);
+            }
+        }
+    };
+
+    const formatWeight = (weight: number | undefined) => {
+        if (weight === undefined) return '--';
+        if (useMetric) return `${weight.toFixed(1)} kg`;
+        return `${(weight * 2.20462).toFixed(1)} lbs`;
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
@@ -56,7 +78,12 @@ export default function You() {
                 </View>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                     <View style={styles.card}>
-                        <Text style={styles.cardTitle}>Current Weight</Text>
+                        <View style={styles.cardHeader}>
+                            <Text style={styles.cardTitle}>Current Weight</Text>
+                            <TouchableOpacity style={styles.unitToggle} onPress={toggleUnit}>
+                                <Text style={styles.unitToggleText}>{useMetric ? 'Metric' : 'Imperial'}</Text>
+                            </TouchableOpacity>
+                        </View>
                         <View style={styles.inputContainer}>
                             <TextInput
                                 style={styles.input}
@@ -66,7 +93,7 @@ export default function You() {
                                 placeholder="Enter your weight"
                                 placeholderTextColor="#666"
                             />
-                            <Text style={styles.unit}>kg</Text>
+                            <Text style={styles.unit}>{useMetric ? 'kg' : 'lbs'}</Text>
                         </View>
                         <TouchableOpacity style={styles.button} onPress={updateWeight}>
                             <Text style={styles.buttonText}>Update Weight</Text>
@@ -78,11 +105,11 @@ export default function You() {
                         <View style={styles.goalContainer}>
                             <View style={styles.goalItem}>
                                 <Text style={styles.goalLabel}>Current Weight</Text>
-                                <Text style={styles.goalValue}>{userData?.currentWeight || '--'} kg</Text>
+                                <Text style={styles.goalValue}>{formatWeight(userData?.currentWeight)}</Text>
                             </View>
                             <View style={styles.goalItem}>
                                 <Text style={styles.goalLabel}>Goal Weight</Text>
-                                <Text style={styles.goalValue}>{userData?.goalWeight || '--'} kg</Text>
+                                <Text style={styles.goalValue}>{formatWeight(userData?.goalWeight)}</Text>
                             </View>
                         </View>
                     </View>
@@ -136,11 +163,27 @@ const styles = StyleSheet.create({
         shadowRadius: 3.84,
         elevation: 5,
     },
+    cardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
     cardTitle: {
         fontSize: 18,
         fontWeight: '600',
         color: '#333',
-        marginBottom: 16,
+    },
+    unitToggle: {
+        backgroundColor: '#f0f0f0',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 16,
+    },
+    unitToggleText: {
+        fontSize: 14,
+        color: '#666',
+        fontWeight: '500',
     },
     inputContainer: {
         flexDirection: 'row',
@@ -163,7 +206,7 @@ const styles = StyleSheet.create({
         color: '#666',
     },
     button: {
-        backgroundColor: '#007AFF',
+        backgroundColor: '#FF5722',
         padding: 16,
         borderRadius: 8,
         alignItems: 'center',

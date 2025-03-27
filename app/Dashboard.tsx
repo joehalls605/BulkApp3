@@ -9,6 +9,7 @@ import Meals from './Meals';
 import You from './You';
 import { TabParamList, RootStackParamList } from './types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import Workouts from './Workouts';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -157,12 +158,12 @@ function HomeScreen() {
                             <View style={styles.actionButtons}>
                                 <TouchableOpacity 
                                     style={styles.actionButton}
-                                    onPress={() => navigation.navigate('You')}
+                                    onPress={() => navigation.navigate('Workouts')}
                                 >
-                                    <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
-                                        <Ionicons name="person" size={24} color="#FF9800" />
+                                    <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
+                                        <Ionicons name="barbell" size={24} color="#1976D2" />
                                     </View>
-                                    <Text style={styles.actionButtonText}>Your Profile</Text>
+                                    <Text style={styles.actionButtonText}>Workouts</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity 
                                     style={styles.actionButton}
@@ -175,21 +176,21 @@ function HomeScreen() {
                                 </TouchableOpacity>
                                 <TouchableOpacity 
                                     style={styles.actionButton}
-                                    onPress={() => navigation.navigate('WeightGuide')}
-                                >
-                                    <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
-                                        <Ionicons name="book" size={24} color="#1976D2" />
-                                    </View>
-                                    <Text style={styles.actionButtonText}>Weight Guide</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity 
-                                    style={styles.actionButton}
                                     onPress={() => navigation.navigate('Motivation')}
                                 >
                                     <View style={[styles.iconContainer, { backgroundColor: '#FCE4EC' }]}>
                                         <Ionicons name="heart" size={24} color="#E91E63" />
                                     </View>
                                     <Text style={styles.actionButtonText}>Motivation</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity 
+                                    style={styles.actionButton}
+                                    onPress={() => navigation.navigate('WeightGuide')}
+                                >
+                                    <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
+                                        <Ionicons name="book" size={24} color="#1976D2" />
+                                    </View>
+                                    <Text style={styles.actionButtonText}>Weight Guide</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -227,6 +228,8 @@ export default function Dashboard() {
                         iconName = focused ? 'home' : 'home-outline';
                     } else if (route.name === 'Meals') {
                         iconName = focused ? 'restaurant' : 'restaurant-outline';
+                    } else if (route.name === 'Workouts') {
+                        iconName = focused ? 'barbell' : 'barbell-outline';
                     } else if (route.name === 'You') {
                         iconName = focused ? 'person' : 'person-outline';
                     }
@@ -239,6 +242,7 @@ export default function Dashboard() {
         >
             <Tab.Screen name="Home" component={HomeScreen} />
             <Tab.Screen name="Meals" component={Meals} />
+            <Tab.Screen name="Workouts" component={Workouts} />
             <Tab.Screen name="You" component={You} />
         </Tab.Navigator>
     );
