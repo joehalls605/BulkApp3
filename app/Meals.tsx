@@ -263,7 +263,14 @@ export default function Meals() {
             const userDataString = await SecureStore.getItemAsync('userData');
             if (userDataString) {
                 const userData = JSON.parse(userDataString);
-                setUserData(userData);
+                // Reset daily calories and completed meals
+                const updatedData = {
+                    ...userData,
+                    dailyCalories: 0,
+                    completedMeals: {}
+                };
+                await SecureStore.setItemAsync('userData', JSON.stringify(updatedData));
+                setUserData(updatedData);
             }
             
             // Load weight configuration
@@ -273,6 +280,26 @@ export default function Meals() {
             console.error('Error loading user data:', error);
         }
     };
+
+    const getRandomMeals = (type: MealType, count: number = 6) => {
+        const filteredMeals = type === 'All' 
+            ? allMeals 
+            : allMeals.filter(meal => meal.time === type);
+        
+        const shuffled = [...filteredMeals].sort(() => Math.random() - 0.5);
+        return shuffled.slice(0, count);
+    };
+
+    // Update displayed meals when tab changes
+    useEffect(() => {
+        const meals = getRandomMeals(selectedMealType);
+        // Add completion status to displayed meals from userData
+        const mealsWithStatus = meals.map(meal => ({
+            ...meal,
+            isCompleted: userData.completedMeals?.[meal.id] || false
+        }));
+        setDisplayedMeals(mealsWithStatus);
+    }, [selectedMealType]); // Remove userData.completedMeals from dependencies
 
     const toggleMealCompletion = async (mealId: number) => {
         try {
@@ -298,7 +325,7 @@ export default function Meals() {
             await SecureStore.setItemAsync('userData', JSON.stringify(updatedData));
             setUserData(updatedData);
 
-            // Update displayed meals to reflect completion status
+            // Update only the specific meal's completion status in displayed meals
             setDisplayedMeals(prevMeals => 
                 prevMeals.map(meal => 
                     meal.id === mealId 
@@ -344,25 +371,6 @@ export default function Meals() {
         }
     };
 
-    const getRandomMeals = (type: MealType, count: number = 6) => {
-        const filteredMeals = type === 'All' 
-            ? allMeals 
-            : allMeals.filter(meal => meal.time === type);
-        
-        const shuffled = [...filteredMeals].sort(() => Math.random() - 0.5);
-        return shuffled.slice(0, count);
-    };
-
-    useEffect(() => {
-        const meals = getRandomMeals(selectedMealType);
-        // Add completion status to displayed meals
-        const mealsWithStatus = meals.map(meal => ({
-            ...meal,
-            isCompleted: userData.completedMeals?.[meal.id] || false
-        }));
-        setDisplayedMeals(mealsWithStatus);
-    }, [selectedMealType]);
-
     return (
         <SafeAreaView style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
@@ -373,7 +381,14 @@ export default function Meals() {
                     </View>
                     <TouchableOpacity 
                         style={styles.refreshButton}
-                        onPress={() => setDisplayedMeals(getRandomMeals(selectedMealType))}
+                        onPress={() => {
+                            const meals = getRandomMeals(selectedMealType);
+                            const mealsWithStatus = meals.map(meal => ({
+                                ...meal,
+                                isCompleted: userData.completedMeals?.[meal.id] || false
+                            }));
+                            setDisplayedMeals(mealsWithStatus);
+                        }}
                     >
                         <Ionicons name="refresh" size={24} color="#FF5722" />
                     </TouchableOpacity>
