@@ -30,9 +30,10 @@ function HomeScreen() {
     const [userData, setUserData] = useState({
         currentWeight: 70,
         goalWeight: 75,
-        age: 25,
         height: 170,
         useMetric: true,
+        useMetricHeight: true,
+        gender: 'Male',
         exerciseFrequency: 'Never',
         mealsPerDay: '3 times',
         foodPreference: 'A mix of all'
@@ -59,13 +60,22 @@ function HomeScreen() {
         // Convert weight to kg if in stone
         const weightInKg = userData.useMetric ? weight : weight * 6.35029318;
         
-        // Convert height to cm if in inches
-        const heightInCm = userData.useMetric ? userData.height : userData.height * 2.54;
+        // Convert height to cm if in ft
+        const heightInCm = userData.useMetricHeight ? userData.height : userData.height * 30.48;
 
-        // Mifflin-St Jeor Equation for BMR
-        // For men: (10 × weight in kg) + (6.25 × height in cm) - (5 × age in years) + 5
-        // For women: (10 × weight in kg) + (6.25 × height in cm) - (5 × age in years) - 161
-        const bmr = (10 * weightInKg) + (6.25 * heightInCm) - (5 * userData.age) + 5;
+        // Calculate BMR based on gender
+        let bmr;
+        if (userData.gender === 'Prefer not to say') {
+            // Calculate average of male and female BMR
+            const maleBMR = (10 * weightInKg) + (6.25 * heightInCm) - (5 * 30) + 5;
+            const femaleBMR = (10 * weightInKg) + (6.25 * heightInCm) - (5 * 30) - 161;
+            bmr = (maleBMR + femaleBMR) / 2;
+        } else {
+            // Use gender-specific calculation
+            bmr = userData.gender === 'Male' 
+                ? (10 * weightInKg) + (6.25 * heightInCm) - (5 * 30) + 5
+                : (10 * weightInKg) + (6.25 * heightInCm) - (5 * 30) - 161;
+        }
 
         // Activity multiplier based on exercise frequency
         let activityMultiplier = 1.2; // Default sedentary
@@ -180,32 +190,6 @@ function HomeScreen() {
                                     <Text style={styles.weightNote}>Tap to update</Text>
                                 </View>
                             </View>
-                            <View style={styles.progressEmojiContainer}>
-                                <Text style={styles.progressEmoji}>
-                                    {(() => {
-                                        const current = userData.currentWeight;
-                                        const goal = userData.goalWeight;
-                                        const progress = ((current - goal) / (goal - current)) * 100;
-                                        if (progress >= 100) return '🎉';
-                                        if (progress >= 75) return '💪';
-                                        if (progress >= 50) return '🔥';
-                                        if (progress >= 25) return '⭐';
-                                        return '🌱';
-                                    })()}
-                                </Text>
-                                <Text style={styles.progressText}>
-                                    {(() => {
-                                        const current = userData.currentWeight;
-                                        const goal = userData.goalWeight;
-                                        const progress = ((current - goal) / (goal - current)) * 100;
-                                        if (progress >= 100) return 'Goal Achieved!';
-                                        if (progress >= 75) return 'Almost There!';
-                                        if (progress >= 50) return 'Great Progress!';
-                                        if (progress >= 25) return 'Keep Going!';
-                                        return 'Just Starting!';
-                                    })()}
-                                </Text>
-                            </View>
                         </View>
 
                         <View style={styles.toolsSection}>
@@ -258,6 +242,33 @@ function HomeScreen() {
                             </View>
                             <Text style={styles.tipText}>{dailyTip}</Text>
                         </View>
+
+                        <View style={styles.progressEmojiContainer}>
+                                <Text style={styles.progressEmoji}>
+                                    {(() => {
+                                        const current = userData.currentWeight;
+                                        const goal = userData.goalWeight;
+                                        const progress = ((current - goal) / (goal - current)) * 100;
+                                        if (progress >= 100) return '🎉';
+                                        if (progress >= 75) return '💪';
+                                        if (progress >= 50) return '🔥';
+                                        if (progress >= 25) return '⭐';
+                                        return '🌱';
+                                    })()}
+                                </Text>
+                                <Text style={styles.progressText}>
+                                    {(() => {
+                                        const current = userData.currentWeight;
+                                        const goal = userData.goalWeight;
+                                        const progress = ((current - goal) / (goal - current)) * 100;
+                                        if (progress >= 100) return 'Goal Achieved!';
+                                        if (progress >= 75) return 'Almost There!';
+                                        if (progress >= 50) return 'Great Progress!';
+                                        if (progress >= 25) return 'Keep Going!';
+                                        return 'Just Starting!';
+                                    })()}
+                                </Text>
+                            </View>
                     </ScrollView>
                 </Animated.View>
             </LinearGradient>

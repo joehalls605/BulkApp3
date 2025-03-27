@@ -58,10 +58,11 @@ export default function Questionnaire() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [progress] = useState(new Animated.Value(0));
     const [useMetric, setUseMetric] = useState(true);
+    const [useMetricHeight, setUseMetricHeight] = useState(true);
     const [currentWeight, setCurrentWeight] = useState('');
     const [goalWeight, setGoalWeight] = useState('');
-    const [age, setAge] = useState('');
     const [height, setHeight] = useState('');
+    const [gender, setGender] = useState('');
 
     const handleAnswer = (answer) => {
         setAnswers(prev => ({
@@ -84,9 +85,10 @@ export default function Questionnaire() {
             ...answers,
             currentWeight: parseFloat(currentWeight),
             goalWeight: parseFloat(goalWeight),
-            age: parseInt(age),
             height: parseFloat(height),
             useMetric,
+            useMetricHeight,
+            gender,
             dailyTip: dailyTips[Math.floor(Math.random() * dailyTips.length)]
         };
 
@@ -183,39 +185,59 @@ export default function Questionnaire() {
                                     />
                                 </View>
 
-                                <View style={styles.rowContainer}>
-                                    <View style={[styles.inputContainer, styles.halfWidth]}>
-                                        <Text style={styles.inputLabel}>Age</Text>
-                                        <TextInput
-                                            style={styles.input}
-                                            value={age}
-                                            onChangeText={setAge}
-                                            keyboardType="numeric"
-                                            placeholder="Enter your age"
-                                            maxLength={2}
-                                            returnKeyType="done"
-                                            onSubmitEditing={Keyboard.dismiss}
-                                        />
+                                <View style={styles.inputContainer}>
+                                    <View style={styles.heightHeader}>
+                                        <Text style={styles.inputLabel}>Height</Text>
+                                        <View style={styles.heightUnitToggle}>
+                                            <Text style={[styles.unitText, { fontSize: 12 }]}>cm</Text>
+                                            <Switch
+                                                value={useMetricHeight}
+                                                onValueChange={setUseMetricHeight}
+                                                trackColor={{ false: '#767577', true: '#FF5722' }}
+                                                thumbColor={useMetricHeight ? '#fff' : '#f4f3f4'}
+                                            />
+                                            <Text style={[styles.unitText, { fontSize: 12 }]}>ft</Text>
+                                        </View>
                                     </View>
+                                    <TextInput
+                                        style={styles.input}
+                                        value={height}
+                                        onChangeText={setHeight}
+                                        keyboardType="numeric"
+                                        placeholder={useMetricHeight ? "Enter height in cm" : "Enter height in ft"}
+                                        returnKeyType="done"
+                                        onSubmitEditing={Keyboard.dismiss}
+                                    />
+                                </View>
 
-                                    <View style={[styles.inputContainer, styles.halfWidth]}>
-                                        <Text style={styles.inputLabel}>Height ({useMetric ? 'cm' : 'inches'})</Text>
-                                        <TextInput
-                                            style={styles.input}
-                                            value={height}
-                                            onChangeText={setHeight}
-                                            keyboardType="numeric"
-                                            placeholder="Enter your height"
-                                            returnKeyType="done"
-                                            onSubmitEditing={Keyboard.dismiss}
-                                        />
+                                <View style={styles.inputContainer}>
+                                    <Text style={styles.inputLabel}>Gender</Text>
+                                    <View style={styles.genderOptions}>
+                                        <TouchableOpacity 
+                                            style={[styles.genderOption, gender === 'Male' && styles.genderOptionSelected]}
+                                            onPress={() => setGender('Male')}
+                                        >
+                                            <Text style={[styles.genderText, gender === 'Male' && styles.genderTextSelected]}>Male</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity 
+                                            style={[styles.genderOption, gender === 'Female' && styles.genderOptionSelected]}
+                                            onPress={() => setGender('Female')}
+                                        >
+                                            <Text style={[styles.genderText, gender === 'Female' && styles.genderTextSelected]}>Female</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity 
+                                            style={[styles.genderOption, gender === 'Prefer not to say' && styles.genderOptionSelected]}
+                                            onPress={() => setGender('Prefer not to say')}
+                                        >
+                                            <Text style={[styles.genderText, gender === 'Prefer not to say' && styles.genderTextSelected]}>Prefer not to say</Text>
+                                        </TouchableOpacity>
                                     </View>
                                 </View>
 
                                 <TouchableOpacity
-                                    style={[styles.button, (!currentWeight || !goalWeight || !age || !height) && styles.buttonDisabled]}
+                                    style={[styles.button, (!currentWeight || !goalWeight || !height || !gender) && styles.buttonDisabled]}
                                     onPress={startProcessing}
-                                    disabled={!currentWeight || !goalWeight || !age || !height}
+                                    disabled={!currentWeight || !goalWeight || !height || !gender}
                                 >
                                     <Text style={styles.buttonText}>Complete Setup</Text>
                                     <Ionicons name="checkmark-circle" size={20} color="white" style={styles.buttonIcon} />
@@ -234,6 +256,17 @@ export default function Questionnaire() {
                 <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                     <View style={styles.content}>
                         <View style={styles.header}>
+                            <View style={styles.headerTop}>
+                                {currentQuestion > 0 && (
+                                    <TouchableOpacity 
+                                        style={styles.backButton}
+                                        onPress={() => setCurrentQuestion(prev => prev - 1)}
+                                    >
+                                        <Ionicons name="chevron-back" size={24} color="#666" />
+                                        <Text style={styles.backButtonText}>Back</Text>
+                                    </TouchableOpacity>
+                                )}
+                            </View>
                             <Text style={styles.questionNumber}>
                                 Question {currentQuestion + 1} of {questions.length}
                             </Text>
@@ -350,10 +383,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 30,
+        marginBottom: 20,
     },
     unitText: {
-        fontSize: 16,
+        fontSize: 14,
         color: '#666',
         marginHorizontal: 10,
     },
@@ -361,16 +394,36 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     inputLabel: {
-        fontSize: 16,
+        fontSize: 14,
         color: '#666',
         marginBottom: 8,
+        fontWeight: '500',
     },
     input: {
         backgroundColor: 'white',
         padding: 15,
         borderRadius: 12,
         fontSize: 16,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
         elevation: 2,
+    },
+    heightHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    heightUnitToggle: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     button: {
         backgroundColor: '#FF5722',
@@ -380,6 +433,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 20,
+        elevation: 2,
     },
     buttonDisabled: {
         backgroundColor: '#ccc',
@@ -392,13 +446,43 @@ const styles = StyleSheet.create({
     buttonIcon: {
         marginLeft: 10,
     },
-    rowContainer: {
+    headerTop: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    backButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 8,
+    },
+    backButtonText: {
+        fontSize: 16,
+        color: '#666',
+        marginLeft: 4,
+    },
+    genderOptions: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 20,
+        marginTop: 8,
     },
-    halfWidth: {
+    genderOption: {
         flex: 1,
-        marginHorizontal: 5,
+        padding: 12,
+        borderRadius: 8,
+        backgroundColor: '#F5F5F5',
+        marginHorizontal: 4,
+        alignItems: 'center',
+    },
+    genderOptionSelected: {
+        backgroundColor: '#FF5722',
+    },
+    genderText: {
+        fontSize: 14,
+        color: '#666',
+        fontWeight: '500',
+    },
+    genderTextSelected: {
+        color: 'white',
     },
 }); 
