@@ -123,21 +123,33 @@ function HomeScreen() {
                         <View style={styles.goalContainer}>
                             <Text style={styles.sectionTitle}>Your Overview 🎯</Text>
                             <View style={styles.goalOptions}>
-                                <TouchableOpacity style={[styles.goalOption, { backgroundColor: '#E3F2FD' }]} onPress={() => navigation.navigate('Meals')}>
-                                    <Ionicons name="flame-outline" size={24} color="#1976D2" />
+                                <View style={[styles.goalOption, { backgroundColor: '#E8F5FF' }]}>
+                                    <View style={[styles.goalIconContainer, { backgroundColor: '#2196F3' }]}>
+                                        <Ionicons name="flame" size={24} color="white" />
+                                    </View>
                                     <Text style={styles.goalValue}>{calories.weightGain} cal</Text>
                                     <Text style={styles.goalText}>Gain Weight</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={[styles.goalOption, { backgroundColor: '#E8F5E9' }]} onPress={() => navigation.navigate('Meals')}>
-                                    <Ionicons name="trending-up-outline" size={24} color="#2E7D32" />
+                                    <View style={styles.goalIndicator}>
+                                        <Ionicons name="trending-up" size={16} color="#2196F3" />
+                                        <Text style={styles.goalIndicatorText}>Active Goal</Text>
+                                    </View>
+                                </View>
+                                <View style={[styles.goalOption, { backgroundColor: '#F1F8E9' }]}>
+                                    <View style={[styles.goalIconContainer, { backgroundColor: '#4CAF50' }]}>
+                                        <Ionicons name="trending-up" size={24} color="white" />
+                                    </View>
                                     <Text style={styles.goalValue}>{calories.maintenance} cal</Text>
                                     <Text style={styles.goalText}>Maintain</Text>
-                                </TouchableOpacity>
+                                    <View style={styles.goalIndicator}>
+                                        <Ionicons name="trending-flat" size={16} color="#4CAF50" />
+                                        <Text style={styles.goalIndicatorText}>Alternative</Text>
+                                    </View>
+                                </View>
                             </View>
                         </View>
 
                         <View style={styles.toolsSection}>
-                            <Text style={styles.sectionTitle}>Weight Gain Tools</Text>
+                            <Text style={styles.sectionTitle}>Weight Gain Tools 🛠️</Text>
                             <Text style={styles.toolsNote}>Use these pages for your weight gain journey</Text>
                             <View style={styles.actionButtons}>
                                 <TouchableOpacity 
@@ -183,7 +195,7 @@ function HomeScreen() {
                             style={styles.shoppingButton}
                             onPress={() => navigation.navigate('Shopping')}
                         >
-                            <Text style={styles.shoppingButtonText}>Today's Shopping List</Text>
+                            <Text style={styles.shoppingButtonText}>Today's Shopping List 📝</Text>
                         </TouchableOpacity>
 
                         <View style={styles.dailyTipSection}>
@@ -243,7 +255,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        padding: 24,
+        padding: 20,
         paddingBottom: 40,
     },
     header: {
@@ -251,16 +263,26 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: 16,
+        paddingTop: Platform.OS === 'ios' ? 60 : 16,
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
         borderBottomWidth: 1,
-        borderBottomColor: '#E0E0E0',
+        borderBottomColor: 'rgba(0, 0, 0, 0.1)',
     },
     headerTitle: {
-        fontSize: 20,
-        fontWeight: '600',
+        fontSize: 22,
+        fontWeight: '700',
         color: '#333',
+        letterSpacing: -0.5,
     },
     profileButton: {
         padding: 8,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
     },
     headerSubtitle: {
         fontSize: 16,
@@ -268,15 +290,17 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 20,
-        fontWeight: '600',
+        fontWeight: '700',
         color: '#333',
-        marginBottom: 15,
+        marginBottom: 16,
+        letterSpacing: -0.5,
     },
     toolsNote: {
         fontSize: 14,
         color: '#666',
-        marginBottom: 15,
+        marginBottom: 20,
         fontStyle: 'italic',
+        lineHeight: 20,
     },
     goalContainer: {
         marginBottom: 30,
@@ -284,33 +308,63 @@ const styles = StyleSheet.create({
     goalOptions: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        gap: 12,
     },
     goalOption: {
         flex: 1,
         alignItems: 'center',
-        padding: 15,
-        borderRadius: 12,
-        marginHorizontal: 5,
+        padding: 20,
+        borderRadius: 16,
+        backgroundColor: 'white',
         borderWidth: 1,
-        borderColor: '#E0E0E0',
+        borderColor: 'rgba(0, 0, 0, 0.1)',
         shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    goalIconContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
     },
     goalValue: {
-        fontSize: 20,
-        fontWeight: '600',
-        marginTop: 8,
+        fontSize: 24,
+        fontWeight: '700',
+        marginTop: 4,
+        color: '#333',
     },
     goalText: {
         fontSize: 14,
         color: '#666',
-        marginTop: 4,
+        marginTop: 6,
+        fontWeight: '500',
+    },
+    goalIndicator: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 12,
+        marginTop: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+    },
+    goalIndicatorText: {
+        fontSize: 12,
+        color: '#666',
+        marginLeft: 4,
+        fontWeight: '500',
     },
     progressSection: {
         marginBottom: 30,
@@ -375,59 +429,53 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
+        gap: 12,
     },
     actionButton: {
-        width: '48%',
+        width: '47%',
         backgroundColor: 'white',
-        padding: 15,
-        borderRadius: 12,
-        marginBottom: 15,
+        padding: 16,
+        borderRadius: 16,
+        marginBottom: 12,
         alignItems: 'center',
-        elevation: 2,
         borderWidth: 1,
-        borderColor: '#E0E0E0',
+        borderColor: 'rgba(0, 0, 0, 0.1)',
         shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
-        shadowRadius: 2,
+        shadowRadius: 4,
+        elevation: 3,
     },
     iconContainer: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        backgroundColor: '#FFF5E0',
+        width: 52,
+        height: 52,
+        borderRadius: 26,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: 12,
     },
     actionButtonText: {
-        marginTop: 8,
-        fontSize: 16,
+        fontSize: 15,
         color: '#333',
-        fontWeight: '500',
+        fontWeight: '600',
+        textAlign: 'center',
     },
     dailyTipSection: {
         backgroundColor: 'white',
         padding: 20,
-        borderRadius: 12,
-        elevation: 2,
+        borderRadius: 16,
         borderWidth: 1,
-        borderColor: '#E0E0E0',
+        borderColor: 'rgba(0, 0, 0, 0.1)',
         shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
-        shadowRadius: 2,
+        shadowRadius: 4,
+        elevation: 3,
     },
     tipHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: 12,
     },
     tipTitle: {
         fontSize: 18,
@@ -436,7 +484,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     tipText: {
-        fontSize: 16,
+        fontSize: 15,
         color: '#666',
         lineHeight: 24,
     },
@@ -465,23 +513,21 @@ const styles = StyleSheet.create({
     },
     shoppingButton: {
         backgroundColor: '#FF5722',
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderRadius: 12,
-        marginBottom: 20,
+        paddingHorizontal: 24,
+        paddingVertical: 16,
+        borderRadius: 16,
+        marginBottom: 24,
         alignItems: 'center',
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
+        shadowColor: '#FF5722',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 5,
     },
     shoppingButtonText: {
         color: 'white',
         fontSize: 16,
         fontWeight: '600',
+        letterSpacing: 0.5,
     },
 });

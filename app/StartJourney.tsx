@@ -135,7 +135,7 @@ export default function StartJourney() {
                     <View style={styles.header}>
                         <Ionicons name="rocket" size={40} color="#4CAF50" />
                         <Text style={styles.title}>You're almost ready!</Text>
-                        <Text style={styles.subtitle}>This is all waiting for you.</Text>
+                        <Text style={styles.subtitle}>These BulkUp tools are waiting for you.</Text>
                     </View>
 
                     <View style={styles.featuresContainer}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -91,6 +91,21 @@ export default function Shopping() {
         }
     };
 
+    const getCategoryColor = (category: string) => {
+        switch (category) {
+            case 'Breakfast':
+                return '#FFF3E0'; // Warm orange tint
+            case 'Lunch':
+                return '#E8F5E9'; // Light green tint
+            case 'Dinner':
+                return '#E3F2FD'; // Light blue tint
+            case 'Snacks':
+                return '#FCE4EC'; // Light pink tint
+            default:
+                return '#FFFFFF';
+        }
+    };
+
     return (
         <View style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
@@ -119,7 +134,7 @@ export default function Shopping() {
                     {Object.entries(shoppingList).map(([category, items]) => {
                         const icon = getCategoryIcon(category);
                         return (
-                            <View key={category} style={styles.categorySection}>
+                            <View key={category} style={[styles.categorySection, { backgroundColor: getCategoryColor(category) }]}>
                                 <View style={styles.categoryHeader}>
                                     <Ionicons name={icon.name} size={24} color={icon.color} />
                                     <Text style={styles.categoryTitle}>{category}</Text>
@@ -163,13 +178,16 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: 16,
+        paddingTop: Platform.OS === 'ios' ? 60 : 16,
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
         borderBottomWidth: 1,
-        borderBottomColor: '#E0E0E0',
+        borderBottomColor: 'rgba(0, 0, 0, 0.1)',
     },
     headerTitle: {
-        fontSize: 20,
-        fontWeight: '600',
+        fontSize: 22,
+        fontWeight: '700',
         color: '#333',
+        letterSpacing: -0.5,
     },
     headerSubtitle: {
         fontSize: 14,
@@ -177,36 +195,67 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
     refreshButton: {
-        padding: 8,
+        padding: 12,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
     },
     scrollView: {
         flex: 1,
     },
     scrollContent: {
-        padding: 16,
+        padding: 20,
+        paddingBottom: 40,
     },
     categorySection: {
-        marginBottom: 24,
+        marginBottom: 30,
+        padding: 16,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
     },
     categoryHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: 16,
+        backgroundColor: 'white',
+        padding: 12,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
     },
     categoryTitle: {
         fontSize: 18,
         fontWeight: '600',
         color: '#333',
-        marginLeft: 8,
+        marginLeft: 12,
     },
     itemCard: {
         backgroundColor: 'white',
         padding: 16,
-        borderRadius: 12,
+        borderRadius: 16,
         marginBottom: 12,
-        elevation: 2,
         borderWidth: 1,
-        borderColor: '#E0E0E0',
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
     },
     itemHeader: {
         flexDirection: 'row',
@@ -214,7 +263,7 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     itemEmoji: {
-        fontSize: 24,
+        fontSize: 28,
         marginRight: 12,
     },
     itemName: {
@@ -225,22 +274,25 @@ const styles = StyleSheet.create({
     nutritionContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        backgroundColor: '#F5F5F5',
-        padding: 12,
-        borderRadius: 8,
+        backgroundColor: '#F8F9FA',
+        padding: 16,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.05)',
     },
     nutritionItem: {
         alignItems: 'center',
     },
     nutritionValue: {
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 18,
+        fontWeight: '700',
         color: '#333',
     },
     nutritionLabel: {
         fontSize: 12,
         color: '#666',
-        marginTop: 2,
+        marginTop: 4,
+        fontWeight: '500',
     },
     headerLeft: {
         flexDirection: 'row',
@@ -248,6 +300,13 @@ const styles = StyleSheet.create({
     },
     backButton: {
         padding: 8,
-        marginRight: 8,
+        marginRight: 12,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
     },
 }); 
