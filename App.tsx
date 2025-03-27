@@ -6,6 +6,7 @@ import Dashboard from './app/Dashboard';
 import TermsAndConditions from './app/TermsAndConditions';
 import TermsOfUse from './app/TermsOfUse';
 import SubscriptionManagement from './app/SubscriptionManagement';
+import Shopping from './app/Shopping';
 import { RootStackParamList } from './app/types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -25,6 +26,7 @@ export default function App() {
                 <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
                 <Stack.Screen name="TermsOfUse" component={TermsOfUse} />
                 <Stack.Screen name="SubscriptionManagement" component={SubscriptionManagement} />
+                <Stack.Screen name="Shopping" component={Shopping} />
             </Stack.Navigator>
         </NavigationContainer>
     );

@@ -238,6 +238,13 @@ function HomeScreen() {
                             </View>
                         </View>
 
+                        <TouchableOpacity 
+                            style={styles.shoppingButton}
+                            onPress={() => navigation.navigate('Shopping')}
+                        >
+                            <Text style={styles.shoppingButtonText}>Today's Shopping List</Text>
+                        </TouchableOpacity>
+
                         <View style={styles.dailyTipSection}>
                             <View style={styles.tipHeader}>
                                 <Ionicons name="bulb" size={24} color="#FF9800" />
@@ -245,33 +252,6 @@ function HomeScreen() {
                             </View>
                             <Text style={styles.tipText}>{dailyTip}</Text>
                         </View>
-
-                        <View style={styles.progressEmojiContainer}>
-                                <Text style={styles.progressEmoji}>
-                                    {(() => {
-                                        const current = userData.currentWeight;
-                                        const goal = userData.goalWeight;
-                                        const progress = ((current - goal) / (goal - current)) * 100;
-                                        if (progress >= 100) return '🎉';
-                                        if (progress >= 75) return '💪';
-                                        if (progress >= 50) return '🔥';
-                                        if (progress >= 25) return '⭐';
-                                        return '🌱';
-                                    })()}
-                                </Text>
-                                <Text style={styles.progressText}>
-                                    {(() => {
-                                        const current = userData.currentWeight;
-                                        const goal = userData.goalWeight;
-                                        const progress = ((current - goal) / (goal - current)) * 100;
-                                        if (progress >= 100) return 'Goal Achieved!';
-                                        if (progress >= 75) return 'Almost There!';
-                                        if (progress >= 50) return 'Great Progress!';
-                                        if (progress >= 25) return 'Keep Going!';
-                                        return 'Just Starting!';
-                                    })()}
-                                </Text>
-                            </View>
                     </ScrollView>
                 </Animated.View>
             </LinearGradient>
@@ -542,9 +522,25 @@ const styles = StyleSheet.create({
         fontSize: 24,
         marginRight: 10,
     },
-    progressText: {
+    shoppingButton: {
+        backgroundColor: '#FF5722',
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 12,
+        marginBottom: 20,
+        alignItems: 'center',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+    },
+    shoppingButtonText: {
+        color: 'white',
         fontSize: 16,
-        color: '#666',
-        fontWeight: '500',
+        fontWeight: '600',
     },
 });
