@@ -18,6 +18,8 @@ interface UserData {
     goalWeight?: number;
     useMetric?: boolean;
     dailyTip?: string;
+    gender?: string;
+    exerciseFrequency?: string;
 }
 
 const allMeals: Meal[] = [
@@ -223,17 +225,67 @@ type MealType = 'All' | 'Breakfast' | 'Lunch' | 'Dinner' | 'Snack';
 
 export default function Meals() {
     const route = useRoute();
-    const userData = (route.params as { userData?: UserData })?.userData || {};
+    const userData = (route.params as { userData?: UserData })?.userData || {
+        currentWeight: 70,
+        useMetric: true,
+        gender: 'Male',
+        exerciseFrequency: 'Never'
+    };
     const [selectedMealType, setSelectedMealType] = useState<MealType>('All');
     const [displayedMeals, setDisplayedMeals] = useState<Meal[]>([]);
 
     // Calculate calories based on weight (same as Dashboard)
-    const calculateCalories = (weight: number): number => {
-        const bmr = (10 * weight) + 625;
-        return Math.round(bmr * 1.4); // Moderate activity level with surplus
+    const calculateCalories = (weight: number) => {
+        // Ensure weight is a valid number
+        const validWeight = typeof weight === 'number' && !isNaN(weight) ? weight : 70;
+
+        // Convert weight to kg if in stone
+        const weightInKg = userData.useMetric ? validWeight : validWeight * 6.35029318;
+
+        // Base BMR calculation (simplified without height)
+        // For males: BMR = (10 × weight in kg) + 625
+        // For females: BMR = (10 × weight in kg) + 625 - 161
+        let bmr;
+        if (userData.gender === 'Prefer not to say') {
+            // Calculate average of male and female BMR
+            const maleBMR = (10 * weightInKg) + 625;
+            const femaleBMR = (10 * weightInKg) + 625 - 161;
+            bmr = (maleBMR + femaleBMR) / 2;
+        } else {
+            bmr = userData.gender === 'Male' 
+                ? (10 * weightInKg) + 625
+                : (10 * weightInKg) + 625 - 161;
+        }
+
+        // Activity multiplier based on exercise frequency
+        let activityMultiplier = 1.2; // Default sedentary
+        switch (userData.exerciseFrequency) {
+            case 'Never':
+                activityMultiplier = 1.2;
+                break;
+            case 'A few times a week':
+                activityMultiplier = 1.375;
+                break;
+            case 'Once a day':
+                activityMultiplier = 1.55;
+                break;
+            case 'More than once a day':
+                activityMultiplier = 1.725;
+                break;
+            default:
+                activityMultiplier = 1.2;
+        }
+
+        // Calculate TDEE (Total Daily Energy Expenditure)
+        const tdee = bmr * activityMultiplier;
+
+        // Add a small buffer to maintenance calories to ensure proper energy levels
+        const maintenanceBuffer = 200; // 200 calorie buffer for maintenance
+
+        return Math.round(tdee + maintenanceBuffer);
     };
 
-    const dailyTarget = calculateCalories(userData.currentWeight || 70);
+    const dailyTarget = calculateCalories(userData.currentWeight ?? 70);
 
     const mealTypes: MealType[] = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Snack'];
 
@@ -377,6 +429,15 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         alignItems: 'center',
         elevation: 2,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
     },
     targetLabel: {
         fontSize: 14,

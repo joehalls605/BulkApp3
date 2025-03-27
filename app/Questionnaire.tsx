@@ -1,9 +1,26 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated, TextInput, Switch, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated, TextInput, Switch, TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native';
+import Slider from '@react-native-community/slider';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+type RootStackParamList = {
+    Dashboard: {
+        userData: {
+            currentWeight: number;
+            goalWeight: number;
+            useMetric: boolean;
+            gender: string;
+            timeframe: number;
+            dailyTip: string;
+        };
+    };
+};
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const questions = [
     {
@@ -52,19 +69,18 @@ const dailyTips = [
 ];
 
 export default function Questionnaire() {
-    const navigation = useNavigation();
+    const navigation = useNavigation<NavigationProp>();
     const [currentQuestion, setCurrentQuestion] = useState(0);
-    const [answers, setAnswers] = useState({});
+    const [answers, setAnswers] = useState<Record<number, string>>({});
     const [isProcessing, setIsProcessing] = useState(false);
     const [progress] = useState(new Animated.Value(0));
     const [useMetric, setUseMetric] = useState(true);
-    const [useMetricHeight, setUseMetricHeight] = useState(true);
     const [currentWeight, setCurrentWeight] = useState('');
     const [goalWeight, setGoalWeight] = useState('');
-    const [height, setHeight] = useState('');
     const [gender, setGender] = useState('');
+    const [timeframe, setTimeframe] = useState(12);
 
-    const handleAnswer = (answer) => {
+    const handleAnswer = (answer: string) => {
         setAnswers(prev => ({
             ...prev,
             [questions[currentQuestion].id]: answer
@@ -85,10 +101,9 @@ export default function Questionnaire() {
             ...answers,
             currentWeight: parseFloat(currentWeight),
             goalWeight: parseFloat(goalWeight),
-            height: parseFloat(height),
             useMetric,
-            useMetricHeight,
             gender,
+            timeframe,
             dailyTip: dailyTips[Math.floor(Math.random() * dailyTips.length)]
         };
 
@@ -141,109 +156,106 @@ export default function Questionnaire() {
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <SafeAreaView style={styles.container}>
                     <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
-                        <View style={styles.content}>
-                            <View style={styles.header}>
-                                <Text style={styles.questionNumber}>Final Step</Text>
-                                <Text style={styles.question}>Let's set your weight goals</Text>
-                            </View>
-
-                            <View style={styles.weightContainer}>
-                                <View style={styles.unitToggle}>
-                                    <Text style={styles.unitText}>Use kg</Text>
-                                    <Switch
-                                        value={useMetric}
-                                        onValueChange={setUseMetric}
-                                        trackColor={{ false: '#767577', true: '#FF5722' }}
-                                        thumbColor={useMetric ? '#fff' : '#f4f3f4'}
-                                    />
-                                    <Text style={styles.unitText}>Use stone</Text>
+                        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+                            <View style={styles.content}>
+                                <View style={styles.header}>
+                                    <Text style={styles.questionNumber}>Final Step</Text>
+                                    <Text style={styles.question}>Let's set your weight goals</Text>
                                 </View>
 
-                                <View style={styles.inputContainer}>
-                                    <Text style={styles.inputLabel}>Current Weight ({useMetric ? 'kg' : 'stone'})</Text>
-                                    <TextInput
-                                        style={styles.input}
-                                        value={currentWeight}
-                                        onChangeText={setCurrentWeight}
-                                        keyboardType="numeric"
-                                        placeholder="Enter your current weight"
-                                        returnKeyType="done"
-                                        onSubmitEditing={Keyboard.dismiss}
-                                    />
-                                </View>
+                                <View style={styles.weightContainer}>
+                                    <View style={styles.unitToggle}>
+                                        <Text style={styles.unitText}>Metric</Text>
+                                        <Switch
+                                            value={useMetric}
+                                            onValueChange={setUseMetric}
+                                            trackColor={{ false: '#767577', true: '#FF5722' }}
+                                            thumbColor={useMetric ? '#fff' : '#f4f3f4'}
+                                        />
+                                        <Text style={styles.unitText}>Imperial</Text>
+                                    </View>
 
-                                <View style={styles.inputContainer}>
-                                    <Text style={styles.inputLabel}>Goal Weight ({useMetric ? 'kg' : 'stone'})</Text>
-                                    <TextInput
-                                        style={styles.input}
-                                        value={goalWeight}
-                                        onChangeText={setGoalWeight}
-                                        keyboardType="numeric"
-                                        placeholder="Enter your goal weight"
-                                        returnKeyType="done"
-                                        onSubmitEditing={Keyboard.dismiss}
-                                    />
-                                </View>
+                                    <View style={styles.inputContainer}>
+                                        <Text style={styles.inputLabel}>Current Weight ({useMetric ? 'kg' : 'stone'})</Text>
+                                        <TextInput
+                                            style={styles.input}
+                                            value={currentWeight}
+                                            onChangeText={setCurrentWeight}
+                                            keyboardType="numeric"
+                                            placeholder="Enter your current weight"
+                                            returnKeyType="done"
+                                            onSubmitEditing={Keyboard.dismiss}
+                                        />
+                                    </View>
 
-                                <View style={styles.inputContainer}>
-                                    <View style={styles.heightHeader}>
-                                        <Text style={styles.inputLabel}>Height</Text>
-                                        <View style={styles.heightUnitToggle}>
-                                            <Text style={[styles.unitText, { fontSize: 12 }]}>cm</Text>
-                                            <Switch
-                                                value={useMetricHeight}
-                                                onValueChange={setUseMetricHeight}
-                                                trackColor={{ false: '#767577', true: '#FF5722' }}
-                                                thumbColor={useMetricHeight ? '#fff' : '#f4f3f4'}
-                                            />
-                                            <Text style={[styles.unitText, { fontSize: 12 }]}>ft</Text>
+                                    <View style={styles.inputContainer}>
+                                        <Text style={styles.inputLabel}>Goal Weight ({useMetric ? 'kg' : 'stone'})</Text>
+                                        <TextInput
+                                            style={styles.input}
+                                            value={goalWeight}
+                                            onChangeText={setGoalWeight}
+                                            keyboardType="numeric"
+                                            placeholder="Enter your goal weight"
+                                            returnKeyType="done"
+                                            onSubmitEditing={Keyboard.dismiss}
+                                        />
+                                    </View>
+
+                                    <View style={styles.inputContainer}>
+                                        <Text style={styles.inputLabel}>Gender</Text>
+                                        <View style={styles.genderOptions}>
+                                            <TouchableOpacity 
+                                                style={[styles.genderOption, gender === 'Male' && styles.genderOptionSelected]}
+                                                onPress={() => setGender('Male')}
+                                            >
+                                                <Text style={[styles.genderText, gender === 'Male' && styles.genderTextSelected]}>Male</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity 
+                                                style={[styles.genderOption, gender === 'Female' && styles.genderOptionSelected]}
+                                                onPress={() => setGender('Female')}
+                                            >
+                                                <Text style={[styles.genderText, gender === 'Female' && styles.genderTextSelected]}>Female</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity 
+                                                style={[styles.genderOption, gender === 'Prefer not to say' && styles.genderOptionSelected]}
+                                                onPress={() => setGender('Prefer not to say')}
+                                            >
+                                                <Text style={[styles.genderText, gender === 'Prefer not to say' && styles.genderTextSelected]}>Prefer not to say</Text>
+                                            </TouchableOpacity>
                                         </View>
                                     </View>
-                                    <TextInput
-                                        style={styles.input}
-                                        value={height}
-                                        onChangeText={setHeight}
-                                        keyboardType="numeric"
-                                        placeholder={useMetricHeight ? "Enter height in cm" : "Enter height in ft"}
-                                        returnKeyType="done"
-                                        onSubmitEditing={Keyboard.dismiss}
-                                    />
-                                </View>
 
-                                <View style={styles.inputContainer}>
-                                    <Text style={styles.inputLabel}>Gender</Text>
-                                    <View style={styles.genderOptions}>
-                                        <TouchableOpacity 
-                                            style={[styles.genderOption, gender === 'Male' && styles.genderOptionSelected]}
-                                            onPress={() => setGender('Male')}
-                                        >
-                                            <Text style={[styles.genderText, gender === 'Male' && styles.genderTextSelected]}>Male</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity 
-                                            style={[styles.genderOption, gender === 'Female' && styles.genderOptionSelected]}
-                                            onPress={() => setGender('Female')}
-                                        >
-                                            <Text style={[styles.genderText, gender === 'Female' && styles.genderTextSelected]}>Female</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity 
-                                            style={[styles.genderOption, gender === 'Prefer not to say' && styles.genderOptionSelected]}
-                                            onPress={() => setGender('Prefer not to say')}
-                                        >
-                                            <Text style={[styles.genderText, gender === 'Prefer not to say' && styles.genderTextSelected]}>Prefer not to say</Text>
-                                        </TouchableOpacity>
+                                    <View style={styles.inputContainer}>
+                                        <Text style={styles.inputLabel}>Timeframe to Reach Goal</Text>
+                                        <View style={styles.timeframeContainer}>
+                                            <Slider
+                                                style={styles.slider}
+                                                minimumValue={6}
+                                                maximumValue={60}
+                                                step={1}
+                                                value={timeframe}
+                                                onValueChange={setTimeframe}
+                                                minimumTrackTintColor="#FF5722"
+                                                maximumTrackTintColor="#E0E0E0"
+                                                thumbTintColor="#FF5722"
+                                            />
+                                            <Text style={styles.timeframeText}>
+                                                {timeframe} {timeframe === 1 ? 'month' : 'months'}
+                                            </Text>
+                                        </View>
                                     </View>
-                                </View>
 
-                                <TouchableOpacity
-                                    style={[styles.button, (!currentWeight || !goalWeight || !height || !gender) && styles.buttonDisabled]}
-                                    onPress={startProcessing}
-                                    disabled={!currentWeight || !goalWeight || !height || !gender}
-                                >
-                                    <Text style={styles.buttonText}>Complete Setup</Text>
-                                    <Ionicons name="checkmark-circle" size={20} color="white" style={styles.buttonIcon} />
-                                </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={[styles.button, (!currentWeight || !goalWeight || !gender) && styles.buttonDisabled]}
+                                        onPress={startProcessing}
+                                        disabled={!currentWeight || !goalWeight || !gender}
+                                    >
+                                        <Text style={styles.buttonText}>Complete Setup</Text>
+                                        <Ionicons name="checkmark-circle" size={20} color="white" style={styles.buttonIcon} />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                        </View>
+                        </ScrollView>
                     </LinearGradient>
                 </SafeAreaView>
             </TouchableWithoutFeedback>
@@ -384,11 +396,25 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 20,
+        backgroundColor: 'white',
+        padding: 10,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
     },
     unitText: {
-        fontSize: 14,
+        fontSize: 16,
         color: '#666',
         marginHorizontal: 10,
+        fontWeight: '500',
     },
     inputContainer: {
         marginBottom: 20,
@@ -414,16 +440,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 2,
         elevation: 2,
-    },
-    heightHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    heightUnitToggle: {
-        flexDirection: 'row',
-        alignItems: 'center',
     },
     button: {
         backgroundColor: '#FF5722',
@@ -465,24 +481,67 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginTop: 8,
+        gap: 8,
     },
     genderOption: {
         flex: 1,
-        padding: 12,
-        borderRadius: 8,
+        padding: 15,
+        borderRadius: 12,
         backgroundColor: '#F5F5F5',
-        marginHorizontal: 4,
         alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
     },
     genderOptionSelected: {
         backgroundColor: '#FF5722',
+        borderColor: '#FF5722',
     },
     genderText: {
-        fontSize: 14,
+        fontSize: 16,
         color: '#666',
         fontWeight: '500',
     },
     genderTextSelected: {
         color: 'white',
+    },
+    timeframeContainer: {
+        backgroundColor: 'white',
+        padding: 15,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    slider: {
+        width: '100%',
+        height: 40,
+    },
+    timeframeText: {
+        fontSize: 16,
+        color: '#333',
+        textAlign: 'center',
+        marginTop: 8,
+        fontWeight: '500',
+    },
+    scrollView: {
+        flex: 1,
+    },
+    scrollContent: {
+        flexGrow: 1,
     },
 }); 

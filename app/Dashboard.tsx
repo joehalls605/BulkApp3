@@ -30,10 +30,9 @@ function HomeScreen() {
     const [userData, setUserData] = useState({
         currentWeight: 70,
         goalWeight: 75,
-        height: 170,
         useMetric: true,
-        useMetricHeight: true,
         gender: 'Male',
+        timeframe: 12,
         exerciseFrequency: 'Never',
         mealsPerDay: '3 times',
         foodPreference: 'A mix of all'
@@ -55,26 +54,24 @@ function HomeScreen() {
         }
     };
 
-    // Calculate calories based on Mifflin-St Jeor Equation
+    // Calculate calories based on weight and activity level
     const calculateCalories = (weight: number) => {
         // Convert weight to kg if in stone
         const weightInKg = userData.useMetric ? weight : weight * 6.35029318;
-        
-        // Convert height to cm if in ft
-        const heightInCm = userData.useMetricHeight ? userData.height : userData.height * 30.48;
 
-        // Calculate BMR based on gender
+        // Base BMR calculation (simplified without height)
+        // For males: BMR = (10 × weight in kg) + 625
+        // For females: BMR = (10 × weight in kg) + 625 - 161
         let bmr;
         if (userData.gender === 'Prefer not to say') {
             // Calculate average of male and female BMR
-            const maleBMR = (10 * weightInKg) + (6.25 * heightInCm) - (5 * 30) + 5;
-            const femaleBMR = (10 * weightInKg) + (6.25 * heightInCm) - (5 * 30) - 161;
+            const maleBMR = (10 * weightInKg) + 625;
+            const femaleBMR = (10 * weightInKg) + 625 - 161;
             bmr = (maleBMR + femaleBMR) / 2;
         } else {
-            // Use gender-specific calculation
             bmr = userData.gender === 'Male' 
-                ? (10 * weightInKg) + (6.25 * heightInCm) - (5 * 30) + 5
-                : (10 * weightInKg) + (6.25 * heightInCm) - (5 * 30) - 161;
+                ? (10 * weightInKg) + 625
+                : (10 * weightInKg) + 625 - 161;
         }
 
         // Activity multiplier based on exercise frequency
@@ -97,23 +94,25 @@ function HomeScreen() {
         // Calculate TDEE (Total Daily Energy Expenditure)
         const tdee = bmr * activityMultiplier;
 
-        // Calculate weight difference to determine calorie adjustment
+        // Calculate weight difference and monthly target
         const weightDiff = userData.goalWeight - userData.currentWeight;
-        const isGaining = weightDiff > 0;
+        const monthlyWeightChange = weightDiff / userData.timeframe;
 
-        // Calculate calorie adjustments based on weight difference
-        let calorieAdjustment = 0;
-        if (isGaining) {
-            // For weight gain, add 300-500 calories
-            calorieAdjustment = Math.min(Math.max(300, weightDiff * 50), 500);
-        } else {
-            // For maintenance, add 150-300 calories
-            calorieAdjustment = Math.min(Math.max(150, Math.abs(weightDiff) * 25), 300);
-        }
+        // Calculate calorie adjustment based on monthly weight change
+        // 1 kg of body weight is approximately 7700 calories
+        // For healthy weight gain, aim for 0.5-1 kg per month
+        const dailyCalorieAdjustment = (monthlyWeightChange * 7700) / 30;
+
+        // Ensure minimum calorie surplus for weight gain
+        const minCalorieSurplus = 750; // Increased minimum surplus to 750 calories
+        const adjustedCalorieSurplus = Math.max(dailyCalorieAdjustment, minCalorieSurplus);
+
+        // Add a small buffer to maintenance calories to ensure proper energy levels
+        const maintenanceBuffer = 200; // 200 calorie buffer for maintenance
 
         return {
-            maintain: Math.round(tdee + calorieAdjustment),
-            gain: Math.round(tdee + calorieAdjustment + 200) // Add extra 200 calories for weight gain
+            maintain: Math.round(tdee + maintenanceBuffer),
+            gain: Math.round(tdee + adjustedCalorieSurplus)
         };
     };
 
@@ -137,13 +136,9 @@ function HomeScreen() {
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                 <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
                     <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                        <View style={styles.header}>
-                            <Text style={styles.headerTitle}>Your Dashboard</Text>
-                            <Text style={styles.headerSubtitle}>Track your progress and stay motivated</Text>
-                        </View>
-
+                   
                         <View style={styles.goalContainer}>
-                            <Text style={styles.sectionTitle}>Your Goal</Text>
+                            <Text style={styles.sectionTitle}>Your Overview 🎯</Text>
                             <View style={styles.goalOptions}>
                                 <TouchableOpacity style={[styles.goalOption, { backgroundColor: '#E3F2FD' }]} onPress={() => navigation.navigate('Meals')}>
                                     <Ionicons name="flame-outline" size={24} color="#1976D2" />
@@ -159,7 +154,6 @@ function HomeScreen() {
                         </View>
 
                         <View style={styles.progressSection}>
-                            <Text style={styles.sectionTitle}>Your Progress</Text>
                             <View style={styles.progressCard}>
                                 <View style={styles.progressItem}>
                                     <Text style={styles.progressLabel}>Current Weight</Text>
@@ -193,7 +187,7 @@ function HomeScreen() {
                         </View>
 
                         <View style={styles.toolsSection}>
-                            <Text style={styles.sectionTitle}>Your Weight Gain Tools</Text>
+                            <Text style={styles.sectionTitle}>Weight Gain Tools</Text>
                             <Text style={styles.toolsNote}>Use these pages for your weight gain journey</Text>
                             <View style={styles.actionButtons}>
                                 <TouchableOpacity 
