@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
+import { WeightConfig, loadWeightConfig } from './config/weightConfig';
 
 interface Meal {
     id: number;
@@ -12,6 +13,7 @@ interface Meal {
     ingredients: string[];
     emojis: string[];
     time: string;
+    isCompleted?: boolean;
 }
 
 interface UserData {
@@ -21,6 +23,8 @@ interface UserData {
     exerciseFrequency: string;
     mealsPerDay: string;
     foodPreference: string;
+    completedMeals?: { [key: string]: boolean };
+    dailyCalories?: number;
 }
 
 const allMeals: Meal[] = [
@@ -227,40 +231,77 @@ type MealType = 'All' | 'Breakfast' | 'Lunch' | 'Dinner' | 'Snack';
 export default function Meals() {
     const navigation = useNavigation();
     const route = useRoute();
+    const [fadeAnim] = useState(new Animated.Value(1));
     const [userData, setUserData] = useState<UserData>({
         currentWeight: 70,
         goalWeight: 70,
         useMetric: true,
         exerciseFrequency: 'Never',
         mealsPerDay: '3 times',
-        foodPreference: 'A mix of all'
+        foodPreference: 'A mix of all',
+        completedMeals: {},
+        dailyCalories: 0
     });
-    const [calories, setCalories] = useState({
-        maintenance: 0,
-        weightGain: 0
-    });
+    const [weightConfig, setWeightConfig] = useState<WeightConfig | null>(null);
     const [selectedMealType, setSelectedMealType] = useState<MealType>('All');
     const [displayedMeals, setDisplayedMeals] = useState<Meal[]>([]);
 
     useEffect(() => {
-        const loadUserData = async () => {
-            try {
-                const userDataString = await SecureStore.getItemAsync('userData');
-                if (userDataString) {
-                    const userData = JSON.parse(userDataString);
-                    setUserData(userData);
-                    
-                    // Calculate calories based on weight
-                    const calories = calculateCalories(userData.currentWeight, userData.goalWeight, userData.useMetric);
-                    setCalories(calories);
-                }
-            } catch (error) {
-                console.error('Error loading user data:', error);
-            }
-        };
-
         loadUserData();
     }, []);
+
+    const loadUserData = async () => {
+        try {
+            const userDataString = await SecureStore.getItemAsync('userData');
+            if (userDataString) {
+                const userData = JSON.parse(userDataString);
+                setUserData(userData);
+            }
+            
+            // Load weight configuration
+            const config = await loadWeightConfig();
+            setWeightConfig(config);
+        } catch (error) {
+            console.error('Error loading user data:', error);
+        }
+    };
+
+    const toggleMealCompletion = async (mealId: number) => {
+        try {
+            const updatedCompletedMeals = {
+                ...userData.completedMeals,
+                [mealId]: !userData.completedMeals?.[mealId]
+            };
+
+            // Calculate total calories from completed meals
+            const totalCalories = Object.entries(updatedCompletedMeals)
+                .filter(([_, isCompleted]) => isCompleted)
+                .reduce((sum, [mealId]) => {
+                    const meal = allMeals.find(m => m.id === parseInt(mealId));
+                    return sum + (meal?.calories || 0);
+                }, 0);
+
+            const updatedData = {
+                ...userData,
+                completedMeals: updatedCompletedMeals,
+                dailyCalories: totalCalories
+            };
+
+            await SecureStore.setItemAsync('userData', JSON.stringify(updatedData));
+            setUserData(updatedData);
+
+            // Update displayed meals to reflect completion status
+            setDisplayedMeals(prevMeals => 
+                prevMeals.map(meal => 
+                    meal.id === mealId 
+                        ? { ...meal, isCompleted: !meal.isCompleted }
+                        : meal
+                )
+            );
+        } catch (error) {
+            console.error('Error updating meal completion:', error);
+        }
+    };
 
     const calculateCalories = (currentWeight: number, goalWeight: number, useMetric: boolean) => {
         // Convert to kg if using imperial units
@@ -279,7 +320,20 @@ export default function Meals() {
         };
     };
 
-    const dailyTarget = calculateCalories(userData.currentWeight ?? 70, userData.goalWeight ?? 70, userData.useMetric);
+    const dailyTarget = calculateCalories(
+        userData.currentWeight ?? 70, 
+        userData.goalWeight ?? 70, 
+        userData.useMetric ?? true
+    ).weightGain;
+
+    // Add effect to reload data when app becomes active
+    useEffect(() => {
+        const subscription = navigation.addListener('focus', () => {
+            loadUserData();
+        });
+
+        return subscription;
+    }, [navigation]);
 
     const mealTypes: MealType[] = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Snack'];
 
@@ -324,7 +378,13 @@ export default function Meals() {
     };
 
     useEffect(() => {
-        setDisplayedMeals(getRandomMeals(selectedMealType));
+        const meals = getRandomMeals(selectedMealType);
+        // Add completion status to displayed meals
+        const mealsWithStatus = meals.map(meal => ({
+            ...meal,
+            isCompleted: userData.completedMeals?.[meal.id] || false
+        }));
+        setDisplayedMeals(mealsWithStatus);
     }, [selectedMealType]);
 
     return (
@@ -344,7 +404,9 @@ export default function Meals() {
                 </View>
                 <View style={styles.targetContainer}>
                     <Text style={styles.targetLabel}>Daily Target</Text>
-                    <Text style={styles.targetValue}>{dailyTarget.maintenance} cal</Text>
+                    <Text style={styles.targetValue}>
+                        {userData.dailyCalories || 0}/{weightConfig?.dailyTarget ?? 0} cal
+                    </Text>
                 </View>
 
                 <View style={styles.tabsContainer}>
@@ -374,7 +436,17 @@ export default function Meals() {
                         <View key={meal.id} style={styles.mealCard}>
                             <View style={styles.mealHeader}>
                                 <Text style={styles.mealTime}>{meal.time}</Text>
-                                <Text style={styles.mealCalories}>{meal.calories} cal</Text>
+                                <View style={styles.mealHeaderRight}>
+                                    <Text style={styles.mealCalories}>{meal.calories} cal</Text>
+                                    <TouchableOpacity 
+                                        style={[styles.checkbox, meal.isCompleted && styles.checkboxChecked]}
+                                        onPress={() => toggleMealCompletion(meal.id)}
+                                    >
+                                        {meal.isCompleted && (
+                                            <Ionicons name="checkmark" size={16} color="white" />
+                                        )}
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                             <Text style={styles.mealName}>{meal.name}</Text>
                             <View style={styles.ingredientsContainer}>
@@ -531,5 +603,22 @@ const styles = StyleSheet.create({
     ingredientText: {
         fontSize: 14,
         color: '#666',
+    },
+    mealHeaderRight: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    checkbox: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: '#FF5722',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    checkboxChecked: {
+        backgroundColor: '#FF5722',
     },
 });

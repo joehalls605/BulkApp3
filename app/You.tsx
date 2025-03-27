@@ -1,32 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, SafeAreaView, Platform } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
+import { WeightConfig, loadWeightConfig, updateWeightConfig, formatWeight, convertWeight } from './config/weightConfig';
 
 export default function You() {
     const [currentWeight, setCurrentWeight] = useState('');
     const [goalWeight, setGoalWeight] = useState('');
-    const [userData, setUserData] = useState<any>(null);
+    const [weightConfig, setWeightConfig] = useState<WeightConfig | null>(null);
     const [useMetric, setUseMetric] = useState(true);
+    const navigation = useNavigation();
 
     useEffect(() => {
         loadUserData();
     }, []);
 
+    useEffect(() => {
+        const subscription = navigation.addListener('focus', () => {
+            loadUserData();
+        });
+
+        return subscription;
+    }, [navigation]);
+
     const loadUserData = async () => {
-        try {
-            const data = await SecureStore.getItemAsync('userData');
-            if (data) {
-                const parsedData = JSON.parse(data);
-                setUserData(parsedData);
-                setCurrentWeight(parsedData.currentWeight?.toString() || '');
-                setGoalWeight(parsedData.goalWeight?.toString() || '');
-                setUseMetric(parsedData.useMetric ?? true);
-            }
-        } catch (error) {
-            console.error('Error loading user data:', error);
-        }
+        const config = await loadWeightConfig();
+        setWeightConfig(config);
+        setCurrentWeight(config.currentWeight.toString());
+        setGoalWeight(config.goalWeight.toString());
+        setUseMetric(config.useMetric);
     };
 
     const updateWeight = async () => {
@@ -37,30 +40,20 @@ export default function You() {
         }
 
         try {
-            const updatedData = {
-                ...userData,
-                currentWeight: weight,
-                useMetric: useMetric
-            };
-            await SecureStore.setItemAsync('userData', JSON.stringify(updatedData));
-            setUserData(updatedData);
+            const updatedConfig = await updateWeightConfig(weight, undefined, useMetric);
+            setWeightConfig(updatedConfig);
 
             // Check if goal weight has been reached
-            if (userData?.goalWeight) {
-                const currentWeightInKg = useMetric ? weight : weight / 2.20462;
-                const goalWeightInKg = useMetric ? userData.goalWeight : userData.goalWeight / 2.20462;
+            if (weightConfig?.goalWeight) {
+                const currentWeightInKg = useMetric ? weight : convertWeight(weight, false, true);
+                const goalWeightInKg = useMetric ? weightConfig.goalWeight : convertWeight(weightConfig.goalWeight, false, true);
                 
                 // Allow for a small margin of error (0.1 kg)
                 if (Math.abs(currentWeightInKg - goalWeightInKg) <= 0.1) {
                     Alert.alert(
                         '🎉 Congratulations! 🎉',
                         'You have reached your goal weight! Keep up the great work!',
-                        [
-                            {
-                                text: 'OK',
-                                style: 'default'
-                            }
-                        ]
+                        [{ text: 'OK', style: 'default' }]
                     );
                 } else {
                     Alert.alert('Success', 'Weight updated successfully');
@@ -82,13 +75,8 @@ export default function You() {
         }
 
         try {
-            const updatedData = {
-                ...userData,
-                goalWeight: weight,
-                useMetric: useMetric
-            };
-            await SecureStore.setItemAsync('userData', JSON.stringify(updatedData));
-            setUserData(updatedData);
+            const updatedConfig = await updateWeightConfig(undefined, weight, useMetric);
+            setWeightConfig(updatedConfig);
             Alert.alert('Success', 'Goal weight updated successfully');
         } catch (error) {
             console.error('Error updating goal weight:', error);
@@ -101,18 +89,10 @@ export default function You() {
         if (currentWeight) {
             const weight = parseFloat(currentWeight);
             if (!isNaN(weight)) {
-                const newWeight = useMetric 
-                    ? (weight * 2.20462).toFixed(1) // kg to lbs
-                    : (weight / 2.20462).toFixed(1); // lbs to kg
-                setCurrentWeight(newWeight);
+                const newWeight = convertWeight(weight, useMetric, !useMetric);
+                setCurrentWeight(newWeight.toFixed(1));
             }
         }
-    };
-
-    const formatWeight = (weight: number | undefined) => {
-        if (weight === undefined) return '--';
-        if (useMetric) return `${weight.toFixed(1)} kg`;
-        return `${(weight * 2.20462).toFixed(1)} lbs`;
     };
 
     return (
@@ -182,15 +162,23 @@ export default function You() {
                             <View style={[styles.goalItem, { backgroundColor: '#FFF3E0' }]}>
                                 <Text style={styles.goalLabel}>Current Weight</Text>
                                 <Text style={[styles.goalValue, { color: '#FF5722' }]}>
-                                    {formatWeight(userData?.currentWeight)}
+                                    {weightConfig ? formatWeight(weightConfig.currentWeight, weightConfig.useMetric) : '--'}
                                 </Text>
                             </View>
                             <View style={[styles.goalItem, { backgroundColor: '#E8F5E9' }]}>
                                 <Text style={styles.goalLabel}>Goal Weight</Text>
                                 <Text style={[styles.goalValue, { color: '#4CAF50' }]}>
-                                    {formatWeight(userData?.goalWeight)}
+                                    {weightConfig ? formatWeight(weightConfig.goalWeight, weightConfig.useMetric) : '--'}
                                 </Text>
                             </View>
+                        </View>
+                    </View>
+
+                    <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#2196F3' }]}>
+                        <Text style={styles.cardTitle}>Daily Calorie Target</Text>
+                        <View style={styles.targetContainer}>
+                            <Text style={styles.targetValue}>{weightConfig?.dailyTarget ?? 0} cal</Text>
+                            <Text style={styles.targetLabel}>For optimal weight gain</Text>
                         </View>
                     </View>
                 </ScrollView>
@@ -335,5 +323,22 @@ const styles = StyleSheet.create({
     goalValue: {
         fontSize: 24,
         fontWeight: 'bold',
+    },
+    targetContainer: {
+        alignItems: 'center',
+        padding: 16,
+        backgroundColor: '#E3F2FD',
+        borderRadius: 12,
+        marginTop: 8,
+    },
+    targetValue: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: '#1976D2',
+    },
+    targetLabel: {
+        fontSize: 14,
+        color: '#666',
+        marginTop: 4,
     },
 }); 
