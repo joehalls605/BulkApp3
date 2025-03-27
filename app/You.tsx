@@ -44,7 +44,30 @@ export default function You() {
             };
             await SecureStore.setItemAsync('userData', JSON.stringify(updatedData));
             setUserData(updatedData);
-            Alert.alert('Success', 'Weight updated successfully');
+
+            // Check if goal weight has been reached
+            if (userData?.goalWeight) {
+                const currentWeightInKg = useMetric ? weight : weight / 2.20462;
+                const goalWeightInKg = useMetric ? userData.goalWeight : userData.goalWeight / 2.20462;
+                
+                // Allow for a small margin of error (0.1 kg)
+                if (Math.abs(currentWeightInKg - goalWeightInKg) <= 0.1) {
+                    Alert.alert(
+                        '🎉 Congratulations! 🎉',
+                        'You have reached your goal weight! Keep up the great work!',
+                        [
+                            {
+                                text: 'OK',
+                                style: 'default'
+                            }
+                        ]
+                    );
+                } else {
+                    Alert.alert('Success', 'Weight updated successfully');
+                }
+            } else {
+                Alert.alert('Success', 'Weight updated successfully');
+            }
         } catch (error) {
             console.error('Error updating weight:', error);
             Alert.alert('Error', 'Failed to update weight');
