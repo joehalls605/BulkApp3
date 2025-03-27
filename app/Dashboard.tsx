@@ -162,39 +162,6 @@ function HomeScreen() {
                             </View>
                         </View>
 
-                        <View style={styles.progressSection}>
-                            <View style={styles.progressCard}>
-                                <View style={styles.progressItem}>
-                                    <Text style={styles.progressLabel}>Current Weight</Text>
-                                    <View style={styles.weightInputContainer}>
-                                        <TextInput
-                                            style={styles.weightInput}
-                                            value={userData.currentWeight.toString()}
-                                            onChangeText={(text) => handleWeightUpdate(text, true)}
-                                            keyboardType="numeric"
-                                            maxLength={3}
-                                        />
-                                        <Text style={styles.weightUnit}>{userData.useMetric ? 'kg' : 'stone'}</Text>
-                                    </View>
-                                    <Text style={styles.weightNote}>Tap to update</Text>
-                                </View>
-                                <View style={styles.progressItem}>
-                                    <Text style={styles.progressLabel}>Goal Weight</Text>
-                                    <View style={styles.weightInputContainer}>
-                                        <TextInput
-                                            style={styles.weightInput}
-                                            value={userData.goalWeight.toString()}
-                                            onChangeText={(text) => handleWeightUpdate(text, false)}
-                                            keyboardType="numeric"
-                                            maxLength={3}
-                                        />
-                                        <Text style={styles.weightUnit}>{userData.useMetric ? 'kg' : 'stone'}</Text>
-                                    </View>
-                                    <Text style={styles.weightNote}>Tap to update</Text>
-                                </View>
-                            </View>
-                        </View>
-
                         <View style={styles.toolsSection}>
                             <Text style={styles.sectionTitle}>Weight Gain Tools</Text>
                             <Text style={styles.toolsNote}>Use these pages for your weight gain journey</Text>
@@ -400,13 +367,13 @@ const styles = StyleSheet.create({
         color: '#666',
         marginBottom: 5,
     },
-    weightInputContainer: {
+    weightDisplayContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 5,
     },
-    weightInput: {
+    weightDisplay: {
         fontSize: 24,
         fontWeight: '600',
         color: '#333',

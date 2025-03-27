@@ -1,15 +1,64 @@
 import React from 'react';
-import { StyleSheet, View, Text, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from './types';
+import * as SecureStore from 'expo-secure-store';
 
 type TermsAndConditionsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'TermsAndConditions'>;
 
 export default function TermsAndConditions() {
     const navigation = useNavigation<TermsAndConditionsScreenNavigationProp>();
+
+    const handleResetDetails = async () => {
+        Alert.alert(
+            "Reset Your Details",
+            "This will reset your app to its initial state and guide you through the questionnaire again. Your subscription status will be preserved.",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Reset",
+                    onPress: async () => {
+                        try {
+                            // Get current subscription status
+                            const subscriptionData = await SecureStore.getItemAsync('subscriptionStatus');
+                            const subscription = subscriptionData ? JSON.parse(subscriptionData) : null;
+
+                            // Clear all user data except subscription
+                            await SecureStore.deleteItemAsync('userData');
+                            await SecureStore.deleteItemAsync('questionnaireCompleted');
+
+                            // If there was a subscription, restore it
+                            if (subscription) {
+                                await SecureStore.setItemAsync('subscriptionStatus', JSON.stringify(subscription));
+                            }
+
+                            Alert.alert(
+                                "Success",
+                                "Your details have been reset. You will now be guided through the questionnaire again.",
+                                [{ 
+                                    text: "OK",
+                                    onPress: () => navigation.navigate('Questionnaire')
+                                }]
+                            );
+                        } catch (error) {
+                            console.error('Error resetting details:', error);
+                            Alert.alert(
+                                "Error",
+                                "Failed to reset your details. Please try again.",
+                                [{ text: "OK" }]
+                            );
+                        }
+                    }
+                }
+            ]
+        );
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -25,6 +74,14 @@ export default function TermsAndConditions() {
                 </View>
 
                 <ScrollView style={styles.content}>
+                    <TouchableOpacity 
+                        style={styles.resetButton}
+                        onPress={handleResetDetails}
+                    >
+                        <Ionicons name="refresh-circle" size={24} color="#FF5722" />
+                        <Text style={styles.resetButtonText}>Reset Your Details</Text>
+                    </TouchableOpacity>
+
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>1. Acceptance of Terms</Text>
                         <Text style={styles.text}>
@@ -103,6 +160,23 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         padding: 16,
+    },
+    resetButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        padding: 16,
+        borderRadius: 12,
+        marginBottom: 20,
+        elevation: 2,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+    },
+    resetButtonText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#FF5722',
+        marginLeft: 12,
     },
     section: {
         marginBottom: 24,

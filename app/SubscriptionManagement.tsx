@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, ScrollView, SafeAreaView, TouchableOpacity, Platform, Linking } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, SafeAreaView, TouchableOpacity, Platform, Linking, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -26,6 +26,54 @@ export default function SubscriptionManagement() {
         } catch (error) {
             console.error('Error loading subscription details:', error);
         }
+    };
+
+    const handleResetDetails = async () => {
+        Alert.alert(
+            "Reset Your Details",
+            "This will reset your app to its initial state and guide you through the questionnaire again. Your subscription status will be preserved.",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Reset",
+                    onPress: async () => {
+                        try {
+                            // Get current subscription status
+                            const subscriptionData = await SecureStore.getItemAsync('subscriptionDetails');
+                            const subscription = subscriptionData ? JSON.parse(subscriptionData) : null;
+
+                            // Clear all user data except subscription
+                            await SecureStore.deleteItemAsync('userData');
+                            await SecureStore.deleteItemAsync('questionnaireCompleted');
+
+                            // If there was a subscription, restore it
+                            if (subscription) {
+                                await SecureStore.setItemAsync('subscriptionDetails', JSON.stringify(subscription));
+                            }
+
+                            Alert.alert(
+                                "Success",
+                                "Your details have been reset. You will now be guided through the questionnaire again.",
+                                [{ 
+                                    text: "OK",
+                                    onPress: () => navigation.navigate('Questionnaire')
+                                }]
+                            );
+                        } catch (error) {
+                            console.error('Error resetting details:', error);
+                            Alert.alert(
+                                "Error",
+                                "Failed to reset your details. Please try again.",
+                                [{ text: "OK" }]
+                            );
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     const cancelSubscription = async () => {
@@ -104,6 +152,14 @@ export default function SubscriptionManagement() {
                             </TouchableOpacity>
                         </View>
                     )}
+
+                    <TouchableOpacity 
+                        style={styles.resetButton}
+                        onPress={handleResetDetails}
+                    >
+                        <Ionicons name="refresh-circle" size={24} color="#FF5722" />
+                        <Text style={styles.resetButtonText}>Reset Your Details</Text>
+                    </TouchableOpacity>
 
                     <View style={styles.infoSection}>
                         <Text style={styles.infoTitle}>Need Help?</Text>
@@ -194,6 +250,30 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 16,
         fontWeight: '600',
+    },
+    resetButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        padding: 16,
+        borderRadius: 12,
+        marginBottom: 24,
+        elevation: 2,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+    },
+    resetButtonText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#FF5722',
+        marginLeft: 12,
     },
     infoSection: {
         backgroundColor: 'white',

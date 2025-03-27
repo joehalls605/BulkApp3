@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Platform, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -11,6 +11,8 @@ type StartJourneyScreenNavigationProp = NativeStackNavigationProp<RootStackParam
 
 export default function StartJourney() {
     const navigation = useNavigation<StartJourneyScreenNavigationProp>();
+    const [showSuccess, setShowSuccess] = useState(false);
+    const fadeAnim = new Animated.Value(0);
 
     const startTrial = async () => {
         try {
@@ -29,28 +31,18 @@ export default function StartJourney() {
 
             await SecureStore.setItemAsync('subscriptionDetails', JSON.stringify(subscriptionDetails));
             
-            // Set up a check for trial expiration
-            const checkTrialExpiration = async () => {
-                const details = await SecureStore.getItemAsync('subscriptionDetails');
-                if (details) {
-                    const subscription = JSON.parse(details);
-                    const trialEnd = new Date(subscription.trialEndDate);
-                    const now = new Date();
+            // Show success animation
+            setShowSuccess(true);
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 500,
+                useNativeDriver: true,
+            }).start();
 
-                    if (now > trialEnd && subscription.isTrial) {
-                        // Trial has expired, update subscription status
-                        subscription.isTrial = false;
-                        subscription.startDate = trialEnd.toISOString();
-                        await SecureStore.setItemAsync('subscriptionDetails', JSON.stringify(subscription));
-                    }
-                }
-            };
-
-            // Check trial expiration every time the app starts
-            checkTrialExpiration();
-
-            // Navigate to dashboard
-            navigation.navigate('Dashboard');
+            // Navigate to dashboard after animation
+            setTimeout(() => {
+                navigation.navigate('Dashboard');
+            }, 2000);
         } catch (error) {
             console.error('Error starting trial:', error);
             alert('Error starting trial. Please try again.');
@@ -63,16 +55,6 @@ export default function StartJourney() {
             if (subscriptionDetails) {
                 const subscription = JSON.parse(subscriptionDetails);
                 if (subscription.isActive) {
-                    // Check if trial has expired
-                    const trialEnd = new Date(subscription.trialEndDate);
-                    const now = new Date();
-                    
-                    if (now > trialEnd && subscription.isTrial) {
-                        subscription.isTrial = false;
-                        subscription.startDate = trialEnd.toISOString();
-                        await SecureStore.setItemAsync('subscriptionDetails', JSON.stringify(subscription));
-                    }
-                    
                     navigation.navigate('Dashboard');
                     return;
                 }
@@ -84,59 +66,87 @@ export default function StartJourney() {
         }
     };
 
+    if (showSuccess) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
+                    <Animated.View style={[styles.successContainer, { opacity: fadeAnim }]}>
+                        <Ionicons name="checkmark-circle" size={80} color="#4CAF50" />
+                        <Text style={styles.successTitle}>Welcome to BulkUp!</Text>
+                        <Text style={styles.successText}>Your 7-day free trial has started</Text>
+                        <Text style={styles.successSubtext}>Get ready to transform your body</Text>
+                    </Animated.View>
+                </LinearGradient>
+            </SafeAreaView>
+        );
+    }
+
     return (
         <SafeAreaView style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                 <View style={styles.content}>
                     <View style={styles.header}>
-                        <Ionicons name="rocket" size={40} color="#FF9800" />
-                        <Text style={styles.title}>Start Your Weight Gain Journey</Text>
+                        <Ionicons name="rocket" size={40} color="#4CAF50" />
+                        <Text style={styles.title}>You're almost ready!</Text>
+                        <Text style={styles.subtitle}>This is all waiting for you.</Text>
                     </View>
 
-                    <View style={styles.timeline}>
-                        <View style={styles.timelineItem}>
-                            <View style={styles.timelineIcon}>
-                                <Ionicons name="play-circle" size={24} color="#4CAF50" />
+                    <View style={styles.featuresContainer}>
+                        <View style={styles.featuresGrid}>
+                            <View style={styles.featureCard}>
+                                <View style={styles.featureIconContainer}>
+                                    <Ionicons name="restaurant" size={28} color="#4CAF50" />
+                                    <Ionicons name="checkmark-circle" size={16} color="#4CAF50" style={styles.checkmark} />
+                                </View>
+                                <Text style={styles.featureTitle}>Meal Plans</Text>
+                                <Text style={styles.featureText}>Custom meal plans based on your goals</Text>
                             </View>
-                            <View style={styles.timelineContent}>
-                                <Text style={styles.timelineTitle}>Day 1</Text>
-                                <Text style={styles.timelineText}>Start your free trial</Text>
-                            </View>
-                        </View>
 
-                        <View style={styles.timelineItem}>
-                            <View style={styles.timelineIcon}>
-                                <Ionicons name="notifications" size={24} color="#FF9800" />
+                            <View style={styles.featureCard}>
+                                <View style={styles.featureIconContainer}>
+                                    <Ionicons name="barbell" size={28} color="#FF9800" />
+                                    <Ionicons name="checkmark-circle" size={16} color="#4CAF50" style={styles.checkmark} />
+                                </View>
+                                <Text style={styles.featureTitle}>Workouts</Text>
+                                <Text style={styles.featureText}>Expert-designed muscle growth guides</Text>
                             </View>
-                            <View style={styles.timelineContent}>
-                                <Text style={styles.timelineTitle}>Day 5</Text>
-                                <Text style={styles.timelineText}>Trial reminder</Text>
-                            </View>
-                        </View>
 
-                        <View style={styles.timelineItem}>
-                            <View style={styles.timelineIcon}>
-                                <Ionicons name="time" size={24} color="#F44336" />
+                            <View style={styles.featureCard}>
+                                <View style={styles.featureIconContainer}>
+                                    <Ionicons name="cart" size={28} color="#2196F3" />
+                                    <Ionicons name="checkmark-circle" size={16} color="#4CAF50" style={styles.checkmark} />
+                                </View>
+                                <Text style={styles.featureTitle}>Daily Shopping</Text>
+                                <Text style={styles.featureText}>Smart shopping lists for your meals</Text>
                             </View>
-                            <View style={styles.timelineContent}>
-                                <Text style={styles.timelineTitle}>Day 7</Text>
-                                <Text style={styles.timelineText}>Trial ends</Text>
-                            </View>
-                        </View>
-                    </View>
 
-                    <View style={styles.testimonial}>
-                        <View style={styles.stars}>
-                            <Ionicons name="star" size={16} color="#FFD700" />
-                            <Ionicons name="star" size={16} color="#FFD700" />
-                            <Ionicons name="star" size={16} color="#FFD700" />
-                            <Ionicons name="star" size={16} color="#FFD700" />
-                            <Ionicons name="star" size={16} color="#FFD700" />
+                            <View style={styles.featureCard}>
+                                <View style={styles.featureIconContainer}>
+                                    <Ionicons name="bulb" size={28} color="#9C27B0" />
+                                    <Ionicons name="checkmark-circle" size={16} color="#4CAF50" style={styles.checkmark} />
+                                </View>
+                                <Text style={styles.featureTitle}>Daily Tips</Text>
+                                <Text style={styles.featureText}>Nutrition and fitness advice</Text>
+                            </View>
+
+                            <View style={styles.featureCard}>
+                                <View style={styles.featureIconContainer}>
+                                    <Ionicons name="people" size={28} color="#FF5722" />
+                                    <Ionicons name="checkmark-circle" size={16} color="#4CAF50" style={styles.checkmark} />
+                                </View>
+                                <Text style={styles.featureTitle}>Community</Text>
+                                <Text style={styles.featureText}>Join like-minded individuals</Text>
+                            </View>
+
+                            <View style={styles.featureCard}>
+                                <View style={styles.featureIconContainer}>
+                                    <Ionicons name="compass" size={28} color="#607D8B" />
+                                    <Ionicons name="checkmark-circle" size={16} color="#4CAF50" style={styles.checkmark} />
+                                </View>
+                                <Text style={styles.featureTitle}>Daily Guidance</Text>
+                                <Text style={styles.featureText}>Personalized daily advice</Text>
+                            </View>
                         </View>
-                        <Text style={styles.testimonialText}>
-                            "This app helped me gain healthy weight and build muscle. The meal plans and workout guides are excellent!"
-                        </Text>
-                        <Text style={styles.testimonialAuthor}>- Olena</Text>
                     </View>
 
                     <TouchableOpacity style={styles.continueButton} onPress={startTrial}>
@@ -144,8 +154,9 @@ export default function StartJourney() {
                         <Text style={styles.continueButtonSubtext}>£4/month after 7 days</Text>
                     </TouchableOpacity>
 
-                    <View style={styles.legalButtons}>
-                        <View style={styles.legalButtonRow}>
+                    <View style={styles.legalSection}>
+                        <View style={styles.legalDivider} />
+                        <View style={styles.legalButtons}>
                             <TouchableOpacity 
                                 style={styles.legalButton}
                                 onPress={() => navigation.navigate('TermsAndConditions')}
@@ -160,13 +171,6 @@ export default function StartJourney() {
                                 <Text style={styles.legalButtonText}>Restore</Text>
                             </TouchableOpacity>
                         </View>
-
-                        <TouchableOpacity 
-                            style={styles.legalButton}
-                            onPress={() => navigation.navigate('TermsOfUse')}
-                        >
-                            <Text style={styles.legalButtonText}>Terms of Use</Text>
-                        </TouchableOpacity>
                     </View>
                 </View>
             </LinearGradient>
@@ -187,7 +191,7 @@ const styles = StyleSheet.create({
     },
     header: {
         alignItems: 'center',
-        marginBottom: 40,
+        marginBottom: 32,
     },
     title: {
         fontSize: 24,
@@ -196,13 +200,61 @@ const styles = StyleSheet.create({
         marginTop: 16,
         textAlign: 'center',
     },
+    subtitle: {
+        fontSize: 18,
+        color: '#666',
+        marginTop: 8,
+        textAlign: 'center',
+        fontStyle: 'italic',
+    },
+    featuresContainer: {
+        marginBottom: 32,
+    },
+    featuresGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        marginHorizontal: -6,
+    },
+    featureCard: {
+        backgroundColor: 'white',
+        padding: 12,
+        borderRadius: 12,
+        margin: 6,
+        width: '45%',
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
+        alignItems: 'center',
+    },
+    featureTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#333',
+        marginTop: 8,
+        marginBottom: 4,
+        textAlign: 'center',
+    },
+    featureText: {
+        fontSize: 12,
+        color: '#666',
+        lineHeight: 16,
+        textAlign: 'center',
+    },
     timeline: {
-        marginBottom: 40,
+        marginBottom: 32,
     },
     timelineItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: 16,
         backgroundColor: 'white',
         padding: 16,
         borderRadius: 12,
@@ -239,38 +291,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#666',
     },
-    testimonial: {
-        backgroundColor: 'white',
-        padding: 20,
-        borderRadius: 12,
-        marginBottom: 40,
-        borderWidth: 1,
-        borderColor: '#E0E0E0',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2,
-    },
-    stars: {
-        flexDirection: 'row',
-        marginBottom: 8,
-    },
-    testimonialText: {
-        fontSize: 16,
-        color: '#333',
-        lineHeight: 24,
-        fontStyle: 'italic',
-        marginBottom: 8,
-    },
-    testimonialAuthor: {
-        fontSize: 14,
-        color: '#666',
-        fontWeight: '500',
-    },
     continueButton: {
         backgroundColor: '#4CAF50',
         padding: 16,
@@ -295,17 +315,20 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: 'rgba(255, 255, 255, 0.8)',
     },
-    legalButtons: {
+    legalSection: {
         marginTop: 20,
-        alignItems: 'center',
         width: '100%',
     },
-    legalButtonRow: {
+    legalDivider: {
+        height: 1,
+        backgroundColor: '#E0E0E0',
+        marginBottom: 16,
+    },
+    legalButtons: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        width: '100%',
-        marginBottom: 8,
+        paddingHorizontal: 16,
     },
     legalButton: {
         paddingVertical: 8,
@@ -314,7 +337,43 @@ const styles = StyleSheet.create({
     },
     legalButtonText: {
         color: '#666',
-        fontSize: 14,
+        fontSize: 13,
         textDecorationLine: 'underline',
+    },
+    successContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 24,
+    },
+    successTitle: {
+        fontSize: 28,
+        fontWeight: '700',
+        color: '#333',
+        marginTop: 24,
+        marginBottom: 8,
+    },
+    successText: {
+        fontSize: 18,
+        color: '#666',
+        textAlign: 'center',
+        marginBottom: 8,
+    },
+    successSubtext: {
+        fontSize: 16,
+        color: '#999',
+        textAlign: 'center',
+    },
+    featureIconContainer: {
+        position: 'relative',
+        marginBottom: 8,
+        padding: 4,
+    },
+    checkmark: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        backgroundColor: 'white',
+        borderRadius: 8,
     },
 }); 
