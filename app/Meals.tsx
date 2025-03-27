@@ -358,19 +358,20 @@ export default function Meals() {
         <SafeAreaView style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                 <View style={styles.header}>
-                    <View style={styles.headerContent}>
-                        <Text style={styles.headerTitle}>Meals</Text>
-                        <TouchableOpacity 
-                            style={styles.refreshButton}
-                            onPress={() => setDisplayedMeals(getRandomMeals(selectedMealType))}
-                        >
-                            <Ionicons name="refresh" size={24} color="#FF5722" />
-                        </TouchableOpacity>
+                    <View>
+                        <Text style={styles.headerTitle}>Meals 🍽️</Text>
+                        <Text style={styles.headerSubtitle}>Meals for muscle and weight gain</Text>
                     </View>
-                    <View style={styles.targetContainer}>
-                        <Text style={styles.targetLabel}>Daily Target</Text>
-                        <Text style={styles.targetValue}>{dailyTarget} cal</Text>
-                    </View>
+                    <TouchableOpacity 
+                        style={styles.refreshButton}
+                        onPress={() => setDisplayedMeals(getRandomMeals(selectedMealType))}
+                    >
+                        <Ionicons name="refresh" size={24} color="#FF5722" />
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.targetContainer}>
+                    <Text style={styles.targetLabel}>Daily Target</Text>
+                    <Text style={styles.targetValue}>{dailyTarget} cal</Text>
                 </View>
 
                 <View style={styles.tabsContainer}>
@@ -427,19 +428,22 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
-        padding: 20,
-        paddingTop: 40,
-    },
-    headerContent: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 15,
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E0E0E0',
     },
     headerTitle: {
-        fontSize: 28,
-        fontWeight: '700',
+        fontSize: 20,
+        fontWeight: '600',
         color: '#333',
+    },
+    headerSubtitle: {
+        fontSize: 14,
+        color: '#666',
+        marginTop: 4,
     },
     refreshButton: {
         padding: 8,
@@ -459,6 +463,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.1,
         shadowRadius: 2,
+        margin: 16,
     },
     targetLabel: {
         fontSize: 14,

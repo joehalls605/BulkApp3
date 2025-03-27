@@ -135,7 +135,7 @@ function HomeScreen() {
         <SafeAreaView style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>BulkUp Member</Text>
+                    <Text style={styles.headerTitle}>BulkUp Member 💪</Text>
                     <TouchableOpacity 
                         style={styles.profileButton}
                         onPress={() => navigation.navigate('SubscriptionManagement')}

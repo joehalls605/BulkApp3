@@ -247,6 +247,12 @@ export default function Workouts() {
     return (
         <View style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
+                <View style={styles.header}>
+                    <View>
+                        <Text style={styles.headerTitle}>Workouts 💪</Text>
+                        <Text style={styles.headerSubtitle}>For muscle and weight gain</Text>
+                    </View>
+                </View>
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                     {/* Workout Type Tabs */}
                     <View style={styles.tabsContainer}>
@@ -375,6 +381,24 @@ const styles = StyleSheet.create({
     },
     gradient: {
         flex: 1,
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E0E0E0',
+    },
+    headerTitle: {
+        fontSize: 20,
+        fontWeight: '600',
+        color: '#333',
+    },
+    headerSubtitle: {
+        fontSize: 14,
+        color: '#666',
+        marginTop: 4,
     },
     scrollContent: {
         padding: 20,
