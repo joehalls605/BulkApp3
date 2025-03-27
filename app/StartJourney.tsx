@@ -31,18 +31,8 @@ export default function StartJourney() {
 
             await SecureStore.setItemAsync('subscriptionDetails', JSON.stringify(subscriptionDetails));
             
-            // Show success animation
-            setShowSuccess(true);
-            Animated.timing(fadeAnim, {
-                toValue: 1,
-                duration: 500,
-                useNativeDriver: true,
-            }).start();
-
-            // Navigate to dashboard after animation
-            setTimeout(() => {
-                navigation.navigate('Dashboard');
-            }, 2000);
+            // Navigate to Congratulations page
+            navigation.navigate('Congratulations');
         } catch (error) {
             console.error('Error starting trial:', error);
             alert('Error starting trial. Please try again.');
@@ -71,9 +61,25 @@ export default function StartJourney() {
             <SafeAreaView style={styles.container}>
                 <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                     <Animated.View style={[styles.successContainer, { opacity: fadeAnim }]}>
-                        <Ionicons name="checkmark-circle" size={80} color="#4CAF50" />
-                        <Text style={styles.successTitle}>Welcome to BulkUp!</Text>
+                        <View style={styles.successIconContainer}>
+                            <Ionicons name="checkmark-circle" size={80} color="#4CAF50" />
+                        </View>
+                        <Text style={styles.successTitle}>Congratulations! 🎉</Text>
                         <Text style={styles.successText}>Your 7-day free trial has started</Text>
+                        <View style={styles.successDetailsContainer}>
+                            <View style={styles.successDetailItem}>
+                                <Ionicons name="time" size={24} color="#4CAF50" />
+                                <Text style={styles.successDetailText}>7 days of premium access</Text>
+                            </View>
+                            <View style={styles.successDetailItem}>
+                                <Ionicons name="fitness" size={24} color="#4CAF50" />
+                                <Text style={styles.successDetailText}>Full access to all features</Text>
+                            </View>
+                            <View style={styles.successDetailItem}>
+                                <Ionicons name="card" size={24} color="#4CAF50" />
+                                <Text style={styles.successDetailText}>£4/month after trial</Text>
+                            </View>
+                        </View>
                         <Text style={styles.successSubtext}>Get ready to transform your body</Text>
                     </Animated.View>
                 </LinearGradient>
@@ -346,23 +352,61 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 24,
     },
+    successIconContainer: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        backgroundColor: '#E8F5E9',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 24,
+    },
     successTitle: {
-        fontSize: 28,
+        fontSize: 32,
         fontWeight: '700',
         color: '#333',
-        marginTop: 24,
-        marginBottom: 8,
+        marginBottom: 16,
+        textAlign: 'center',
     },
     successText: {
+        fontSize: 20,
+        color: '#666',
+        textAlign: 'center',
+        marginBottom: 32,
+    },
+    successDetailsContainer: {
+        width: '100%',
+        marginBottom: 32,
+    },
+    successDetailItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        padding: 16,
+        borderRadius: 12,
+        marginBottom: 12,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    successDetailText: {
+        fontSize: 16,
+        color: '#333',
+        marginLeft: 12,
+        flex: 1,
+    },
+    successSubtext: {
         fontSize: 18,
         color: '#666',
         textAlign: 'center',
-        marginBottom: 8,
-    },
-    successSubtext: {
-        fontSize: 16,
-        color: '#999',
-        textAlign: 'center',
+        fontStyle: 'italic',
     },
     featureIconContainer: {
         position: 'relative',

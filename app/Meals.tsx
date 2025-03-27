@@ -15,14 +15,12 @@ interface Meal {
 }
 
 interface UserData {
-    currentWeight?: number;
-    goalWeight?: number;
-    useMetric?: boolean;
-    dailyTip?: string;
-    gender?: string;
-    exerciseFrequency?: string;
-    mealsPerDay?: string;
-    foodPreference?: string;
+    currentWeight: number;
+    goalWeight: number;
+    useMetric: boolean;
+    exerciseFrequency: string;
+    mealsPerDay: string;
+    foodPreference: string;
 }
 
 const allMeals: Meal[] = [
@@ -229,84 +227,59 @@ type MealType = 'All' | 'Breakfast' | 'Lunch' | 'Dinner' | 'Snack';
 export default function Meals() {
     const navigation = useNavigation();
     const route = useRoute();
-    const [userData, setUserData] = useState({
+    const [userData, setUserData] = useState<UserData>({
         currentWeight: 70,
+        goalWeight: 70,
         useMetric: true,
-        gender: 'Male',
         exerciseFrequency: 'Never',
         mealsPerDay: '3 times',
         foodPreference: 'A mix of all'
+    });
+    const [calories, setCalories] = useState({
+        maintenance: 0,
+        weightGain: 0
     });
     const [selectedMealType, setSelectedMealType] = useState<MealType>('All');
     const [displayedMeals, setDisplayedMeals] = useState<Meal[]>([]);
 
     useEffect(() => {
+        const loadUserData = async () => {
+            try {
+                const userDataString = await SecureStore.getItemAsync('userData');
+                if (userDataString) {
+                    const userData = JSON.parse(userDataString);
+                    setUserData(userData);
+                    
+                    // Calculate calories based on weight
+                    const calories = calculateCalories(userData.currentWeight, userData.goalWeight, userData.useMetric);
+                    setCalories(calories);
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        };
+
         loadUserData();
     }, []);
 
-    const loadUserData = async () => {
-        try {
-            const storedData = await SecureStore.getItemAsync('userData');
-            if (storedData) {
-                setUserData(JSON.parse(storedData));
-            }
-        } catch (error) {
-            console.error('Error loading user data:', error);
-        }
+    const calculateCalories = (currentWeight: number, goalWeight: number, useMetric: boolean) => {
+        // Convert to kg if using imperial units
+        const weightInKg = useMetric ? currentWeight : currentWeight * 6.35029318;
+        const goalWeightInKg = useMetric ? goalWeight : goalWeight * 6.35029318;
+
+        // Calculate maintenance calories (30 calories per kg of body weight)
+        const maintenanceCalories = Math.round(weightInKg * 30);
+
+        // Calculate weight gain calories (maintenance + 500 calories for 0.5kg gain per week)
+        const weightGainCalories = maintenanceCalories + 500;
+
+        return {
+            maintenance: maintenanceCalories,
+            weightGain: weightGainCalories
+        };
     };
 
-    // Calculate calories based on weight (same as Dashboard)
-    const calculateCalories = (weight: number) => {
-        // Ensure weight is a valid number
-        const validWeight = typeof weight === 'number' && !isNaN(weight) ? weight : 70;
-
-        // Convert weight to kg if in stone
-        const weightInKg = userData.useMetric ? validWeight : validWeight * 6.35029318;
-
-        // Base BMR calculation (simplified without height)
-        // For males: BMR = (10 × weight in kg) + 625
-        // For females: BMR = (10 × weight in kg) + 625 - 161
-        let bmr;
-        if (userData.gender === 'Prefer not to say') {
-            // Calculate average of male and female BMR
-            const maleBMR = (10 * weightInKg) + 625;
-            const femaleBMR = (10 * weightInKg) + 625 - 161;
-            bmr = (maleBMR + femaleBMR) / 2;
-        } else {
-            bmr = userData.gender === 'Male' 
-                ? (10 * weightInKg) + 625
-                : (10 * weightInKg) + 625 - 161;
-        }
-
-        // Activity multiplier based on exercise frequency
-        let activityMultiplier = 1.2; // Default sedentary
-        switch (userData.exerciseFrequency) {
-            case 'Never':
-                activityMultiplier = 1.2;
-                break;
-            case 'A few times a week':
-                activityMultiplier = 1.375;
-                break;
-            case 'Once a day':
-                activityMultiplier = 1.55;
-                break;
-            case 'More than once a day':
-                activityMultiplier = 1.725;
-                break;
-            default:
-                activityMultiplier = 1.2;
-        }
-
-        // Calculate TDEE (Total Daily Energy Expenditure)
-        const tdee = bmr * activityMultiplier;
-
-        // Add a small buffer to maintenance calories to ensure proper energy levels
-        const maintenanceBuffer = 200; // 200 calorie buffer for maintenance
-
-        return Math.round(tdee + maintenanceBuffer);
-    };
-
-    const dailyTarget = calculateCalories(userData.currentWeight ?? 70);
+    const dailyTarget = calculateCalories(userData.currentWeight ?? 70, userData.goalWeight ?? 70, userData.useMetric);
 
     const mealTypes: MealType[] = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Snack'];
 
@@ -371,7 +344,7 @@ export default function Meals() {
                 </View>
                 <View style={styles.targetContainer}>
                     <Text style={styles.targetLabel}>Daily Target</Text>
-                    <Text style={styles.targetValue}>{dailyTarget} cal</Text>
+                    <Text style={styles.targetValue}>{dailyTarget.maintenance} cal</Text>
                 </View>
 
                 <View style={styles.tabsContainer}>

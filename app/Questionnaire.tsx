@@ -67,6 +67,7 @@ export default function Questionnaire() {
     const [goalWeight, setGoalWeight] = useState('');
     const [gender, setGender] = useState('');
     const [timeframe, setTimeframe] = useState(12);
+    const [isNewSignup, setIsNewSignup] = useState(true);
 
     const handleAnswer = (answer: string) => {
         setAnswers(prev => ({
@@ -84,20 +85,24 @@ export default function Questionnaire() {
     const startProcessing = async () => {
         setIsProcessing(true);
         
-        // Prepare user data
-        const userData = {
-            currentWeight,
-            goalWeight,
-            useMetric,
-            gender,
-            timeframe,
-            dailyTip: dailyTips[Math.floor(Math.random() * dailyTips.length)],
-            exerciseFrequency: answers[1] === "1-2 times" ? 1 : answers[1] === "3 times" ? 2 : answers[1] === "4-5 times" ? 3 : 4,
-            mealsPerDay: answers[2] === "1-2 times" ? 1 : answers[2] === "3 times" ? 2 : answers[2] === "4-5 times" ? 3 : 4,
-            foodPreference: answers[3] === "Protein-rich foods" ? "Protein-rich foods" : answers[3] === "Carbohydrates" ? "Carbohydrates" : answers[3] === "Healthy fats" ? "Healthy fats" : "A mix of all"
-        };
-
         try {
+            // Clear existing subscription data if this is a new signup
+            if (isNewSignup) {
+                await SecureStore.deleteItemAsync('subscriptionDetails');
+            }
+            
+            // Prepare user data
+            const userData = {
+                currentWeight: parseFloat(currentWeight),
+                goalWeight: parseFloat(goalWeight),
+                useMetric,
+                timeframe,
+                dailyTip: dailyTips[Math.floor(Math.random() * dailyTips.length)],
+                exerciseFrequency: answers[1] === "1-2 times" ? 1 : answers[1] === "3 times" ? 2 : answers[1] === "4-5 times" ? 3 : 4,
+                mealsPerDay: answers[2] === "1-2 times" ? 1 : answers[2] === "3 times" ? 2 : answers[2] === "4-5 times" ? 3 : 4,
+                foodPreference: answers[3] === "Protein-rich foods" ? "Protein-rich foods" : answers[3] === "Carbohydrates" ? "Carbohydrates" : answers[3] === "Healthy fats" ? "Healthy fats" : "A mix of all"
+            };
+
             // Store user data securely
             await SecureStore.setItemAsync('userData', JSON.stringify(userData));
             
@@ -110,7 +115,7 @@ export default function Questionnaire() {
             });
         } catch (error) {
             console.error('Error saving user data:', error);
-            // Handle error appropriately
+            alert('Error saving your information. Please try again.');
         }
     };
 
@@ -194,30 +199,6 @@ export default function Questionnaire() {
                                     </View>
 
                                     <View style={styles.inputContainer}>
-                                        <Text style={styles.inputLabel}>Gender</Text>
-                                        <View style={styles.genderOptions}>
-                                            <TouchableOpacity 
-                                                style={[styles.genderOption, gender === 'Male' && styles.genderOptionSelected]}
-                                                onPress={() => setGender('Male')}
-                                            >
-                                                <Text style={[styles.genderText, gender === 'Male' && styles.genderTextSelected]}>Male</Text>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity 
-                                                style={[styles.genderOption, gender === 'Female' && styles.genderOptionSelected]}
-                                                onPress={() => setGender('Female')}
-                                            >
-                                                <Text style={[styles.genderText, gender === 'Female' && styles.genderTextSelected]}>Female</Text>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity 
-                                                style={[styles.genderOption, gender === 'Prefer not to say' && styles.genderOptionSelected]}
-                                                onPress={() => setGender('Prefer not to say')}
-                                            >
-                                                <Text style={[styles.genderText, gender === 'Prefer not to say' && styles.genderTextSelected]}>Prefer not to say</Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                    </View>
-
-                                    <View style={styles.inputContainer}>
                                         <Text style={styles.inputLabel}>Timeframe to Reach Goal</Text>
                                         <View style={styles.timeframeContainer}>
                                             <Slider
@@ -237,10 +218,24 @@ export default function Questionnaire() {
                                         </View>
                                     </View>
 
+                                    <View style={styles.testToggleContainer}>
+                                        <Text style={styles.testToggleLabel}>Test Mode:</Text>
+                                        <View style={styles.testToggle}>
+                                            <Text style={styles.testToggleText}>New Signup</Text>
+                                            <Switch
+                                                value={isNewSignup}
+                                                onValueChange={setIsNewSignup}
+                                                trackColor={{ false: '#767577', true: '#FF5722' }}
+                                                thumbColor={isNewSignup ? '#fff' : '#f4f3f4'}
+                                            />
+                                            <Text style={styles.testToggleText}>Existing User</Text>
+                                        </View>
+                                    </View>
+
                                     <TouchableOpacity
-                                        style={[styles.button, (!currentWeight || !goalWeight || !gender) && styles.buttonDisabled]}
+                                        style={[styles.button, (!currentWeight || !goalWeight) && styles.buttonDisabled]}
                                         onPress={startProcessing}
-                                        disabled={!currentWeight || !goalWeight || !gender}
+                                        disabled={!currentWeight || !goalWeight}
                                     >
                                         <Text style={styles.buttonText}>Complete Setup</Text>
                                         <Ionicons name="checkmark-circle" size={20} color="white" style={styles.buttonIcon} />
@@ -535,5 +530,37 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         flexGrow: 1,
+    },
+    testToggleContainer: {
+        marginBottom: 20,
+        backgroundColor: 'white',
+        padding: 15,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    testToggleLabel: {
+        fontSize: 14,
+        color: '#666',
+        marginBottom: 8,
+        fontWeight: '500',
+    },
+    testToggle: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    testToggleText: {
+        fontSize: 14,
+        color: '#333',
+        fontWeight: '500',
     },
 }); 

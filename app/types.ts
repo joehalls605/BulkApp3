@@ -9,4 +9,6 @@ export type RootStackParamList = {
     TermsAndConditions: undefined;
     TermsOfUse: undefined;
     SubscriptionManagement: undefined;
+    Congratulations: undefined;
+    Shopping: undefined;
 }; 

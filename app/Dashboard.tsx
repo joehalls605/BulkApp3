@@ -38,6 +38,11 @@ function HomeScreen() {
         foodPreference: 'A mix of all'
     });
     const [dailyTip] = useState(dailyTips[Math.floor(Math.random() * dailyTips.length)]);
+    const [calories, setCalories] = useState({
+        maintenance: 0,
+        weightGain: 0
+    });
+    const [weightToGain, setWeightToGain] = useState(0);
 
     useEffect(() => {
         loadUserData();
@@ -45,78 +50,47 @@ function HomeScreen() {
 
     const loadUserData = async () => {
         try {
-            const storedData = await SecureStore.getItemAsync('userData');
-            if (storedData) {
-                setUserData(JSON.parse(storedData));
+            const userDataString = await SecureStore.getItemAsync('userData');
+            if (userDataString) {
+                const userData = JSON.parse(userDataString);
+                setUserData(userData);
+                
+                // Calculate calories based on weight
+                const calories = calculateCalories(userData.currentWeight, userData.goalWeight, userData.useMetric);
+                setCalories(calories);
+                
+                // Calculate weight to gain
+                const weightToGain = calculateWeightToGain(userData.currentWeight, userData.goalWeight, userData.useMetric);
+                setWeightToGain(weightToGain);
             }
         } catch (error) {
             console.error('Error loading user data:', error);
         }
     };
 
-    // Calculate calories based on weight and activity level
-    const calculateCalories = (weight: number) => {
-        // Convert weight to kg if in stone
-        const weightInKg = userData.useMetric ? weight : weight * 6.35029318;
+    const calculateCalories = (currentWeight: number, goalWeight: number, useMetric: boolean) => {
+        // Convert to kg if using imperial units
+        const weightInKg = useMetric ? currentWeight : currentWeight * 6.35029318;
+        const goalWeightInKg = useMetric ? goalWeight : goalWeight * 6.35029318;
 
-        // Base BMR calculation (simplified without height)
-        // For males: BMR = (10 × weight in kg) + 625
-        // For females: BMR = (10 × weight in kg) + 625 - 161
-        let bmr;
-        if (userData.gender === 'Prefer not to say') {
-            // Calculate average of male and female BMR
-            const maleBMR = (10 * weightInKg) + 625;
-            const femaleBMR = (10 * weightInKg) + 625 - 161;
-            bmr = (maleBMR + femaleBMR) / 2;
-        } else {
-            bmr = userData.gender === 'Male' 
-                ? (10 * weightInKg) + 625
-                : (10 * weightInKg) + 625 - 161;
-        }
+        // Calculate maintenance calories (30 calories per kg of body weight)
+        const maintenanceCalories = Math.round(weightInKg * 30);
 
-        // Activity multiplier based on exercise frequency
-        let activityMultiplier = 1.2; // Default sedentary
-        switch (userData.exerciseFrequency) {
-            case 'Never':
-                activityMultiplier = 1.2;
-                break;
-            case 'A few times a week':
-                activityMultiplier = 1.375;
-                break;
-            case 'Once a day':
-                activityMultiplier = 1.55;
-                break;
-            case 'More than once a day':
-                activityMultiplier = 1.725;
-                break;
-        }
-
-        // Calculate TDEE (Total Daily Energy Expenditure)
-        const tdee = bmr * activityMultiplier;
-
-        // Calculate weight difference and monthly target
-        const weightDiff = userData.goalWeight - userData.currentWeight;
-        const monthlyWeightChange = weightDiff / userData.timeframe;
-
-        // Calculate calorie adjustment based on monthly weight change
-        // 1 kg of body weight is approximately 7700 calories
-        // For healthy weight gain, aim for 0.5-1 kg per month
-        const dailyCalorieAdjustment = (monthlyWeightChange * 7700) / 30;
-
-        // Ensure minimum calorie surplus for weight gain
-        const minCalorieSurplus = 750; // Increased minimum surplus to 750 calories
-        const adjustedCalorieSurplus = Math.max(dailyCalorieAdjustment, minCalorieSurplus);
-
-        // Add a small buffer to maintenance calories to ensure proper energy levels
-        const maintenanceBuffer = 200; // 200 calorie buffer for maintenance
+        // Calculate weight gain calories (maintenance + 500 calories for 0.5kg gain per week)
+        const weightGainCalories = maintenanceCalories + 500;
 
         return {
-            maintain: Math.round(tdee + maintenanceBuffer),
-            gain: Math.round(tdee + adjustedCalorieSurplus)
+            maintenance: maintenanceCalories,
+            weightGain: weightGainCalories
         };
     };
 
-    const calories = calculateCalories(userData.currentWeight);
+    const calculateWeightToGain = (currentWeight: number, goalWeight: number, useMetric: boolean) => {
+        const weightInKg = useMetric ? currentWeight : currentWeight * 6.35029318;
+        const goalWeightInKg = useMetric ? goalWeight : goalWeight * 6.35029318;
+        const weightToGain = goalWeightInKg - weightInKg;
+        return useMetric ? weightToGain : weightToGain / 6.35029318;
+    };
 
     const handleWeightUpdate = async (newWeight: string, isCurrent: boolean) => {
         try {
@@ -151,12 +125,12 @@ function HomeScreen() {
                             <View style={styles.goalOptions}>
                                 <TouchableOpacity style={[styles.goalOption, { backgroundColor: '#E3F2FD' }]} onPress={() => navigation.navigate('Meals')}>
                                     <Ionicons name="flame-outline" size={24} color="#1976D2" />
-                                    <Text style={styles.goalValue}>{calories.gain} cal</Text>
+                                    <Text style={styles.goalValue}>{calories.weightGain} cal</Text>
                                     <Text style={styles.goalText}>Gain Weight</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={[styles.goalOption, { backgroundColor: '#E8F5E9' }]} onPress={() => navigation.navigate('Meals')}>
                                     <Ionicons name="trending-up-outline" size={24} color="#2E7D32" />
-                                    <Text style={styles.goalValue}>{calories.maintain} cal</Text>
+                                    <Text style={styles.goalValue}>{calories.maintenance} cal</Text>
                                     <Text style={styles.goalText}>Maintain</Text>
                                 </TouchableOpacity>
                             </View>
