@@ -250,6 +250,14 @@ export default function Meals() {
         loadUserData();
     }, []);
 
+    useEffect(() => {
+        const subscription = navigation.addListener('focus', () => {
+            loadUserData();
+        });
+
+        return subscription;
+    }, [navigation]);
+
     const loadUserData = async () => {
         try {
             const userDataString = await SecureStore.getItemAsync('userData');
@@ -302,38 +310,6 @@ export default function Meals() {
             console.error('Error updating meal completion:', error);
         }
     };
-
-    const calculateCalories = (currentWeight: number, goalWeight: number, useMetric: boolean) => {
-        // Convert to kg if using imperial units
-        const weightInKg = useMetric ? currentWeight : currentWeight * 6.35029318;
-        const goalWeightInKg = useMetric ? goalWeight : goalWeight * 6.35029318;
-
-        // Calculate maintenance calories (30 calories per kg of body weight)
-        const maintenanceCalories = Math.round(weightInKg * 30);
-
-        // Calculate weight gain calories (maintenance + 500 calories for 0.5kg gain per week)
-        const weightGainCalories = maintenanceCalories + 500;
-
-        return {
-            maintenance: maintenanceCalories,
-            weightGain: weightGainCalories
-        };
-    };
-
-    const dailyTarget = calculateCalories(
-        userData.currentWeight ?? 70, 
-        userData.goalWeight ?? 70, 
-        userData.useMetric ?? true
-    ).weightGain;
-
-    // Add effect to reload data when app becomes active
-    useEffect(() => {
-        const subscription = navigation.addListener('focus', () => {
-            loadUserData();
-        });
-
-        return subscription;
-    }, [navigation]);
 
     const mealTypes: MealType[] = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Snack'];
 
@@ -407,6 +383,16 @@ export default function Meals() {
                     <Text style={styles.targetValue}>
                         {userData.dailyCalories || 0}/{weightConfig?.dailyTarget ?? 0} cal
                     </Text>
+                    <View style={styles.progressBar}>
+                        <View 
+                            style={[
+                                styles.progressFill, 
+                                { 
+                                    width: `${Math.min(100, ((userData.dailyCalories || 0) / (weightConfig?.dailyTarget || 1)) * 100)}%` 
+                                }
+                            ]} 
+                        />
+                    </View>
                 </View>
 
                 <View style={styles.tabsContainer}>
@@ -620,5 +606,18 @@ const styles = StyleSheet.create({
     },
     checkboxChecked: {
         backgroundColor: '#FF5722',
+    },
+    progressBar: {
+        width: '100%',
+        height: 6,
+        backgroundColor: '#E0E0E0',
+        borderRadius: 3,
+        marginTop: 8,
+        overflow: 'hidden',
+    },
+    progressFill: {
+        height: '100%',
+        backgroundColor: '#FF5722',
+        borderRadius: 3,
     },
 });
