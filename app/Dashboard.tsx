@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Meals from './Meals';
 import Workouts from './Workouts';
 
@@ -25,23 +26,101 @@ const dailyTips = [
 function HomeScreen() {
     const navigation = useNavigation();
     const route = useRoute();
-    const userData = route.params?.userData || {};
     const [fadeAnim] = useState(new Animated.Value(1));
-    const [currentWeight, setCurrentWeight] = useState(userData.currentWeight?.toString() || '70');
-    const [goalWeight, setGoalWeight] = useState(userData.goalWeight?.toString() || '75');
+    const [userData, setUserData] = useState({
+        currentWeight: 70,
+        goalWeight: 75,
+        age: 25,
+        height: 170,
+        useMetric: true,
+        exerciseFrequency: 'Never',
+        mealsPerDay: '3 times',
+        foodPreference: 'A mix of all'
+    });
     const [dailyTip] = useState(dailyTips[Math.floor(Math.random() * dailyTips.length)]);
 
-    // Calculate calories based on weight (simple estimation)
+    useEffect(() => {
+        loadUserData();
+    }, []);
+
+    const loadUserData = async () => {
+        try {
+            const storedData = await AsyncStorage.getItem('userData');
+            if (storedData) {
+                setUserData(JSON.parse(storedData));
+            }
+        } catch (error) {
+            console.error('Error loading user data:', error);
+        }
+    };
+
+    // Calculate calories based on Mifflin-St Jeor Equation
     const calculateCalories = (weight: number) => {
-        // Basic BMR calculation (Mifflin-St Jeor Equation)
-        const bmr = (10 * weight) + 625; // Simplified for example
+        // Convert weight to kg if in stone
+        const weightInKg = userData.useMetric ? weight : weight * 6.35029318;
+        
+        // Convert height to cm if in inches
+        const heightInCm = userData.useMetric ? userData.height : userData.height * 2.54;
+
+        // Mifflin-St Jeor Equation for BMR
+        // For men: (10 × weight in kg) + (6.25 × height in cm) - (5 × age in years) + 5
+        // For women: (10 × weight in kg) + (6.25 × height in cm) - (5 × age in years) - 161
+        const bmr = (10 * weightInKg) + (6.25 * heightInCm) - (5 * userData.age) + 5;
+
+        // Activity multiplier based on exercise frequency
+        let activityMultiplier = 1.2; // Default sedentary
+        switch (userData.exerciseFrequency) {
+            case 'Never':
+                activityMultiplier = 1.2;
+                break;
+            case 'A few times a week':
+                activityMultiplier = 1.375;
+                break;
+            case 'Once a day':
+                activityMultiplier = 1.55;
+                break;
+            case 'More than once a day':
+                activityMultiplier = 1.725;
+                break;
+        }
+
+        // Calculate TDEE (Total Daily Energy Expenditure)
+        const tdee = bmr * activityMultiplier;
+
+        // Calculate weight difference to determine calorie adjustment
+        const weightDiff = userData.goalWeight - userData.currentWeight;
+        const isGaining = weightDiff > 0;
+
+        // Calculate calorie adjustments based on weight difference
+        let calorieAdjustment = 0;
+        if (isGaining) {
+            // For weight gain, add 300-500 calories
+            calorieAdjustment = Math.min(Math.max(300, weightDiff * 50), 500);
+        } else {
+            // For maintenance, add 150-300 calories
+            calorieAdjustment = Math.min(Math.max(150, Math.abs(weightDiff) * 25), 300);
+        }
+
         return {
-            maintain: Math.round(bmr * 1.2), // Sedentary activity level
-            gain: Math.round(bmr * 1.4) // Moderate activity level with surplus
+            maintain: Math.round(tdee + calorieAdjustment),
+            gain: Math.round(tdee + calorieAdjustment + 200) // Add extra 200 calories for weight gain
         };
     };
 
-    const calories = calculateCalories(parseFloat(currentWeight));
+    const calories = calculateCalories(userData.currentWeight);
+
+    const handleWeightUpdate = async (newWeight: string, isCurrent: boolean) => {
+        try {
+            const updatedData = {
+                ...userData,
+                [isCurrent ? 'currentWeight' : 'goalWeight']: parseFloat(newWeight)
+            };
+            await AsyncStorage.setItem('userData', JSON.stringify(updatedData));
+            setUserData(updatedData);
+        } catch (error) {
+            console.error('Error updating weight:', error);
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -77,12 +156,12 @@ function HomeScreen() {
                                     <View style={styles.weightInputContainer}>
                                         <TextInput
                                             style={styles.weightInput}
-                                            value={currentWeight}
-                                            onChangeText={setCurrentWeight}
+                                            value={userData.currentWeight.toString()}
+                                            onChangeText={(text) => handleWeightUpdate(text, true)}
                                             keyboardType="numeric"
                                             maxLength={3}
                                         />
-                                        <Text style={styles.weightUnit}>kg</Text>
+                                        <Text style={styles.weightUnit}>{userData.useMetric ? 'kg' : 'stone'}</Text>
                                     </View>
                                     <Text style={styles.weightNote}>Tap to update</Text>
                                 </View>
@@ -91,12 +170,12 @@ function HomeScreen() {
                                     <View style={styles.weightInputContainer}>
                                         <TextInput
                                             style={styles.weightInput}
-                                            value={goalWeight}
-                                            onChangeText={setGoalWeight}
+                                            value={userData.goalWeight.toString()}
+                                            onChangeText={(text) => handleWeightUpdate(text, false)}
                                             keyboardType="numeric"
                                             maxLength={3}
                                         />
-                                        <Text style={styles.weightUnit}>kg</Text>
+                                        <Text style={styles.weightUnit}>{userData.useMetric ? 'kg' : 'stone'}</Text>
                                     </View>
                                     <Text style={styles.weightNote}>Tap to update</Text>
                                 </View>
@@ -104,8 +183,8 @@ function HomeScreen() {
                             <View style={styles.progressEmojiContainer}>
                                 <Text style={styles.progressEmoji}>
                                     {(() => {
-                                        const current = parseFloat(currentWeight);
-                                        const goal = parseFloat(goalWeight);
+                                        const current = userData.currentWeight;
+                                        const goal = userData.goalWeight;
                                         const progress = ((current - goal) / (goal - current)) * 100;
                                         if (progress >= 100) return '🎉';
                                         if (progress >= 75) return '💪';
@@ -116,8 +195,8 @@ function HomeScreen() {
                                 </Text>
                                 <Text style={styles.progressText}>
                                     {(() => {
-                                        const current = parseFloat(currentWeight);
-                                        const goal = parseFloat(goalWeight);
+                                        const current = userData.currentWeight;
+                                        const goal = userData.goalWeight;
                                         const progress = ((current - goal) / (goal - current)) * 100;
                                         if (progress >= 100) return 'Goal Achieved!';
                                         if (progress >= 75) return 'Almost There!';
