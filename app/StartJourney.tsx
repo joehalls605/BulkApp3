@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Platform, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +13,18 @@ export default function StartJourney() {
     const navigation = useNavigation<StartJourneyScreenNavigationProp>();
     const [showSuccess, setShowSuccess] = useState(false);
     const fadeAnim = new Animated.Value(0);
+
+    useEffect(() => {
+        // Clear any existing subscription data when component mounts
+        const clearExistingSubscription = async () => {
+            try {
+                await SecureStore.deleteItemAsync('subscriptionDetails');
+            } catch (error) {
+                console.error('Error clearing subscription data:', error);
+            }
+        };
+        clearExistingSubscription();
+    }, []);
 
     const startTrial = async () => {
         try {
@@ -41,15 +53,44 @@ export default function StartJourney() {
 
     const restoreSubscription = async () => {
         try {
-            const subscriptionDetails = await SecureStore.getItemAsync('subscriptionDetails');
-            if (subscriptionDetails) {
-                const subscription = JSON.parse(subscriptionDetails);
-                if (subscription.isActive) {
-                    navigation.navigate('Dashboard');
-                    return;
-                }
+            // Check for both subscription details and user data
+            const [subscriptionDetails, userData] = await Promise.all([
+                SecureStore.getItemAsync('subscriptionDetails'),
+                SecureStore.getItemAsync('userData')
+            ]);
+
+            // If no user data exists, they haven't completed the questionnaire
+            if (!userData) {
+                alert('No account found. Please complete the questionnaire first.');
+                return;
             }
-            alert('No active subscription found. Please start a new trial or subscribe.');
+
+            // If no subscription details exist, they haven't started a trial
+            if (!subscriptionDetails) {
+                alert('No active subscription found. Please start a new trial.');
+                return;
+            }
+
+            const subscription = JSON.parse(subscriptionDetails);
+            const user = JSON.parse(userData);
+
+            // Check if subscription is active and not expired
+            if (subscription.isActive) {
+                const trialEndDate = new Date(subscription.trialEndDate);
+                const now = new Date();
+
+                if (trialEndDate > now) {
+                    // Trial is still active
+                    navigation.navigate('Dashboard');
+                } else {
+                    // Trial has expired
+                    alert('Your trial has expired. Please start a new trial or subscribe.');
+                    // Clear expired subscription
+                    await SecureStore.deleteItemAsync('subscriptionDetails');
+                }
+            } else {
+                alert('No active subscription found. Please start a new trial or subscribe.');
+            }
         } catch (error) {
             console.error('Error restoring subscription:', error);
             alert('Error restoring subscription. Please try again.');
@@ -174,7 +215,7 @@ export default function StartJourney() {
                                 style={styles.legalButton}
                                 onPress={restoreSubscription}
                             >
-                                <Text style={styles.legalButtonText}>Restore</Text>
+                                <Text style={styles.legalButtonText}>Restore Account</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

@@ -74,14 +74,6 @@ export default function TermsAndConditions() {
                 </View>
 
                 <ScrollView style={styles.content}>
-                    <TouchableOpacity 
-                        style={styles.resetButton}
-                        onPress={handleResetDetails}
-                    >
-                        <Ionicons name="refresh-circle" size={24} color="#FF5722" />
-                        <Text style={styles.resetButtonText}>Reset Your Details</Text>
-                    </TouchableOpacity>
-
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>1. Acceptance of Terms</Text>
                         <Text style={styles.text}>
