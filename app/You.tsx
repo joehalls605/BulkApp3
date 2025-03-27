@@ -74,6 +74,28 @@ export default function You() {
         }
     };
 
+    const updateGoalWeight = async () => {
+        const weight = parseFloat(goalWeight);
+        if (isNaN(weight) || weight <= 0) {
+            Alert.alert('Invalid Weight', 'Please enter a valid goal weight');
+            return;
+        }
+
+        try {
+            const updatedData = {
+                ...userData,
+                goalWeight: weight,
+                useMetric: useMetric
+            };
+            await SecureStore.setItemAsync('userData', JSON.stringify(updatedData));
+            setUserData(updatedData);
+            Alert.alert('Success', 'Goal weight updated successfully');
+        } catch (error) {
+            console.error('Error updating goal weight:', error);
+            Alert.alert('Error', 'Failed to update goal weight');
+        }
+    };
+
     const toggleUnit = () => {
         setUseMetric(!useMetric);
         if (currentWeight) {
@@ -97,42 +119,77 @@ export default function You() {
         <SafeAreaView style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Your Profile 👤</Text>
+                    <Text style={styles.headerTitle}>Your Bulking Details 💪</Text>
                 </View>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-                    <View style={styles.card}>
+                    <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#FF5722' }]}>
                         <View style={styles.cardHeader}>
                             <Text style={styles.cardTitle}>Current Weight</Text>
-                            <TouchableOpacity style={styles.unitToggle} onPress={toggleUnit}>
-                                <Text style={styles.unitToggleText}>{useMetric ? 'Metric' : 'Imperial'}</Text>
+                            <TouchableOpacity 
+                                style={[styles.unitToggle, { backgroundColor: useMetric ? '#E3F2FD' : '#FFF3E0' }]} 
+                                onPress={toggleUnit}
+                            >
+                                <Text style={[styles.unitToggleText, { color: useMetric ? '#1976D2' : '#FF9800' }]}>
+                                    {useMetric ? 'Metric' : 'Imperial'}
+                                </Text>
                             </TouchableOpacity>
                         </View>
                         <View style={styles.inputContainer}>
                             <TextInput
-                                style={styles.input}
+                                style={[styles.input, { borderColor: '#FF5722' }]}
                                 value={currentWeight}
                                 onChangeText={setCurrentWeight}
                                 keyboardType="numeric"
                                 placeholder="Enter your weight"
-                                placeholderTextColor="#666"
+                                placeholderTextColor="#999"
                             />
-                            <Text style={styles.unit}>{useMetric ? 'kg' : 'lbs'}</Text>
+                            <Text style={[styles.unit, { color: '#FF5722' }]}>{useMetric ? 'kg' : 'lbs'}</Text>
                         </View>
-                        <TouchableOpacity style={styles.button} onPress={updateWeight}>
+                        <TouchableOpacity 
+                            style={[styles.button, { backgroundColor: '#FF5722' }]} 
+                            onPress={updateWeight}
+                        >
                             <Text style={styles.buttonText}>Update Weight</Text>
                         </TouchableOpacity>
                     </View>
 
-                    <View style={styles.card}>
-                        <Text style={styles.cardTitle}>Your Goals</Text>
+                    <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#4CAF50' }]}>
+                        <View style={styles.cardHeader}>
+                            <Text style={styles.cardTitle}>Goal Weight</Text>
+                        </View>
+                        <View style={styles.inputContainer}>
+                            <TextInput
+                                style={[styles.input, { borderColor: '#4CAF50' }]}
+                                value={goalWeight}
+                                onChangeText={setGoalWeight}
+                                keyboardType="numeric"
+                                placeholder="Enter your goal weight"
+                                placeholderTextColor="#999"
+                            />
+                            <Text style={[styles.unit, { color: '#4CAF50' }]}>{useMetric ? 'kg' : 'lbs'}</Text>
+                        </View>
+                        <TouchableOpacity 
+                            style={[styles.button, { backgroundColor: '#4CAF50' }]} 
+                            onPress={updateGoalWeight}
+                        >
+                            <Text style={styles.buttonText}>Update Goal</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={[styles.card, { backgroundColor: '#FFF8E7' }]}>
+                        <Text style={styles.cardTitle}>Your Progress</Text>
                         <View style={styles.goalContainer}>
-                            <View style={styles.goalItem}>
+                            <View style={[styles.goalItem, { backgroundColor: '#FFF3E0' }]}>
                                 <Text style={styles.goalLabel}>Current Weight</Text>
-                                <Text style={styles.goalValue}>{formatWeight(userData?.currentWeight)}</Text>
+                                <Text style={[styles.goalValue, { color: '#FF5722' }]}>
+                                    {formatWeight(userData?.currentWeight)}
+                                </Text>
                             </View>
-                            <View style={styles.goalItem}>
+                            <View style={[styles.goalItem, { backgroundColor: '#E8F5E9' }]}>
                                 <Text style={styles.goalLabel}>Goal Weight</Text>
-                                <Text style={styles.goalValue}>{formatWeight(userData?.goalWeight)}</Text>
+                                <Text style={[styles.goalValue, { color: '#4CAF50' }]}>
+                                    {formatWeight(userData?.goalWeight)}
+                                </Text>
                             </View>
                         </View>
                     </View>
@@ -174,7 +231,7 @@ const styles = StyleSheet.create({
     },
     card: {
         backgroundColor: 'white',
-        borderRadius: 12,
+        borderRadius: 16,
         padding: 20,
         marginBottom: 16,
         shadowColor: '#000',
@@ -185,6 +242,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 3.84,
         elevation: 5,
+        borderWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.05)',
     },
     cardHeader: {
         flexDirection: 'row',
@@ -198,14 +257,14 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     unitToggle: {
-        backgroundColor: '#f0f0f0',
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.1)',
     },
     unitToggleText: {
         fontSize: 14,
-        color: '#666',
         fontWeight: '500',
     },
     inputContainer: {
@@ -216,45 +275,65 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         height: 50,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
+        borderWidth: 1.5,
+        borderRadius: 12,
         paddingHorizontal: 16,
         fontSize: 16,
         color: '#333',
+        backgroundColor: '#FFF',
     },
     unit: {
         marginLeft: 8,
         fontSize: 16,
-        color: '#666',
+        fontWeight: '500',
     },
     button: {
-        backgroundColor: '#FF5722',
         padding: 16,
-        borderRadius: 8,
+        borderRadius: 12,
         alignItems: 'center',
+        shadowColor: '#FF5722',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 3,
     },
     buttonText: {
         color: 'white',
         fontSize: 16,
         fontWeight: '600',
+        letterSpacing: 0.5,
     },
     goalContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        marginTop: 8,
     },
     goalItem: {
         flex: 1,
         alignItems: 'center',
+        padding: 12,
+        borderRadius: 12,
+        marginHorizontal: 4,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
     },
     goalLabel: {
         fontSize: 14,
         color: '#666',
         marginBottom: 4,
+        fontWeight: '500',
     },
     goalValue: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#333',
     },
 }); 
