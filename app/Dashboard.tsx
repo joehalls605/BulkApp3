@@ -6,9 +6,12 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as SecureStore from 'expo-secure-store';
 import Meals from './Meals';
-import Workouts from './Workouts';
+import You from './You';
+import { TabParamList, RootStackParamList } from './types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<TabParamList>();
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const dailyTips = [
     "Try adding a tablespoon of olive oil to your meals for extra calories",
@@ -24,7 +27,7 @@ const dailyTips = [
 ];
 
 function HomeScreen() {
-    const navigation = useNavigation();
+    const navigation = useNavigation<NavigationProp>();
     const route = useRoute();
     const [fadeAnim] = useState(new Animated.Value(1));
     const [userData, setUserData] = useState({
@@ -141,7 +144,7 @@ function HomeScreen() {
                                     <Text style={styles.goalValue}>{calories.maintenance} cal</Text>
                                     <Text style={styles.goalText}>Maintain</Text>
                                     <View style={styles.goalIndicator}>
-                                        <Ionicons name="trending-flat" size={16} color="#4CAF50" />
+                                        <Ionicons name="trending-up" size={16} color="#4CAF50" />
                                         <Text style={styles.goalIndicatorText}>Alternative</Text>
                                     </View>
                                 </View>
@@ -154,12 +157,12 @@ function HomeScreen() {
                             <View style={styles.actionButtons}>
                                 <TouchableOpacity 
                                     style={styles.actionButton}
-                                    onPress={() => navigation.navigate('Workouts')}
+                                    onPress={() => navigation.navigate('You')}
                                 >
                                     <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
-                                        <Ionicons name="barbell" size={24} color="#FF9800" />
+                                        <Ionicons name="person" size={24} color="#FF9800" />
                                     </View>
-                                    <Text style={styles.actionButtonText}>Workouts</Text>
+                                    <Text style={styles.actionButtonText}>Your Profile</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity 
                                     style={styles.actionButton}
@@ -218,14 +221,14 @@ export default function Dashboard() {
             screenOptions={({ route }) => ({
                 headerShown: false,
                 tabBarIcon: ({ focused, color, size }) => {
-                    let iconName;
+                    let iconName: keyof typeof Ionicons.glyphMap = 'home';
 
                     if (route.name === 'Home') {
                         iconName = focused ? 'home' : 'home-outline';
                     } else if (route.name === 'Meals') {
                         iconName = focused ? 'restaurant' : 'restaurant-outline';
-                    } else if (route.name === 'Workouts') {
-                        iconName = focused ? 'barbell' : 'barbell-outline';
+                    } else if (route.name === 'You') {
+                        iconName = focused ? 'person' : 'person-outline';
                     }
 
                     return <Ionicons name={iconName} size={size} color={color} />;
@@ -236,7 +239,7 @@ export default function Dashboard() {
         >
             <Tab.Screen name="Home" component={HomeScreen} />
             <Tab.Screen name="Meals" component={Meals} />
-            <Tab.Screen name="Workouts" component={Workouts} />
+            <Tab.Screen name="You" component={You} />
         </Tab.Navigator>
     );
 }

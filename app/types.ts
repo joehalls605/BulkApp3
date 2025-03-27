@@ -4,13 +4,17 @@ export type RootStackParamList = {
     Questionnaire: undefined;
     StartJourney: undefined;
     Dashboard: undefined;
+    SubscriptionManagement: undefined;
     Meals: undefined;
-    Workouts: undefined;
     WeightGuide: undefined;
     Motivation: undefined;
-    TermsAndConditions: undefined;
-    TermsOfUse: undefined;
-    SubscriptionManagement: undefined;
-    Congratulations: undefined;
     Shopping: undefined;
+    Congratulations: undefined;
+    You: undefined;
+};
+
+export type TabParamList = {
+    Home: undefined;
+    Meals: undefined;
+    You: undefined;
 }; 
