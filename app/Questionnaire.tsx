@@ -6,21 +6,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as SecureStore from 'expo-secure-store';
+import { RootStackParamList } from './types';
 
-type RootStackParamList = {
-    Dashboard: {
-        userData: {
-            currentWeight: number;
-            goalWeight: number;
-            useMetric: boolean;
-            gender: string;
-            timeframe: number;
-            dailyTip: string;
-        };
-    };
-};
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type QuestionnaireScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Questionnaire'>;
 
 const questions = [
     {
@@ -69,7 +57,7 @@ const dailyTips = [
 ];
 
 export default function Questionnaire() {
-    const navigation = useNavigation<NavigationProp>();
+    const navigation = useNavigation<QuestionnaireScreenNavigationProp>();
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [answers, setAnswers] = useState<Record<number, string>>({});
     const [isProcessing, setIsProcessing] = useState(false);
@@ -98,13 +86,15 @@ export default function Questionnaire() {
         
         // Prepare user data
         const userData = {
-            ...answers,
-            currentWeight: parseFloat(currentWeight),
-            goalWeight: parseFloat(goalWeight),
+            currentWeight,
+            goalWeight,
             useMetric,
             gender,
             timeframe,
-            dailyTip: dailyTips[Math.floor(Math.random() * dailyTips.length)]
+            dailyTip: dailyTips[Math.floor(Math.random() * dailyTips.length)],
+            exerciseFrequency: answers[1] === "1-2 times" ? 1 : answers[1] === "3 times" ? 2 : answers[1] === "4-5 times" ? 3 : 4,
+            mealsPerDay: answers[2] === "1-2 times" ? 1 : answers[2] === "3 times" ? 2 : answers[2] === "4-5 times" ? 3 : 4,
+            foodPreference: answers[3] === "Protein-rich foods" ? "Protein-rich foods" : answers[3] === "Carbohydrates" ? "Carbohydrates" : answers[3] === "Healthy fats" ? "Healthy fats" : "A mix of all"
         };
 
         try {
@@ -116,7 +106,7 @@ export default function Questionnaire() {
                 duration: 2000,
                 useNativeDriver: false,
             }).start(() => {
-                navigation.navigate('Dashboard', { userData });
+                navigation.navigate('StartJourney');
             });
         } catch (error) {
             console.error('Error saving user data:', error);
