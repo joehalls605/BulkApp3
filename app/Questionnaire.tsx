@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated, TextInput, Switch, TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated, TextInput, Switch, TouchableWithoutFeedback, Keyboard, ScrollView, Alert } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -67,7 +67,6 @@ export default function Questionnaire() {
     const [goalWeight, setGoalWeight] = useState('');
     const [gender, setGender] = useState('');
     const [timeframe, setTimeframe] = useState(12);
-    const [isNewSignup, setIsNewSignup] = useState(true);
 
     const handleAnswer = (answer: string) => {
         setAnswers(prev => ({
@@ -82,40 +81,49 @@ export default function Questionnaire() {
         }
     };
 
-    const startProcessing = async () => {
-        setIsProcessing(true);
-        
+    const handleSubmit = async () => {
         try {
-            // Clear existing subscription data if this is a new signup
-            if (isNewSignup) {
-                await SecureStore.deleteItemAsync('subscriptionDetails');
-            }
-            
-            // Prepare user data
-            const userData = {
-                currentWeight: parseFloat(currentWeight),
-                goalWeight: parseFloat(goalWeight),
-                useMetric,
-                timeframe,
-                dailyTip: dailyTips[Math.floor(Math.random() * dailyTips.length)],
-                exerciseFrequency: answers[1] === "1-2 times" ? 1 : answers[1] === "3 times" ? 2 : answers[1] === "4-5 times" ? 3 : 4,
-                mealsPerDay: answers[2] === "1-2 times" ? 1 : answers[2] === "3 times" ? 2 : answers[2] === "4-5 times" ? 3 : 4,
-                foodPreference: answers[3] === "Protein-rich foods" ? "Protein-rich foods" : answers[3] === "Carbohydrates" ? "Carbohydrates" : answers[3] === "Healthy fats" ? "Healthy fats" : "A mix of all"
-            };
+            // Calculate daily calorie needs based on current and goal weight
+            const currentWeightNum = parseFloat(currentWeight);
+            const goalWeightNum = parseFloat(goalWeight);
 
-            // Store user data securely
-            await SecureStore.setItemAsync('userData', JSON.stringify(userData));
+            // Validate that current weight is below goal weight
+            if (currentWeightNum >= goalWeightNum) {
+                Alert.alert(
+                    'Invalid Weight Goals 😟',
+                    'Your current weight must be below your goal weight. Please try again.',
+                    [{ text: 'OK' }]
+                );
+                return;
+            }
+
+            const weightDifference = goalWeightNum - currentWeightNum;
+            const dailyCalories = Math.round(currentWeightNum * 15 + (weightDifference * 500));
             
+            // Store user data securely with isSubscribed set to false by default
+            await SecureStore.setItemAsync('userData', JSON.stringify({
+                currentWeight: currentWeightNum,
+                goalWeight: goalWeightNum,
+                dailyCalories,
+                createdAt: new Date().toISOString(),
+                isSubscribed: false
+            }));
+
+            // Show processing state
+            setIsProcessing(true);
+            
+            // Animate progress bar
             Animated.timing(progress, {
                 toValue: 1,
                 duration: 2000,
                 useNativeDriver: false,
             }).start(() => {
+                // Navigate to Start Journey after animation
                 navigation.navigate('StartJourney');
             });
         } catch (error) {
             console.error('Error saving user data:', error);
-            alert('Error saving your information. Please try again.');
+            Alert.alert('Error', 'Failed to save your information. Please try again.');
         }
     };
 
@@ -218,23 +226,9 @@ export default function Questionnaire() {
                                         </View>
                                     </View>
 
-                                    <View style={styles.testToggleContainer}>
-                                        <Text style={styles.testToggleLabel}>Test Mode:</Text>
-                                        <View style={styles.testToggle}>
-                                            <Text style={styles.testToggleText}>New Signup</Text>
-                                            <Switch
-                                                value={isNewSignup}
-                                                onValueChange={setIsNewSignup}
-                                                trackColor={{ false: '#767577', true: '#FF5722' }}
-                                                thumbColor={isNewSignup ? '#fff' : '#f4f3f4'}
-                                            />
-                                            <Text style={styles.testToggleText}>Existing User</Text>
-                                        </View>
-                                    </View>
-
                                     <TouchableOpacity
                                         style={[styles.button, (!currentWeight || !goalWeight) && styles.buttonDisabled]}
-                                        onPress={startProcessing}
+                                        onPress={handleSubmit}
                                         disabled={!currentWeight || !goalWeight}
                                     >
                                         <Text style={styles.buttonText}>Complete Setup</Text>

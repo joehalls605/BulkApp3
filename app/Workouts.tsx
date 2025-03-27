@@ -309,6 +309,12 @@ export default function Workouts() {
                                     </View>
                                 ))}
                             </View>
+                            <View style={styles.exercisesContainer}>
+                                <Text style={styles.exercisesTitle}>Exercises:</Text>
+                                {randomWorkout.exercises.map((exercise, exerciseIndex) => (
+                                    <Text key={exerciseIndex} style={styles.exerciseItem}>{exercise}</Text>
+                                ))}
+                            </View>
                         </View>
                     )}
 

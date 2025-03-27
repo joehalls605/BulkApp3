@@ -8,6 +8,8 @@ import TermsOfUse from './app/TermsOfUse';
 import SubscriptionManagement from './app/SubscriptionManagement';
 import Shopping from './app/Shopping';
 import Congratulations from './app/Congratulations';
+import Welcome from './app/Welcome';
+import Introduction from './app/Introduction';
 import { RootStackParamList } from './app/types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -16,13 +18,15 @@ export default function App() {
     return (
         <NavigationContainer>
             <Stack.Navigator
-                initialRouteName="StartJourney"
+                initialRouteName="Welcome"
                 screenOptions={{
                     headerShown: false,
                 }}
             >
-                <Stack.Screen name="StartJourney" component={StartJourney} />
+                <Stack.Screen name="Welcome" component={Welcome} />
+                <Stack.Screen name="Introduction" component={Introduction} />
                 <Stack.Screen name="Questionnaire" component={Questionnaire} />
+                <Stack.Screen name="StartJourney" component={StartJourney} />
                 <Stack.Screen name="Congratulations" component={Congratulations} />
                 <Stack.Screen name="Dashboard" component={Dashboard} />
                 <Stack.Screen name="Shopping" component={Shopping} />

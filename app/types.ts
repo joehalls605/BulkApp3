@@ -1,4 +1,6 @@
 export type RootStackParamList = {
+    Welcome: undefined;
+    Introduction: undefined;
     Questionnaire: undefined;
     StartJourney: undefined;
     Dashboard: undefined;
