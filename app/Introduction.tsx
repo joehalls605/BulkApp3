@@ -15,12 +15,12 @@ export default function Introduction() {
                         <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
                             <Ionicons name="heart" size={40} color="#FF9800" />
                         </View>
-                        <Text style={styles.title}>Welcome to BulkUp</Text>
+                        <Text style={styles.title}>First, let's get you started.</Text>
                     </View>
 
                     <View style={styles.messageContainer}>
                         <Text style={styles.message}>
-                            We've spoken to many people who struggle with gaining weight, and we know how tough it can be. That's why we've created this app with all the tools you need to support your weight gain journey.
+                            We've spoken to many people who struggle with gaining weight, and we know how tough it can be.
                         </Text>
                     </View>
 

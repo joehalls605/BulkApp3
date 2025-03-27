@@ -10,19 +10,18 @@ export default function Welcome() {
     return (
         <SafeAreaView style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
+                <View style={styles.header}>
+                    <Text style={styles.title}>Welcome to BulkUp 💪</Text>
+                    <Text style={styles.subtitle}>Your personal weight gain companion</Text>
+                </View>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-                    <View style={styles.header}>
-                        <Text style={styles.title}>Welcome to BulkUp</Text>
-                        <Text style={styles.subtitle}>Your personal weight gain companion</Text>
-                    </View>
-
                     <View style={styles.noteSection}>
                         <Text style={styles.noteText}>
-                            We created BulkUp because we've As people who have struggled to gain weight, we understand the challenges you face. Our app is designed with real experience and genuine support in mind.
+                            BulkUp is packed with real support to help you achieve your goals and build the body you want.
                         </Text>
                     </View>
                     <View style={styles.featuresSection}>
-                        <Text style={styles.sectionTitle}>Why Choose BulkUp?</Text>
+                        <Text style={styles.sectionTitle}>Look what you're getting 😎</Text>
                         <View style={styles.featuresGrid}>
                             <View style={styles.featureCard}>
                                 <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
@@ -77,16 +76,11 @@ const styles = StyleSheet.create({
     gradient: {
         flex: 1,
     },
-    scrollView: {
-        flex: 1,
-    },
-    scrollContent: {
-        padding: 20,
-        paddingBottom: 40,
-    },
     header: {
-        marginBottom: 30,
-        alignItems: 'center',
+        padding: 20,
+        paddingTop: 40,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E0E0E0',
     },
     title: {
         fontSize: 32,
@@ -98,6 +92,13 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#666',
     },
+    scrollView: {
+        flex: 1,
+    },
+    scrollContent: {
+        padding: 20,
+        paddingBottom: 40,
+    },
     enterButton: {
         backgroundColor: '#FF5722',
         padding: 20,
@@ -106,6 +107,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 30,
+        borderWidth: 1,
+        borderColor: '#E64A19',
     },
     enterButtonText: {
         color: 'white',
@@ -137,6 +140,8 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         alignItems: 'center',
         elevation: 2,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
     },
     iconContainer: {
         width: 48,
@@ -163,6 +168,8 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         marginBottom: 20,
         elevation: 2,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
     },
     noteTitle: {
         fontSize: 18,

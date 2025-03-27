@@ -25,6 +25,7 @@ export default function Workouts() {
     const [selectedEquipment, setSelectedEquipment] = useState<EquipmentType>('All');
     const [randomWorkout, setRandomWorkout] = useState<Workout | null>(null);
     const [filteredWorkouts, setFilteredWorkouts] = useState<Workout[]>([]);
+    const [showRefreshMessage, setShowRefreshMessage] = useState(false);
 
     const workoutTypes: WorkoutType[] = ['All', 'Strength', 'Quick', 'Beginner'];
     const equipmentTypes: EquipmentType[] = ['All', 'With Equipment', 'No Equipment'];
@@ -32,6 +33,14 @@ export default function Workouts() {
     const getRandomWorkout = () => {
         const randomIndex = Math.floor(Math.random() * filteredWorkouts.length);
         setRandomWorkout(filteredWorkouts[randomIndex]);
+    };
+
+    const refreshWorkouts = () => {
+        // Shuffle the filtered workouts array
+        const shuffled = [...filteredWorkouts].sort(() => Math.random() - 0.5);
+        setFilteredWorkouts(shuffled);
+        setShowRefreshMessage(true);
+        setTimeout(() => setShowRefreshMessage(false), 3000);
     };
 
     const getTabStyle = (type: WorkoutType | EquipmentType, isSelected: boolean) => {
@@ -369,6 +378,22 @@ export default function Workouts() {
                             </View>
                         </View>
                     ))}
+
+                    {/* Refresh Section */}
+                    <View style={styles.refreshSection}>
+                        <TouchableOpacity 
+                            style={styles.refreshButton}
+                            onPress={refreshWorkouts}
+                        >
+                            <Ionicons name="refresh" size={24} color="#4CAF50" />
+                            <Text style={styles.refreshButtonText}>Refresh Workouts</Text>
+                        </TouchableOpacity>
+                        {showRefreshMessage && (
+                            <Text style={styles.refreshMessage}>
+                                Damn, you made it down here already? Time to refresh! 💪
+                            </Text>
+                        )}
+                    </View>
                 </ScrollView>
             </LinearGradient>
         </View>
@@ -454,6 +479,15 @@ const styles = StyleSheet.create({
         padding: 20,
         marginBottom: 20,
         elevation: 3,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
     },
     workoutHeader: {
         flexDirection: 'row',
@@ -509,6 +543,10 @@ const styles = StyleSheet.create({
     },
     exercisesContainer: {
         marginTop: 10,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        padding: 15,
+        borderRadius: 8,
     },
     workoutDescription: {
         fontSize: 14,
@@ -521,6 +559,8 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 8,
         marginBottom: 15,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
     },
     tipsTitle: {
         fontSize: 16,
@@ -539,6 +579,8 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 8,
         marginBottom: 15,
+        borderWidth: 1,
+        borderColor: '#C8E6C9',
     },
     restText: {
         fontSize: 14,
@@ -556,5 +598,32 @@ const styles = StyleSheet.create({
         color: '#333',
         marginBottom: 12,
         lineHeight: 20,
+    },
+    refreshSection: {
+        alignItems: 'center',
+        paddingVertical: 20,
+        marginTop: 10,
+    },
+    refreshButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#E8F5E9',
+        padding: 12,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#4CAF50',
+    },
+    refreshButtonText: {
+        marginLeft: 8,
+        fontSize: 16,
+        color: '#4CAF50',
+        fontWeight: '600',
+    },
+    refreshMessage: {
+        marginTop: 10,
+        fontSize: 14,
+        color: '#666',
+        fontStyle: 'italic',
+        textAlign: 'center',
     },
 });
