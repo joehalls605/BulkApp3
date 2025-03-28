@@ -281,7 +281,7 @@ export default function Meals() {
         }
     };
 
-    const getRandomMeals = (type: MealType, count: number = 6) => {
+    const getRandomMeals = (type: MealType, count: number = type === 'All' ? 30 : 10) => {
         const filteredMeals = type === 'All' 
             ? allMeals 
             : allMeals.filter(meal => meal.time === type);
