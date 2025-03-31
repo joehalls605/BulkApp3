@@ -12,6 +12,9 @@ export type RootStackParamList = {
     Congratulations: undefined;
     You: undefined;
     Workouts: undefined;
+    MealSuggestions: undefined;
+    QuickMeals: undefined;
+    LowAppetite: undefined;
 };
 
 export type TabParamList = {

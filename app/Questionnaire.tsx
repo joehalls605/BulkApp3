@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as SecureStore from 'expo-secure-store';
 import { RootStackParamList } from './types';
+import { WeightConfig, calculateCalories } from './config/weightConfig';
 
 type QuestionnaireScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Questionnaire'>;
 
@@ -97,14 +98,40 @@ export default function Questionnaire() {
                 return;
             }
 
-            const weightDifference = goalWeightNum - currentWeightNum;
-            const dailyCalories = Math.round(currentWeightNum * 15 + (weightDifference * 500));
+            // Initialize weight config with user's data
+            const weightConfig: WeightConfig = {
+                currentWeight: currentWeightNum,
+                goalWeight: goalWeightNum,
+                useMetric: useMetric,
+                dailyTarget: 0,
+                maintenanceCalories: 0,
+                weightGainCalories: 0
+            };
+
+            // Calculate calories and update config
+            const calories = calculateCalories(
+                weightConfig.currentWeight,
+                weightConfig.goalWeight,
+                weightConfig.useMetric
+            );
+
+            weightConfig.maintenanceCalories = calories.maintenanceCalories;
+            weightConfig.weightGainCalories = calories.weightGainCalories;
+            weightConfig.dailyTarget = calories.dailyTarget;
+
+            // Store weight config
+            await SecureStore.setItemAsync('weightConfig', JSON.stringify(weightConfig));
             
             // Store user data securely with isSubscribed set to false by default
             await SecureStore.setItemAsync('userData', JSON.stringify({
                 currentWeight: currentWeightNum,
                 goalWeight: goalWeightNum,
-                dailyCalories,
+                useMetric: useMetric,
+                exerciseFrequency: answers[1] || 'Never',
+                mealsPerDay: answers[2] || '3 times',
+                foodPreference: answers[3] || 'A mix of all',
+                dailyCalories: 0,
+                completedMeals: {},
                 createdAt: new Date().toISOString(),
                 isSubscribed: false
             }));

@@ -508,5 +508,104 @@ export const allMeals: Meal[] = [
         emojis: ["🧁", "🍌", "🌾", "🥛", "🍫"],
         time: "Snack",
         dietaryTags: ["Vegan", "Gluten-Free", "Dairy-Free"]
-    }
+    },
+    {
+        id: 30,
+        name: "Grilled Salmon",
+        calories: 650,
+        ingredients: ["Salmon", "Brown Rice", "Broccoli", "Lemon", "Olive Oil"],
+        emojis: ["🐟", "🍚", "🥦", "🍋", "🫒"],
+        time: "Dinner",
+        dietaryTags: ["Pescatarian", "Gluten-Free", "Nut-Free", "Dairy-Free"]
+    },
+    {
+        id: 31,
+        name: "Vegan Stir Fry",
+        calories: 600,
+        ingredients: ["Tofu", "Brown Rice", "Mixed Vegetables", "Soy Sauce", "Ginger"],
+        emojis: ["🥘", "🍚", "🥬", "🥫", "🧄"],
+        time: "Dinner",
+        dietaryTags: ["Vegan", "Gluten-Free", "Nut-Free", "Dairy-Free"]
+    },
+    {
+        id: 32,
+        name: "Beef & Sweet Potato Bowl",
+        calories: 950,
+        ingredients: ["Ground Beef", "Sweet Potato", "Spinach", "Cheese", "Sour Cream"],
+        emojis: ["🥩", "🍠", "🥬", "🧀", "🥛"],
+        time: "Dinner",
+        dietaryTags: ["Meat-eater", "Gluten-Free", "Nut-Free"]
+    },
+    {
+        id: 33,
+        name: "Shrimp Pasta",
+        calories: 800,
+        ingredients: ["Whole Grain Pasta", "Shrimp", "Garlic", "Olive Oil", "Parmesan"],
+        emojis: ["🍝", "🦐", "🧄", "🫒", "🧀"],
+        time: "Dinner",
+        dietaryTags: ["Pescatarian", "Nut-Free"]
+    },
+    {
+        id: 34,
+        name: "Vegan Curry",
+        calories: 700,
+        ingredients: ["Coconut Milk", "Chickpeas", "Brown Rice", "Curry Powder", "Spinach"],
+        emojis: ["🥘", "🥥", "🫘", "🍚", "🥬"],
+        time: "Dinner",
+        dietaryTags: ["Vegan", "Gluten-Free", "Nut-Free", "Dairy-Free"]
+    },
+    {
+        id: 35,
+        name: "Chicken Stir Fry",
+        calories: 750,
+        ingredients: ["Chicken Breast", "Brown Rice", "Mixed Vegetables", "Soy Sauce", "Ginger"],
+        emojis: ["🍗", "🍚", "🥬", "🥫", "🧄"],
+        time: "Dinner",
+        dietaryTags: ["Meat-eater", "Gluten-Free", "Nut-Free", "Dairy-Free"]
+    },
+    {
+        id: 36,
+        name: "Baked Cod",
+        calories: 600,
+        ingredients: ["Cod", "Quinoa", "Asparagus", "Lemon", "Olive Oil"],
+        emojis: ["🐟", "🌾", "🥬", "🍋", "🫒"],
+        time: "Dinner",
+        dietaryTags: ["Pescatarian", "Gluten-Free", "Nut-Free", "Dairy-Free"]
+    },
+    {
+        id: 37,
+        name: "Vegan Lasagna",
+        calories: 800,
+        ingredients: ["Whole Grain Noodles", "Tofu Ricotta", "Spinach", "Marinara", "Nutritional Yeast"],
+        emojis: ["🍝", "🥫", "🥬", "🍅", "🌱"],
+        time: "Dinner",
+        dietaryTags: ["Vegan", "Nut-Free", "Dairy-Free"]
+    },
+    {
+        id: 38,
+        name: "Grilled Chicken Pasta",
+        calories: 850,
+        ingredients: ["Whole Grain Pasta", "Grilled Chicken", "Broccoli", "Alfredo Sauce", "Parmesan"],
+        emojis: ["🍝", "🍗", "🥦", "🥛", "🧀"],
+        time: "Dinner",
+        dietaryTags: ["Meat-eater", "Nut-Free"]
+    },
+    {
+        id: 39,
+        name: "Seafood Paella",
+        calories: 900,
+        ingredients: ["Arborio Rice", "Shrimp", "Mussels", "Bell Peppers", "Saffron"],
+        emojis: ["🍚", "🦐", "🦪", "🫑", "🌿"],
+        time: "Dinner",
+        dietaryTags: ["Pescatarian", "Gluten-Free", "Nut-Free", "Dairy-Free"]
+    },
+    {
+        id: 40,
+        name: "Vegan Shepherd's Pie",
+        calories: 750,
+        ingredients: ["Lentils", "Mashed Potatoes", "Mixed Vegetables", "Mushrooms", "Gravy"],
+        emojis: ["🫘", "🥔", "🥬", "🍄", "🥫"],
+        time: "Dinner",
+        dietaryTags: ["Vegan", "Nut-Free", "Dairy-Free"]
+    },
 ]; 

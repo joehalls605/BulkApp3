@@ -199,7 +199,28 @@ function HomeScreen() {
                             style={styles.shoppingButton}
                             onPress={() => navigation.navigate('Shopping')}
                         >
-                            <Text style={styles.shoppingButtonText}>Today's Shopping List 📝</Text>
+                            <Text style={styles.shoppingButtonText}>AI Shopping List 📝</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity 
+                            style={[styles.shoppingButton, { backgroundColor: '#4CAF50' }]}
+                            onPress={() => navigation.navigate('MealSuggestions')}
+                        >
+                            <Text style={styles.shoppingButtonText}>What To Eat Today? 🍽️</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity 
+                            style={[styles.shoppingButton, { backgroundColor: '#FF9800' }]}
+                            onPress={() => navigation.navigate('QuickMeals')}
+                        >
+                            <Text style={styles.shoppingButtonText}>Quick Pantry Meals 🏠</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity 
+                            style={[styles.shoppingButton, { backgroundColor: '#E91E63' }]}
+                            onPress={() => navigation.navigate('LowAppetite')}
+                        >
+                            <Text style={styles.shoppingButtonText}>Low Appetite Meals 🥤</Text>
                         </TouchableOpacity>
 
                         <View style={styles.dailyTipSection}>

@@ -23,11 +23,25 @@ export const calculateCalories = (currentWeight: number, goalWeight: number, use
     const weightInKg = useMetric ? currentWeight : currentWeight * 6.35029318;
     const goalWeightInKg = useMetric ? goalWeight : goalWeight * 6.35029318;
 
-    // Calculate maintenance calories (30 calories per kg of body weight)
-    const maintenanceCalories = Math.round(weightInKg * 30);
+    // Calculate BMR using Mifflin-St Jeor Equation
+    // For men: (10 × weight in kg) + (6.25 × height in cm) - (5 × age in years) + 5
+    // For women: (10 × weight in kg) + (6.25 × height in cm) - (5 × age in years) - 161
+    // Using average height of 170cm and age of 25 for a baseline
+    const heightInCm = 170;
+    const age = 25;
+    const bmr = (10 * weightInKg) + (6.25 * heightInCm) - (5 * age) + 5; // Using male formula as baseline
 
-    // Calculate weight gain calories (maintenance + 500 calories for 0.5kg gain per week)
-    const weightGainCalories = maintenanceCalories + 500;
+    // Activity multiplier (1.2 for sedentary, 1.375 for light exercise, 1.55 for moderate, 1.725 for very active, 1.9 for extra active)
+    const activityMultiplier = 1.55; // Moderate activity level
+
+    // Calculate maintenance calories
+    const maintenanceCalories = Math.round(bmr * activityMultiplier);
+
+    // Calculate weight gain calories
+    // For 0.5kg gain per week, add 500 calories
+    // For 1kg gain per week, add 1000 calories
+    const weeklyGainTarget = 0.5; // kg per week
+    const weightGainCalories = maintenanceCalories + (weeklyGainTarget * 1000);
 
     return {
         maintenanceCalories,
@@ -38,20 +52,9 @@ export const calculateCalories = (currentWeight: number, goalWeight: number, use
 
 export const loadWeightConfig = async (): Promise<WeightConfig> => {
     try {
-        const data = await SecureStore.getItemAsync('userData');
-        if (data) {
-            const parsedData = JSON.parse(data);
-            const { currentWeight, goalWeight, useMetric } = parsedData;
-            
-            if (currentWeight && goalWeight) {
-                const calories = calculateCalories(currentWeight, goalWeight, useMetric);
-                return {
-                    currentWeight,
-                    goalWeight,
-                    useMetric: useMetric ?? true,
-                    ...calories
-                };
-            }
+        const configData = await SecureStore.getItemAsync('weightConfig');
+        if (configData) {
+            return JSON.parse(configData);
         }
         return DEFAULT_CONFIG;
     } catch (error) {
@@ -66,32 +69,50 @@ export const updateWeightConfig = async (
     useMetric?: boolean
 ): Promise<WeightConfig> => {
     try {
-        const existingData = await SecureStore.getItemAsync('userData');
-        const parsedData = existingData ? JSON.parse(existingData) : {};
+        // First get the current config
+        const currentConfig = await loadWeightConfig();
 
-        const updatedData = {
-            ...parsedData,
-            currentWeight: currentWeight ?? parsedData.currentWeight ?? DEFAULT_CONFIG.currentWeight,
-            goalWeight: goalWeight ?? parsedData.goalWeight ?? DEFAULT_CONFIG.goalWeight,
-            useMetric: useMetric ?? parsedData.useMetric ?? DEFAULT_CONFIG.useMetric,
-            dailyCalories: 0,
-            completedMeals: {}
+        // Update the config with new values
+        const updatedConfig: WeightConfig = {
+            currentWeight: currentWeight ?? currentConfig.currentWeight,
+            goalWeight: goalWeight ?? currentConfig.goalWeight,
+            useMetric: useMetric ?? currentConfig.useMetric,
+            dailyTarget: 0,
+            maintenanceCalories: 0,
+            weightGainCalories: 0
         };
 
+        // Calculate new calories based on updated weights
         const calories = calculateCalories(
-            updatedData.currentWeight,
-            updatedData.goalWeight,
-            updatedData.useMetric
+            updatedConfig.currentWeight,
+            updatedConfig.goalWeight,
+            updatedConfig.useMetric
         );
 
-        await SecureStore.setItemAsync('userData', JSON.stringify(updatedData));
+        // Update the config with calculated calories
+        updatedConfig.maintenanceCalories = calories.maintenanceCalories;
+        updatedConfig.weightGainCalories = calories.weightGainCalories;
+        updatedConfig.dailyTarget = calories.dailyTarget;
 
-        return {
-            currentWeight: updatedData.currentWeight,
-            goalWeight: updatedData.goalWeight,
-            useMetric: updatedData.useMetric,
-            ...calories
-        };
+        // Store the updated config
+        await SecureStore.setItemAsync('weightConfig', JSON.stringify(updatedConfig));
+
+        // Update userData with the new weights
+        const userDataString = await SecureStore.getItemAsync('userData');
+        if (userDataString) {
+            const userData = JSON.parse(userDataString);
+            const updatedUserData = {
+                ...userData,
+                currentWeight: updatedConfig.currentWeight,
+                goalWeight: updatedConfig.goalWeight,
+                useMetric: updatedConfig.useMetric,
+                dailyCalories: 0,
+                completedMeals: {}
+            };
+            await SecureStore.setItemAsync('userData', JSON.stringify(updatedUserData));
+        }
+
+        return updatedConfig;
     } catch (error) {
         console.error('Error updating weight config:', error);
         return DEFAULT_CONFIG;

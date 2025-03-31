@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { WeightConfig, loadWeightConfig, updateWeightConfig, formatWeight, convertWeight } from './config/weightConfig';
+import * as SecureStore from 'expo-secure-store';
 
 export default function You() {
     const [currentWeight, setCurrentWeight] = useState('');
@@ -25,11 +26,32 @@ export default function You() {
     }, [navigation]);
 
     const loadUserData = async () => {
-        const config = await loadWeightConfig();
-        setWeightConfig(config);
-        setCurrentWeight(config.currentWeight.toString());
-        setGoalWeight(config.goalWeight.toString());
-        setUseMetric(config.useMetric);
+        try {
+            // Load weight configuration first
+            const config = await loadWeightConfig();
+            setWeightConfig(config);
+            
+            // Set the input values from the config
+            setCurrentWeight(config.currentWeight.toString());
+            setGoalWeight(config.goalWeight.toString());
+            setUseMetric(config.useMetric);
+
+            // Load user data
+            const userDataString = await SecureStore.getItemAsync('userData');
+            if (userDataString) {
+                const userData = JSON.parse(userDataString);
+                // Ensure user data matches config
+                const updatedUserData = {
+                    ...userData,
+                    currentWeight: config.currentWeight,
+                    goalWeight: config.goalWeight,
+                    useMetric: config.useMetric
+                };
+                await SecureStore.setItemAsync('userData', JSON.stringify(updatedUserData));
+            }
+        } catch (error) {
+            console.error('Error loading user data:', error);
+        }
     };
 
     const updateWeight = async () => {
@@ -40,47 +62,52 @@ export default function You() {
         }
 
         try {
+            // Update config with new current weight
             const updatedConfig = await updateWeightConfig(weight, undefined, useMetric);
             setWeightConfig(updatedConfig);
 
-            // Check if goal weight has been reached
-            if (weightConfig?.goalWeight) {
-                const currentWeightInKg = useMetric ? weight : convertWeight(weight, false, true);
-                const goalWeightInKg = useMetric ? weightConfig.goalWeight : convertWeight(weightConfig.goalWeight, false, true);
-                
-                // Allow for a small margin of error (0.1 kg)
-                if (Math.abs(currentWeightInKg - goalWeightInKg) <= 0.1) {
-                    Alert.alert(
-                        '🎉 Congratulations! 🎉',
-                        'You have reached your goal weight! Keep up the great work!',
-                        [{ text: 'OK', style: 'default' }]
-                    );
-                } else {
-                    Alert.alert('Success', 'Weight updated successfully');
-                }
-            } else {
-                Alert.alert('Success', 'Weight updated successfully');
-            }
+            Alert.alert(
+                'Success',
+                `Current weight updated to ${formatWeight(weight, useMetric)}`,
+                [{ text: 'OK' }]
+            );
         } catch (error) {
             console.error('Error updating weight:', error);
-            Alert.alert('Error', 'Failed to update weight');
+            Alert.alert('Error', 'Failed to update weight. Please try again.');
         }
     };
 
     const updateGoalWeight = async () => {
         const weight = parseFloat(goalWeight);
         if (isNaN(weight) || weight <= 0) {
-            Alert.alert('Invalid Weight', 'Please enter a valid goal weight');
+            Alert.alert('Invalid Weight', 'Please enter a valid weight');
+            return;
+        }
+
+        // Validate that goal weight is greater than current weight
+        const currentWeightNum = parseFloat(currentWeight);
+        if (weight <= currentWeightNum) {
+            Alert.alert(
+                'Invalid Goal Weight',
+                'Your goal weight must be greater than your current weight. Please try again.',
+                [{ text: 'OK' }]
+            );
             return;
         }
 
         try {
+            // Update config with new goal weight
             const updatedConfig = await updateWeightConfig(undefined, weight, useMetric);
             setWeightConfig(updatedConfig);
-            Alert.alert('Success', 'Goal weight updated successfully');
+
+            Alert.alert(
+                'Success',
+                `Goal weight updated to ${formatWeight(weight, useMetric)}`,
+                [{ text: 'OK' }]
+            );
         } catch (error) {
             console.error('Error updating goal weight:', error);
-            Alert.alert('Error', 'Failed to update goal weight');
+            Alert.alert('Error', 'Failed to update goal weight. Please try again.');
         }
     };
 
@@ -154,32 +181,6 @@ export default function You() {
                         >
                             <Text style={styles.buttonText}>Update Goal</Text>
                         </TouchableOpacity>
-                    </View>
-
-                    <View style={[styles.card, { backgroundColor: '#FFF8E7' }]}>
-                        <Text style={styles.cardTitle}>Your Progress</Text>
-                        <View style={styles.goalContainer}>
-                            <View style={[styles.goalItem, { backgroundColor: '#FFF3E0' }]}>
-                                <Text style={styles.goalLabel}>Current Weight</Text>
-                                <Text style={[styles.goalValue, { color: '#FF5722' }]}>
-                                    {weightConfig ? formatWeight(weightConfig.currentWeight, weightConfig.useMetric) : '--'}
-                                </Text>
-                            </View>
-                            <View style={[styles.goalItem, { backgroundColor: '#E8F5E9' }]}>
-                                <Text style={styles.goalLabel}>Goal Weight</Text>
-                                <Text style={[styles.goalValue, { color: '#4CAF50' }]}>
-                                    {weightConfig ? formatWeight(weightConfig.goalWeight, weightConfig.useMetric) : '--'}
-                                </Text>
-                            </View>
-                        </View>
-                    </View>
-
-                    <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#2196F3' }]}>
-                        <Text style={styles.cardTitle}>Daily Calorie Target</Text>
-                        <View style={styles.targetContainer}>
-                            <Text style={styles.targetValue}>{weightConfig?.dailyTarget ?? 0} cal</Text>
-                            <Text style={styles.targetLabel}>For optimal weight gain</Text>
-                        </View>
                     </View>
                 </ScrollView>
             </LinearGradient>
@@ -340,5 +341,27 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#666',
         marginTop: 4,
+    },
+    progressContainer: {
+        marginTop: 16,
+        alignItems: 'center',
+    },
+    progressBar: {
+        width: '100%',
+        height: 8,
+        backgroundColor: '#E0E0E0',
+        borderRadius: 4,
+        overflow: 'hidden',
+        marginBottom: 8,
+    },
+    progressFill: {
+        height: '100%',
+        backgroundColor: '#4CAF50',
+        borderRadius: 4,
+    },
+    progressText: {
+        fontSize: 14,
+        color: '#666',
+        fontWeight: '500',
     },
 }); 

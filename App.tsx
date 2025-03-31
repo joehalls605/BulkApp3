@@ -10,6 +10,9 @@ import Shopping from './app/Shopping';
 import Congratulations from './app/Congratulations';
 import Welcome from './app/Welcome';
 import Introduction from './app/Introduction';
+import MealSuggestions from './app/MealSuggestions';
+import QuickMeals from './app/QuickMeals';
+import LowAppetite from './app/LowAppetite';
 import { RootStackParamList } from './app/types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -33,6 +36,9 @@ export default function App() {
                 <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
                 <Stack.Screen name="TermsOfUse" component={TermsOfUse} />
                 <Stack.Screen name="SubscriptionManagement" component={SubscriptionManagement} />
+                <Stack.Screen name="MealSuggestions" component={MealSuggestions} />
+                <Stack.Screen name="QuickMeals" component={QuickMeals} />
+                <Stack.Screen name="LowAppetite" component={LowAppetite} />
             </Stack.Navigator>
         </NavigationContainer>
     );

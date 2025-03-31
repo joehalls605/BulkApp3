@@ -23,7 +23,7 @@ interface UserData {
     exerciseFrequency: string;
     mealsPerDay: string;
     foodPreference: string;
-    completedMeals?: { [key: string]: boolean };
+    completedMeals: { [key: number]: boolean };
     dailyCalories?: number;
 }
 
@@ -260,28 +260,41 @@ export default function Meals() {
 
     const loadUserData = async () => {
         try {
+            // Load weight configuration first
+            const config = await loadWeightConfig();
+            setWeightConfig(config);
+
+            // Load user data
             const userDataString = await SecureStore.getItemAsync('userData');
             if (userDataString) {
                 const userData = JSON.parse(userDataString);
-                // Reset daily calories and completed meals
-                const updatedData = {
-                    ...userData,
-                    dailyCalories: 0,
-                    completedMeals: {}
-                };
-                await SecureStore.setItemAsync('userData', JSON.stringify(updatedData));
-                setUserData(updatedData);
+                setUserData(userData);
             }
-            
-            // Load weight configuration
-            const config = await loadWeightConfig();
-            setWeightConfig(config);
         } catch (error) {
             console.error('Error loading user data:', error);
         }
     };
 
-    const getRandomMeals = (type: MealType, count: number = type === 'All' ? 30 : 10) => {
+    const calculateDailyTarget = (currentWeight: number, goalWeight: number, useMetric: boolean) => {
+        // Convert to kg if using imperial units
+        const weightInKg = useMetric ? currentWeight : currentWeight * 6.35029318;
+        const goalWeightInKg = useMetric ? goalWeight : goalWeight * 6.35029318;
+
+        // Calculate maintenance calories (30 calories per kg of body weight)
+        const maintenanceCalories = Math.round(weightInKg * 30);
+
+        // Calculate weight gain calories (maintenance + 500 calories for 0.5kg gain per week)
+        const weightGainCalories = maintenanceCalories + 500;
+
+        return weightGainCalories;
+    };
+
+    const getRandomMeals = (type: MealType) => {
+        let count = 20; // Show 10 meals for each type
+        if (type === 'All') {
+            count = 40; // Show more meals for 'All' view
+        }
+
         const filteredMeals = type === 'All' 
             ? allMeals 
             : allMeals.filter(meal => meal.time === type);
@@ -293,13 +306,12 @@ export default function Meals() {
     // Update displayed meals when tab changes
     useEffect(() => {
         const meals = getRandomMeals(selectedMealType);
-        // Add completion status to displayed meals from userData
         const mealsWithStatus = meals.map(meal => ({
             ...meal,
             isCompleted: userData.completedMeals?.[meal.id] || false
         }));
         setDisplayedMeals(mealsWithStatus);
-    }, [selectedMealType]); // Remove userData.completedMeals from dependencies
+    }, [selectedMealType]);
 
     const toggleMealCompletion = async (mealId: number) => {
         try {
@@ -309,33 +321,40 @@ export default function Meals() {
             };
 
             // Calculate total calories from completed meals
-            const totalCalories = Object.entries(updatedCompletedMeals)
-                .filter(([_, isCompleted]) => isCompleted)
-                .reduce((sum, [mealId]) => {
-                    const meal = allMeals.find(m => m.id === parseInt(mealId));
-                    return sum + (meal?.calories || 0);
-                }, 0);
+            const totalCalories = displayedMeals.reduce((total, meal) => {
+                return total + (updatedCompletedMeals[meal.id] ? meal.calories : 0);
+            }, 0);
 
-            const updatedData = {
+            // Update user data
+            const updatedUserData = {
                 ...userData,
                 completedMeals: updatedCompletedMeals,
                 dailyCalories: totalCalories
             };
 
-            await SecureStore.setItemAsync('userData', JSON.stringify(updatedData));
-            setUserData(updatedData);
+            await SecureStore.setItemAsync('userData', JSON.stringify(updatedUserData));
+            setUserData(updatedUserData);
 
-            // Update only the specific meal's completion status in displayed meals
+            // Update displayed meals to reflect the new completion status
             setDisplayedMeals(prevMeals => 
-                prevMeals.map(meal => 
-                    meal.id === mealId 
-                        ? { ...meal, isCompleted: !meal.isCompleted }
-                        : meal
-                )
+                prevMeals.map(meal => ({
+                    ...meal,
+                    isCompleted: updatedCompletedMeals[meal.id] || false
+                }))
             );
         } catch (error) {
             console.error('Error updating meal completion:', error);
         }
+    };
+
+    const handleRefresh = async () => {
+        await loadUserData();
+        const meals = getRandomMeals(selectedMealType);
+        const mealsWithStatus = meals.map(meal => ({
+            ...meal,
+            isCompleted: userData.completedMeals?.[meal.id] || false
+        }));
+        setDisplayedMeals(mealsWithStatus);
     };
 
     const mealTypes: MealType[] = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Snack'];
@@ -375,39 +394,20 @@ export default function Meals() {
         <SafeAreaView style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                 <View style={styles.header}>
-                    <View>
-                        <Text style={styles.headerTitle}>Meals 🍽️</Text>
-                        <Text style={styles.headerSubtitle}>Meals for muscle and weight gain</Text>
-                    </View>
+                    <TouchableOpacity
+                        style={styles.backButton}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Ionicons name="chevron-back" size={24} color="#666" />
+                        <Text style={styles.backButtonText}>Back</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.title}>Meals</Text>
                     <TouchableOpacity 
                         style={styles.refreshButton}
-                        onPress={() => {
-                            const meals = getRandomMeals(selectedMealType);
-                            const mealsWithStatus = meals.map(meal => ({
-                                ...meal,
-                                isCompleted: userData.completedMeals?.[meal.id] || false
-                            }));
-                            setDisplayedMeals(mealsWithStatus);
-                        }}
+                        onPress={handleRefresh}
                     >
-                        <Ionicons name="refresh" size={24} color="#FF5722" />
+                        <Ionicons name="refresh" size={24} color="#666" />
                     </TouchableOpacity>
-                </View>
-                <View style={styles.targetContainer}>
-                    <Text style={styles.targetLabel}>Daily Target</Text>
-                    <Text style={styles.targetValue}>
-                        {userData.dailyCalories || 0}/{weightConfig?.dailyTarget ?? 0} cal
-                    </Text>
-                    <View style={styles.progressBar}>
-                        <View 
-                            style={[
-                                styles.progressFill, 
-                                { 
-                                    width: `${Math.min(100, ((userData.dailyCalories || 0) / (weightConfig?.dailyTarget || 1)) * 100)}%` 
-                                }
-                            ]} 
-                        />
-                    </View>
                 </View>
 
                 <View style={styles.tabsContainer}>
@@ -437,17 +437,7 @@ export default function Meals() {
                         <View key={meal.id} style={styles.mealCard}>
                             <View style={styles.mealHeader}>
                                 <Text style={styles.mealTime}>{meal.time}</Text>
-                                <View style={styles.mealHeaderRight}>
-                                    <Text style={styles.mealCalories}>{meal.calories} cal</Text>
-                                    <TouchableOpacity 
-                                        style={[styles.checkbox, meal.isCompleted && styles.checkboxChecked]}
-                                        onPress={() => toggleMealCompletion(meal.id)}
-                                    >
-                                        {meal.isCompleted && (
-                                            <Ionicons name="checkmark" size={16} color="white" />
-                                        )}
-                                    </TouchableOpacity>
-                                </View>
+                                <Text style={styles.mealCalories}>{meal.calories} cal</Text>
                             </View>
                             <Text style={styles.mealName}>{meal.name}</Text>
                             <View style={styles.ingredientsContainer}>
@@ -481,20 +471,25 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#E0E0E0',
     },
-    headerTitle: {
+    backButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    backButtonText: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#666',
+    },
+    title: {
         fontSize: 20,
         fontWeight: '600',
         color: '#333',
     },
-    headerSubtitle: {
-        fontSize: 14,
-        color: '#666',
-        marginTop: 4,
-    },
     refreshButton: {
         padding: 8,
     },
-    targetContainer: {
+    caloriesContainer: {
         backgroundColor: 'white',
         padding: 15,
         borderRadius: 12,
@@ -511,18 +506,27 @@ const styles = StyleSheet.create({
         shadowRadius: 2,
         margin: 16,
     },
-    targetLabel: {
+    caloriesText: {
         fontSize: 14,
         color: '#666',
         marginBottom: 5,
     },
-    targetValue: {
-        fontSize: 24,
-        fontWeight: '600',
-        color: '#333',
+    progressBar: {
+        width: '100%',
+        height: 6,
+        backgroundColor: '#E0E0E0',
+        borderRadius: 3,
+        marginBottom: 8,
+        overflow: 'hidden',
+    },
+    progressFill: {
+        height: '100%',
+        backgroundColor: '#FF5722',
+        borderRadius: 3,
     },
     tabsContainer: {
         paddingHorizontal: 20,
+        marginTop: 20,
         marginBottom: 15,
     },
     tabs: {
@@ -621,18 +625,5 @@ const styles = StyleSheet.create({
     },
     checkboxChecked: {
         backgroundColor: '#FF5722',
-    },
-    progressBar: {
-        width: '100%',
-        height: 6,
-        backgroundColor: '#E0E0E0',
-        borderRadius: 3,
-        marginTop: 8,
-        overflow: 'hidden',
-    },
-    progressFill: {
-        height: '100%',
-        backgroundColor: '#FF5722',
-        borderRadius: 3,
     },
 });
