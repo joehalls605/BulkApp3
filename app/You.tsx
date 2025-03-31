@@ -126,10 +126,10 @@ export default function You() {
         <SafeAreaView style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Your Bulking Details 💪</Text>
+                    <Text style={styles.headerTitle}>Your Details</Text>
                 </View>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-                    <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#FF5722' }]}>
+                    <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#306eff' }]}>
                         <View style={styles.cardHeader}>
                             <Text style={styles.cardTitle}>Current Weight</Text>
                             <TouchableOpacity 
@@ -143,17 +143,17 @@ export default function You() {
                         </View>
                         <View style={styles.inputContainer}>
                             <TextInput
-                                style={[styles.input, { borderColor: '#FF5722' }]}
+                                style={[styles.input, { borderColor: '#306eff' }]}
                                 value={currentWeight}
                                 onChangeText={setCurrentWeight}
                                 keyboardType="numeric"
                                 placeholder="Enter your weight"
                                 placeholderTextColor="#999"
                             />
-                            <Text style={[styles.unit, { color: '#FF5722' }]}>{useMetric ? 'kg' : 'lbs'}</Text>
+                            <Text style={[styles.unit, { color: '#306eff' }]}>{useMetric ? 'kg' : 'lbs'}</Text>
                         </View>
                         <TouchableOpacity 
-                            style={[styles.button, { backgroundColor: '#FF5722' }]} 
+                            style={[styles.button, { backgroundColor: '#306eff' }]} 
                             onPress={updateWeight}
                         >
                             <Text style={styles.buttonText}>Update Weight</Text>
@@ -163,6 +163,14 @@ export default function You() {
                     <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#4CAF50' }]}>
                         <View style={styles.cardHeader}>
                             <Text style={styles.cardTitle}>Goal Weight</Text>
+                            <TouchableOpacity 
+                                style={[styles.unitToggle, { backgroundColor: useMetric ? '#E3F2FD' : '#FFF3E0' }]} 
+                                onPress={toggleUnit}
+                            >
+                                <Text style={[styles.unitToggleText, { color: useMetric ? '#1976D2' : '#FF9800' }]}>
+                                    {useMetric ? 'Metric' : 'Imperial'}
+                                </Text>
+                            </TouchableOpacity>
                         </View>
                         <View style={styles.inputContainer}>
                             <TextInput

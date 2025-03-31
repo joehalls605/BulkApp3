@@ -127,7 +127,7 @@ export default function LowAppetite() {
                         <Ionicons name="chevron-back" size={24} color="#666" />
                         <Text style={styles.backButtonText}>Back</Text>
                     </TouchableOpacity>
-                    <Text style={styles.title}>Low Appetite Meals</Text>
+                    <Text style={styles.title}>Small Appetite Meals</Text>
                 </View>
 
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>

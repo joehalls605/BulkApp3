@@ -199,28 +199,28 @@ function HomeScreen() {
                             style={styles.shoppingButton}
                             onPress={() => navigation.navigate('Shopping')}
                         >
-                            <Text style={styles.shoppingButtonText}>AI Shopping List 📝</Text>
+                            <Text style={styles.shoppingButtonText}>Grocery List 📝</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity 
-                            style={[styles.shoppingButton, { backgroundColor: '#4CAF50' }]}
+                            style={[styles.shoppingButton, { backgroundColor: '#ffffff' }]}
                             onPress={() => navigation.navigate('MealSuggestions')}
                         >
-                            <Text style={styles.shoppingButtonText}>What To Eat Today? 🍽️</Text>
+                            <Text style={styles.shoppingButtonText}>Today's Meal Ideas 🍽️</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity 
-                            style={[styles.shoppingButton, { backgroundColor: '#FF9800' }]}
-                            onPress={() => navigation.navigate('QuickMeals')}
+                            style={[styles.shoppingButton, { borderColor: '#5975ff', borderWidth: 1 }]}
+                            onPress={() => navigation.navigate('QuickMeals' as never)}
                         >
-                            <Text style={styles.shoppingButtonText}>Quick Pantry Meals 🏠</Text>
+                            <Text style={[styles.shoppingButtonText, { color: '#5975ff' }]}>Quick Pantry Meals 🏠</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity 
-                            style={[styles.shoppingButton, { backgroundColor: '#E91E63' }]}
-                            onPress={() => navigation.navigate('LowAppetite')}
+                            style={[styles.shoppingButton, { borderColor: '#3333ff', borderWidth: 1 }]}
+                            onPress={() => navigation.navigate('LowAppetite' as never)}
                         >
-                            <Text style={styles.shoppingButtonText}>Low Appetite Meals 🥤</Text>
+                            <Text style={[styles.shoppingButtonText, { color: '#3333ff' }]}>Small Appetite Meals 🥤</Text>
                         </TouchableOpacity>
 
                         <View style={styles.dailyTipSection}>
@@ -540,20 +540,21 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     shoppingButton: {
-        backgroundColor: '#FF5722',
+        backgroundColor: '#FFFFFF',
         paddingHorizontal: 24,
         paddingVertical: 16,
         borderRadius: 16,
         marginBottom: 24,
         alignItems: 'center',
-        shadowColor: '#FF5722',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 5,
+        borderWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
     },
     shoppingButtonText: {
-        color: 'white',
         fontSize: 16,
         fontWeight: '600',
         letterSpacing: 0.5,

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
 
 type WorkoutType = 'All' | 'Strength' | 'Quick' | 'Beginner';
 type EquipmentType = 'All' | 'With Equipment' | 'No Equipment';
@@ -26,6 +27,7 @@ export default function Workouts() {
     const [randomWorkout, setRandomWorkout] = useState<Workout | null>(null);
     const [filteredWorkouts, setFilteredWorkouts] = useState<Workout[]>([]);
     const [showRefreshMessage, setShowRefreshMessage] = useState(false);
+    const navigation = useNavigation();
 
     const workoutTypes: WorkoutType[] = ['All', 'Strength', 'Quick', 'Beginner'];
     const equipmentTypes: EquipmentType[] = ['All', 'With Equipment', 'No Equipment'];
@@ -257,10 +259,23 @@ export default function Workouts() {
         <View style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                 <View style={styles.header}>
-                    <View>
+                    <TouchableOpacity
+                        style={styles.backButton}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Ionicons name="chevron-back" size={24} color="#666" />
+                        <Text style={styles.backButtonText}>Back</Text>
+                    </TouchableOpacity>
+                    <View style={styles.headerContent}>
                         <Text style={styles.headerTitle}>Workouts 💪</Text>
-                        <Text style={styles.headerSubtitle}>For muscle and weight gain</Text>
+                        <Text style={styles.headerSubtitle}>For muscle gain</Text>
                     </View>
+                    <TouchableOpacity 
+                        style={styles.headerButton}
+                        onPress={refreshWorkouts}
+                    >
+                        <Ionicons name="refresh" size={24} color="#FF5722" />
+                    </TouchableOpacity>
                 </View>
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                     {/* Workout Type Tabs */}
@@ -417,19 +432,55 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 16,
+        padding: 12,
+        paddingTop: Platform.OS === 'ios' ? 48 : 12,
+        backgroundColor: '#FFFFFF',
         borderBottomWidth: 1,
-        borderBottomColor: '#E0E0E0',
+        borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+        position: 'relative',
+    },
+    headerContent: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginHorizontal: 48,
     },
     headerTitle: {
         fontSize: 20,
         fontWeight: '600',
         color: '#333',
+        textAlign: 'center',
     },
     headerSubtitle: {
         fontSize: 14,
         color: '#666',
-        marginTop: 4,
+        marginTop: 2,
+        textAlign: 'center',
+    },
+    headerButton: {
+        padding: 8,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    backButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    backButtonText: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#666',
     },
     scrollContent: {
         padding: 20,
@@ -613,11 +664,16 @@ const styles = StyleSheet.create({
     refreshButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#E8F5E9',
+        backgroundColor: '#FFFFFF',
         padding: 12,
         borderRadius: 8,
         borderWidth: 1,
         borderColor: '#4CAF50',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
     },
     refreshButtonText: {
         marginLeft: 8,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -401,12 +401,15 @@ export default function Meals() {
                         <Ionicons name="chevron-back" size={24} color="#666" />
                         <Text style={styles.backButtonText}>Back</Text>
                     </TouchableOpacity>
-                    <Text style={styles.title}>Meals</Text>
+                    <View style={styles.headerContent}>
+                        <Text style={styles.headerTitle}>Meals</Text>
+                        <Text style={styles.headerSubtitle}>For weight gain</Text>
+                    </View>
                     <TouchableOpacity 
-                        style={styles.refreshButton}
+                        style={styles.headerButton}
                         onPress={handleRefresh}
                     >
-                        <Ionicons name="refresh" size={24} color="#666" />
+                        <Ionicons name="refresh" size={24} color="#FF5722" />
                     </TouchableOpacity>
                 </View>
 
@@ -467,27 +470,55 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 16,
+        padding: 12,
+        paddingTop: Platform.OS === 'ios' ? 48 : 12,
+        backgroundColor: '#FFFFFF',
         borderBottomWidth: 1,
-        borderBottomColor: '#E0E0E0',
+        borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+        position: 'relative',
+    },
+    headerContent: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginHorizontal: 48,
+    },
+    headerTitle: {
+        fontSize: 20,
+        fontWeight: '600',
+        color: '#333',
+        textAlign: 'center',
+    },
+    headerSubtitle: {
+        fontSize: 14,
+        color: '#666',
+        marginTop: 2,
+        textAlign: 'center',
+    },
+    headerButton: {
+        padding: 8,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
     },
     backButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: 4,
     },
     backButtonText: {
         fontSize: 16,
         fontWeight: '500',
         color: '#666',
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: '600',
-        color: '#333',
-    },
-    refreshButton: {
-        padding: 8,
     },
     caloriesContainer: {
         backgroundColor: 'white',
