@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated, TextInput, Switch, TouchableWithoutFeedback, Keyboard, ScrollView, Alert } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -63,11 +63,40 @@ export default function Questionnaire() {
     const [answers, setAnswers] = useState<Record<number, string>>({});
     const [isProcessing, setIsProcessing] = useState(false);
     const [progress] = useState(new Animated.Value(0));
+    const [processingMessage, setProcessingMessage] = useState(0);
     const [useMetric, setUseMetric] = useState(true);
     const [currentWeight, setCurrentWeight] = useState('');
     const [goalWeight, setGoalWeight] = useState('');
     const [gender, setGender] = useState('');
     const [timeframe, setTimeframe] = useState(12);
+
+    const processingMessages = [
+        "Creating your personalised plan...",
+        "Calculating your calorie needs...",
+        "Preparing your meal suggestions...",
+        "Setting up your workout recommendations...",
+        "Almost ready..."
+    ];
+
+    useEffect(() => {
+        if (isProcessing) {
+            // Animate progress bar over 3 seconds
+            Animated.timing(progress, {
+                toValue: 1,
+                duration: 3000,
+                useNativeDriver: false,
+            }).start(() => {
+                navigation.navigate('StartJourney');
+            });
+
+            // Cycle through messages every 600ms
+            const messageInterval = setInterval(() => {
+                setProcessingMessage(prev => (prev + 1) % processingMessages.length);
+            }, 600);
+
+            return () => clearInterval(messageInterval);
+        }
+    }, [isProcessing]);
 
     const handleAnswer = (answer: string) => {
         setAnswers(prev => ({
@@ -103,6 +132,10 @@ export default function Questionnaire() {
                 currentWeight: currentWeightNum,
                 goalWeight: goalWeightNum,
                 useMetric: useMetric,
+                exerciseFrequency: answers[1] || 'Never',
+                mealsPerDay: answers[2] || '3 times',
+                foodPreference: answers[3] || 'A mix of all',
+                timeframe: timeframe,
                 dailyTarget: 0,
                 maintenanceCalories: 0,
                 weightGainCalories: 0
@@ -112,7 +145,9 @@ export default function Questionnaire() {
             const calories = calculateCalories(
                 weightConfig.currentWeight,
                 weightConfig.goalWeight,
-                weightConfig.useMetric
+                weightConfig.useMetric,
+                weightConfig.exerciseFrequency,
+                weightConfig.timeframe
             );
 
             weightConfig.maintenanceCalories = calories.maintenanceCalories;
@@ -130,7 +165,8 @@ export default function Questionnaire() {
                 exerciseFrequency: answers[1] || 'Never',
                 mealsPerDay: answers[2] || '3 times',
                 foodPreference: answers[3] || 'A mix of all',
-                dailyCalories: 0,
+                timeframe: timeframe,
+                dailyCalories: calories.dailyTarget,
                 completedMeals: {},
                 createdAt: new Date().toISOString(),
                 isSubscribed: false
@@ -138,16 +174,6 @@ export default function Questionnaire() {
 
             // Show processing state
             setIsProcessing(true);
-            
-            // Animate progress bar
-            Animated.timing(progress, {
-                toValue: 1,
-                duration: 2000,
-                useNativeDriver: false,
-            }).start(() => {
-                // Navigate to Start Journey after animation
-                navigation.navigate('StartJourney');
-            });
         } catch (error) {
             console.error('Error saving user data:', error);
             Alert.alert('Error', 'Failed to save your information. Please try again.');
@@ -163,7 +189,19 @@ export default function Questionnaire() {
                             <Ionicons name="analytics" size={40} color="#FF9800" />
                         </View>
                         <Text style={styles.processingTitle}>Processing Your Information</Text>
-                        <Text style={styles.processingText}>Creating your personalized plan...</Text>
+                        <Animated.Text 
+                            style={[
+                                styles.processingText,
+                                {
+                                    opacity: progress.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: [1, 0.8]
+                                    })
+                                }
+                            ]}
+                        >
+                            {processingMessages[processingMessage]}
+                        </Animated.Text>
                         <View style={styles.progressBar}>
                             <Animated.View 
                                 style={[
