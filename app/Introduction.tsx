@@ -15,12 +15,12 @@ export default function Introduction() {
                         <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
                             <Ionicons name="trending-up" size={40} color="#FF9800" />
                         </View>
-                        <Text style={styles.title}>First, let's get you started.</Text>
+                        <Text style={styles.title}>Let’s get you started.</Text>
                     </View>
 
                     <View style={styles.messageContainer}>
                         <Text style={styles.message}>
-                        Gaining weight can be tough. {'\n'} {'\n'}Let's understand your goals so we can achieve them together 📝
+                        Gaining weight isn’t easy, but we’ve got your back. {'\n'}Tell us your goals, and let’s crush them together 📈
                         </Text>
                     </View>
 

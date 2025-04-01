@@ -409,11 +409,6 @@ export default function Workouts() {
                             <Ionicons name="refresh" size={24} color="#4CAF50" />
                             <Text style={styles.refreshButtonText}>Refresh Workouts</Text>
                         </TouchableOpacity>
-                        {showRefreshMessage && (
-                            <Text style={styles.refreshMessage}>
-                                Damn, you made it down here already? Time to refresh! 💪
-                            </Text>
-                        )}
                     </View>
                 </ScrollView>
             </LinearGradient>

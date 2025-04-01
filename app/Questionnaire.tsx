@@ -127,10 +127,14 @@ export default function Questionnaire() {
                 return;
             }
 
+            // Convert weights to kg if using imperial
+            const currentWeightInKg = useMetric ? currentWeightNum : currentWeightNum * 14 / 2.20462;
+            const goalWeightInKg = useMetric ? goalWeightNum : goalWeightNum * 14 / 2.20462;
+
             // Initialize weight config with user's data
             const weightConfig: WeightConfig = {
-                currentWeight: currentWeightNum,
-                goalWeight: goalWeightNum,
+                currentWeight: currentWeightInKg,
+                goalWeight: goalWeightInKg,
                 useMetric: useMetric,
                 exerciseFrequency: answers[1] || 'Never',
                 mealsPerDay: answers[2] || '3 times',
@@ -159,8 +163,8 @@ export default function Questionnaire() {
             
             // Store user data securely with isSubscribed set to false by default
             await SecureStore.setItemAsync('userData', JSON.stringify({
-                currentWeight: currentWeightNum,
-                goalWeight: goalWeightNum,
+                currentWeight: currentWeightInKg,
+                goalWeight: goalWeightInKg,
                 useMetric: useMetric,
                 exerciseFrequency: answers[1] || 'Never',
                 mealsPerDay: answers[2] || '3 times',

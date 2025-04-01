@@ -16,7 +16,7 @@ export default function Welcome() {
                 </View>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                     <View style={styles.featuresSection}>
-                        <Text style={styles.sectionTitle}>We make your weight gain simple 🛠️</Text>
+                        <Text style={styles.sectionTitle}>Gaining weight, made easy 📱</Text>
                         <View style={styles.featuresGrid}>
                         <View style={styles.featureCard}>
                                 <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
@@ -58,8 +58,8 @@ export default function Welcome() {
                                 <View style={[styles.iconContainer, { backgroundColor: '#FCE4EC' }]}>
                                     <Ionicons name="people" size={24} color="#E91E63" />
                                 </View>
-                                <Text style={styles.featureTitle}>Community Support</Text>
-                                <Text style={styles.featureText}>Join like-minded people</Text>
+                                <Text style={styles.featureTitle}>Community Motivation</Text>
+                                <Text style={styles.featureText}>Motivate each other</Text>
                             </View>
                         </View>
                     </View>
@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
         paddingTop: 40,
         borderBottomWidth: 1,
         borderBottomColor: '#E0E0E0',
+        backgroundColor: 'white',
     },
     title: {
         fontSize: 32,
@@ -134,7 +135,8 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: '600',
         color: '#333',
-        marginBottom: 15,
+        marginBottom: 25,
+        marginTop: 10,
     },
     featuresGrid: {
         flexDirection: 'row',

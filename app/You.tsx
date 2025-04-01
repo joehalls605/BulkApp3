@@ -25,6 +25,12 @@ export default function You() {
         return subscription;
     }, [navigation]);
 
+    const formatInputWeight = (weight: number, useMetric: boolean): string => {
+        if (useMetric) return weight.toFixed(1);
+        // Convert kg to stone for display
+        return (weight * 2.20462 / 14).toFixed(1);
+    };
+
     const loadUserData = async () => {
         try {
             // Load weight configuration first
@@ -32,8 +38,8 @@ export default function You() {
             setWeightConfig(config);
             
             // Set the input values from the config
-            setCurrentWeight(config.currentWeight.toString());
-            setGoalWeight(config.goalWeight.toString());
+            setCurrentWeight(formatInputWeight(config.currentWeight, config.useMetric));
+            setGoalWeight(formatInputWeight(config.goalWeight, config.useMetric));
             setUseMetric(config.useMetric);
 
             // Load user data
@@ -45,7 +51,10 @@ export default function You() {
                     ...userData,
                     currentWeight: config.currentWeight,
                     goalWeight: config.goalWeight,
-                    useMetric: config.useMetric
+                    useMetric: config.useMetric,
+                    dailyCalories: config.dailyTarget,
+                    maintenanceCalories: config.maintenanceCalories,
+                    weightGainCalories: config.weightGainCalories
                 };
                 await SecureStore.setItemAsync('userData', JSON.stringify(updatedUserData));
             }
@@ -62,13 +71,39 @@ export default function You() {
         }
 
         try {
-            // Update config with new current weight
-            const updatedConfig = await updateWeightConfig(weight, undefined, useMetric);
+            // Convert stone to kg if using imperial
+            const weightInKg = useMetric ? weight : weight * 14 / 2.20462;
+
+            // Update config with new current weight, maintaining other values
+            const updatedConfig = await updateWeightConfig(
+                weightInKg,
+                weightConfig?.goalWeight,
+                useMetric,
+                weightConfig?.exerciseFrequency,
+                weightConfig?.mealsPerDay,
+                weightConfig?.foodPreference,
+                weightConfig?.timeframe
+            );
             setWeightConfig(updatedConfig);
+
+            // Update userData with new values
+            const userDataString = await SecureStore.getItemAsync('userData');
+            if (userDataString) {
+                const userData = JSON.parse(userDataString);
+                const updatedUserData = {
+                    ...userData,
+                    currentWeight: weightInKg,
+                    useMetric: useMetric,
+                    dailyCalories: updatedConfig.dailyTarget,
+                    maintenanceCalories: updatedConfig.maintenanceCalories,
+                    weightGainCalories: updatedConfig.weightGainCalories
+                };
+                await SecureStore.setItemAsync('userData', JSON.stringify(updatedUserData));
+            }
 
             Alert.alert(
                 'Success',
-                `Current weight updated to ${formatWeight(weight, useMetric)}`,
+                `Current weight updated to ${formatWeight(weightInKg, useMetric)}`,
                 [{ text: 'OK' }]
             );
         } catch (error) {
@@ -84,9 +119,12 @@ export default function You() {
             return;
         }
 
+        // Convert stone to kg if using imperial
+        const weightInKg = useMetric ? weight : weight * 14 / 2.20462;
+        const currentWeightInKg = useMetric ? parseFloat(currentWeight) : parseFloat(currentWeight) * 14 / 2.20462;
+
         // Validate that goal weight is greater than current weight
-        const currentWeightNum = parseFloat(currentWeight);
-        if (weight <= currentWeightNum) {
+        if (weightInKg <= currentWeightInKg) {
             Alert.alert(
                 'Invalid Goal Weight',
                 'Your goal weight must be greater than your current weight. Please try again.',
@@ -96,13 +134,39 @@ export default function You() {
         }
 
         try {
-            // Update config with new goal weight
-            const updatedConfig = await updateWeightConfig(undefined, weight, useMetric);
+            // Update config with new goal weight, maintaining other values
+            const updatedConfig = await updateWeightConfig(
+                weightConfig?.currentWeight,
+                weightInKg,
+                useMetric,
+                weightConfig?.exerciseFrequency,
+                weightConfig?.mealsPerDay,
+                weightConfig?.foodPreference,
+                weightConfig?.timeframe
+            );
             setWeightConfig(updatedConfig);
+
+            // Update userData with new values
+            const userDataString = await SecureStore.getItemAsync('userData');
+            if (userDataString) {
+                const userData = JSON.parse(userDataString);
+                const updatedUserData = {
+                    ...userData,
+                    goalWeight: weightInKg,
+                    useMetric: useMetric,
+                    dailyCalories: updatedConfig.dailyTarget,
+                    maintenanceCalories: updatedConfig.maintenanceCalories,
+                    weightGainCalories: updatedConfig.weightGainCalories
+                };
+                await SecureStore.setItemAsync('userData', JSON.stringify(updatedUserData));
+            }
+
+            // Ensure the displayed goal weight matches the updated value
+            setGoalWeight(formatInputWeight(weightInKg, useMetric));
 
             Alert.alert(
                 'Success',
-                `Goal weight updated to ${formatWeight(weight, useMetric)}`,
+                `Goal weight updated to ${formatWeight(weightInKg, useMetric)}`,
                 [{ text: 'OK' }]
             );
         } catch (error) {
@@ -111,13 +175,54 @@ export default function You() {
         }
     };
 
-    const toggleUnit = () => {
-        setUseMetric(!useMetric);
-        if (currentWeight) {
-            const weight = parseFloat(currentWeight);
-            if (!isNaN(weight)) {
-                const newWeight = convertWeight(weight, useMetric, !useMetric);
-                setCurrentWeight(newWeight.toFixed(1));
+    const toggleUnit = async () => {
+        const newUseMetric = !useMetric;
+        setUseMetric(newUseMetric);
+
+        if (currentWeight && goalWeight) {
+            const currentWeightNum = parseFloat(currentWeight);
+            const goalWeightNum = parseFloat(goalWeight);
+            
+            if (!isNaN(currentWeightNum) && !isNaN(goalWeightNum)) {
+                // Convert between kg and stone
+                const newCurrentWeight = useMetric ? currentWeightNum * 2.20462 / 14 : currentWeightNum * 14 / 2.20462;
+                const newGoalWeight = useMetric ? goalWeightNum * 2.20462 / 14 : goalWeightNum * 14 / 2.20462;
+                
+                // Update displayed values
+                setCurrentWeight(newCurrentWeight.toFixed(1));
+                setGoalWeight(newGoalWeight.toFixed(1));
+
+                try {
+                    // Update config with converted weights
+                    const updatedConfig = await updateWeightConfig(
+                        useMetric ? currentWeightNum : currentWeightNum * 14 / 2.20462,
+                        useMetric ? goalWeightNum : goalWeightNum * 14 / 2.20462,
+                        newUseMetric,
+                        weightConfig?.exerciseFrequency,
+                        weightConfig?.mealsPerDay,
+                        weightConfig?.foodPreference,
+                        weightConfig?.timeframe
+                    );
+                    setWeightConfig(updatedConfig);
+
+                    // Update userData with new values
+                    const userDataString = await SecureStore.getItemAsync('userData');
+                    if (userDataString) {
+                        const userData = JSON.parse(userDataString);
+                        const updatedUserData = {
+                            ...userData,
+                            currentWeight: useMetric ? currentWeightNum : currentWeightNum * 14 / 2.20462,
+                            goalWeight: useMetric ? goalWeightNum : goalWeightNum * 14 / 2.20462,
+                            useMetric: newUseMetric,
+                            dailyCalories: updatedConfig.dailyTarget,
+                            maintenanceCalories: updatedConfig.maintenanceCalories,
+                            weightGainCalories: updatedConfig.weightGainCalories
+                        };
+                        await SecureStore.setItemAsync('userData', JSON.stringify(updatedUserData));
+                    }
+                } catch (error) {
+                    console.error('Error updating unit system:', error);
+                }
             }
         }
     };
@@ -126,7 +231,7 @@ export default function You() {
         <SafeAreaView style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Your Details</Text>
+                    <Text style={styles.headerTitle}>Your Details 📝</Text>
                 </View>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                     <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#306eff' }]}>
@@ -150,13 +255,13 @@ export default function You() {
                                 placeholder="Enter your weight"
                                 placeholderTextColor="#999"
                             />
-                            <Text style={[styles.unit, { color: '#306eff' }]}>{useMetric ? 'kg' : 'lbs'}</Text>
+                            <Text style={[styles.unit, { color: '#306eff' }]}>{useMetric ? 'kg' : 'st'}</Text>
                         </View>
                         <TouchableOpacity 
                             style={[styles.button, { backgroundColor: '#306eff' }]} 
                             onPress={updateWeight}
                         >
-                            <Text style={styles.buttonText}>Update Weight</Text>
+                            <Text style={styles.buttonText}>Update Current Weight</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -181,13 +286,13 @@ export default function You() {
                                 placeholder="Enter your goal weight"
                                 placeholderTextColor="#999"
                             />
-                            <Text style={[styles.unit, { color: '#4CAF50' }]}>{useMetric ? 'kg' : 'lbs'}</Text>
+                            <Text style={[styles.unit, { color: '#4CAF50' }]}>{useMetric ? 'kg' : 'st'}</Text>
                         </View>
                         <TouchableOpacity 
                             style={[styles.button, { backgroundColor: '#4CAF50' }]} 
                             onPress={updateGoalWeight}
                         >
-                            <Text style={styles.buttonText}>Update Goal</Text>
+                            <Text style={styles.buttonText}>Update Goal Weight</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>

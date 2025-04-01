@@ -160,10 +160,20 @@ export const updateWeightConfig = async (
 
 export const formatWeight = (weight: number, useMetric: boolean): string => {
     if (useMetric) return `${weight.toFixed(1)} kg`;
-    return `${(weight * 2.20462).toFixed(1)} lbs`;
+    // Convert kg to stone and pounds
+    const totalPounds = weight * 2.20462;
+    const stone = Math.floor(totalPounds / 14);
+    const pounds = Math.round(totalPounds % 14);
+    return `${stone}st ${pounds}lbs`;
 };
 
 export const convertWeight = (weight: number, fromMetric: boolean, toMetric: boolean): number => {
     if (fromMetric === toMetric) return weight;
-    return fromMetric ? weight * 2.20462 : weight / 2.20462;
+    if (fromMetric) {
+        // Converting from kg to stone
+        return weight * 2.20462 / 14;
+    } else {
+        // Converting from stone to kg
+        return weight * 14 / 2.20462;
+    }
 }; 
