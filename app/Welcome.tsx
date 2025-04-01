@@ -15,14 +15,23 @@ export default function Welcome() {
                     <Text style={styles.subtitle}>Your personal weight gain companion</Text>
                 </View>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-                    <View style={styles.noteSection}>
-                        <Text style={styles.noteText}>
-                            BulkUp is packed with real support to help you achieve your goals and build the body you want.
-                        </Text>
-                    </View>
                     <View style={styles.featuresSection}>
-                        <Text style={styles.sectionTitle}>Look what you're getting 😎</Text>
+                        <Text style={styles.sectionTitle}>The playbook to gain weight </Text>
                         <View style={styles.featuresGrid}>
+                        <View style={styles.featureCard}>
+                                <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
+                                    <Ionicons name="restaurant" size={24} color="#4CAF50" />
+                                </View>
+                                <Text style={styles.featureTitle}>Meal Plans</Text>
+                                <Text style={styles.featureText}>Calorie-rich recipes</Text>
+                            </View>
+                        <View style={styles.featureCard}>
+                                <View style={[styles.iconContainer, { backgroundColor: '#e2d9fc' }]}>
+                                    <Ionicons name="compass" size={24} color="#8358fc" />
+                                </View>
+                                <Text style={styles.featureTitle}>Bulking Roadmap</Text>
+                                <Text style={styles.featureText}>For guided success</Text>
+                            </View>
                             <View style={styles.featureCard}>
                                 <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
                                     <Ionicons name="barbell" size={24} color="#FF9800" />
@@ -31,18 +40,19 @@ export default function Welcome() {
                                 <Text style={styles.featureText}>Tailored to your goals</Text>
                             </View>
                             <View style={styles.featureCard}>
-                                <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
-                                    <Ionicons name="restaurant" size={24} color="#4CAF50" />
+                                <View style={[styles.iconContainer, { backgroundColor: '#d9f6ff' }]}>
+                                    <Ionicons name="basket" size={24} color="#3daed1" />
                                 </View>
-                                <Text style={styles.featureTitle}>Meal Plans</Text>
-                                <Text style={styles.featureText}>Calorie-rich recipes</Text>
+                                <Text style={styles.featureTitle}>Grocery List</Text>
+                                <Text style={styles.featureText}>No stress bulking</Text>
                             </View>
+                        
                             <View style={styles.featureCard}>
                                 <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
                                     <Ionicons name="trending-up" size={24} color="#1976D2" />
                                 </View>
-                                <Text style={styles.featureTitle}>Progress Tracking</Text>
-                                <Text style={styles.featureText}>Monitor your gains</Text>
+                                <Text style={styles.featureTitle}>Progress Tips</Text>
+                                <Text style={styles.featureText}>Grow your gains</Text>
                             </View>
                             <View style={styles.featureCard}>
                                 <View style={[styles.iconContainer, { backgroundColor: '#FCE4EC' }]}>
@@ -62,7 +72,6 @@ export default function Welcome() {
                     </TouchableOpacity>
 
 
-                    <Text style={styles.footer}>Made with ❤️ in London</Text>
                 </ScrollView>
             </LinearGradient>
         </SafeAreaView>

@@ -134,71 +134,73 @@ export default function StartJourney() {
                 <View style={styles.content}>
                     <View style={styles.header}>
                         <Ionicons name="rocket" size={40} color="#4CAF50" />
-                        <Text style={styles.title}>You're almost ready!</Text>
-                        <Text style={styles.subtitle}>These BulkUp tools are waiting for you.</Text>
+                        <Text style={styles.title}>You're almost ready! 💪</Text>
+                        <Text style={styles.subtitle}>Your journey to a stronger you starts here.</Text>
                     </View>
+                    
 
                     <View style={styles.featuresContainer}>
+                        <Text style={styles.featuresTitle}>Access your bulking tools:</Text>
                         <View style={styles.featuresGrid}>
-                            <View style={styles.featureCard}>
-                                <View style={styles.featureIconContainer}>
-                                    <Ionicons name="restaurant" size={28} color="#4CAF50" />
-                                    <Ionicons name="checkmark-circle" size={16} color="#4CAF50" style={styles.checkmark} />
+                            <View style={[styles.featureCard, { borderColor: '#4CAF50', borderWidth: 1.5 }]}>
+                                <View style={[styles.featureIconContainer, { backgroundColor: '#E8F5E9' }]}>
+                                    <Ionicons name="restaurant" size={32} color="#4CAF50" />
+                                    <Ionicons name="checkmark-circle" size={18} color="#4CAF50" style={styles.checkmark} />
                                 </View>
                                 <Text style={styles.featureTitle}>Meal Plans</Text>
-                                <Text style={styles.featureText}>Custom meal plans based on your goals</Text>
+                                <Text style={styles.featureText}>Calorie-rich recipes</Text>
                             </View>
 
-                            <View style={styles.featureCard}>
-                                <View style={styles.featureIconContainer}>
-                                    <Ionicons name="barbell" size={28} color="#FF9800" />
-                                    <Ionicons name="checkmark-circle" size={16} color="#4CAF50" style={styles.checkmark} />
+                            <View style={[styles.featureCard, { borderColor: '#FF9800', borderWidth: 1.5 }]}>
+                                <View style={[styles.featureIconContainer, { backgroundColor: '#FFF3E0' }]}>
+                                    <Ionicons name="barbell" size={32} color="#FF9800" />
+                                    <Ionicons name="checkmark-circle" size={18} color="#4CAF50" style={styles.checkmark} />
                                 </View>
-                                <Text style={styles.featureTitle}>Workouts</Text>
-                                <Text style={styles.featureText}>Expert-designed muscle growth guides</Text>
+                                <Text style={styles.featureTitle}>Workout Plans</Text>
+                                <Text style={styles.featureText}>Muscle growth guides</Text>
                             </View>
 
-                            <View style={styles.featureCard}>
-                                <View style={styles.featureIconContainer}>
-                                    <Ionicons name="cart" size={28} color="#2196F3" />
-                                    <Ionicons name="checkmark-circle" size={16} color="#4CAF50" style={styles.checkmark} />
+                            <View style={[styles.featureCard, { borderColor: '#2196F3', borderWidth: 1.5 }]}>
+                                <View style={[styles.featureIconContainer, { backgroundColor: '#E3F2FD' }]}>
+                                    <Ionicons name="cart" size={32} color="#2196F3" />
+                                    <Ionicons name="checkmark-circle" size={18} color="#4CAF50" style={styles.checkmark} />
                                 </View>
-                                <Text style={styles.featureTitle}>Daily Shopping</Text>
-                                <Text style={styles.featureText}>Smart shopping lists for your meals</Text>
+                                <Text style={styles.featureTitle}>Grocery List</Text>
+                                <Text style={styles.featureText}>Ready made shopping</Text>
                             </View>
 
-                            <View style={styles.featureCard}>
-                                <View style={styles.featureIconContainer}>
-                                    <Ionicons name="bulb" size={28} color="#9C27B0" />
-                                    <Ionicons name="checkmark-circle" size={16} color="#4CAF50" style={styles.checkmark} />
+                            <View style={[styles.featureCard, { borderColor: '#9C27B0', borderWidth: 1.5 }]}>
+                                <View style={[styles.featureIconContainer, { backgroundColor: '#F3E5F5' }]}>
+                                    <Ionicons name="bulb" size={32} color="#9C27B0" />
+                                    <Ionicons name="checkmark-circle" size={18} color="#4CAF50" style={styles.checkmark} />
                                 </View>
                                 <Text style={styles.featureTitle}>Daily Tips</Text>
-                                <Text style={styles.featureText}>Nutrition and fitness advice</Text>
+                                <Text style={styles.featureText}>Bulking guidance</Text>
                             </View>
 
-                            <View style={styles.featureCard}>
-                                <View style={styles.featureIconContainer}>
-                                    <Ionicons name="people" size={28} color="#FF5722" />
-                                    <Ionicons name="checkmark-circle" size={16} color="#4CAF50" style={styles.checkmark} />
+                            <View style={[styles.featureCard, { borderColor: '#FF5722', borderWidth: 1.5 }]}>
+                                <View style={[styles.featureIconContainer, { backgroundColor: '#FBE9E7' }]}>
+                                    <Ionicons name="people" size={32} color="#FF5722" />
+                                    <Ionicons name="checkmark-circle" size={18} color="#4CAF50" style={styles.checkmark} />
                                 </View>
                                 <Text style={styles.featureTitle}>Community</Text>
-                                <Text style={styles.featureText}>Join like-minded individuals</Text>
+                                <Text style={styles.featureText}>Motivation from the community</Text>
                             </View>
 
-                            <View style={styles.featureCard}>
-                                <View style={styles.featureIconContainer}>
-                                    <Ionicons name="compass" size={28} color="#607D8B" />
-                                    <Ionicons name="checkmark-circle" size={16} color="#4CAF50" style={styles.checkmark} />
+                            <View style={[styles.featureCard, { borderColor: '#607D8B', borderWidth: 1.5 }]}>
+                                <View style={[styles.featureIconContainer, { backgroundColor: '#ECEFF1' }]}>
+                                    <Ionicons name="compass" size={32} color="#607D8B" />
+                                    <Ionicons name="checkmark-circle" size={18} color="#4CAF50" style={styles.checkmark} />
                                 </View>
-                                <Text style={styles.featureTitle}>Daily Guidance</Text>
-                                <Text style={styles.featureText}>Personalized daily advice</Text>
+                                <Text style={styles.featureTitle}>Bulking Roadmap</Text>
+                                <Text style={styles.featureText}>For guided success</Text>
                             </View>
                         </View>
                     </View>
 
                     <TouchableOpacity style={styles.continueButton} onPress={startTrial}>
                         <Text style={styles.continueButtonText}>Start Free Trial</Text>
-                        <Text style={styles.continueButtonSubtext}>£4/month after 7 days</Text>
+                        <Text style={styles.continueButtonSubtext}>£3.99/month after 7 days</Text>
                     </TouchableOpacity>
 
                     <View style={styles.legalSection}>
@@ -257,6 +259,14 @@ const styles = StyleSheet.create({
     featuresContainer: {
         marginBottom: 32,
     },
+    featuresTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#666',
+        marginBottom: 16,
+        textAlign: 'center',
+        fontStyle: 'italic',
+    },
     featuresGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -266,11 +276,28 @@ const styles = StyleSheet.create({
     featureCard: {
         backgroundColor: 'white',
         padding: 12,
-        borderRadius: 12,
+        borderRadius: 14,
         margin: 6,
-        width: '45%',
+        width: '46%',
         borderWidth: 1,
         borderColor: '#E0E0E0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 4,
+        alignItems: 'center',
+        transform: [{ scale: 1.01 }],
+    },
+    featureIconContainer: {
+        position: 'relative',
+        marginBottom: 8,
+        padding: 8,
+        borderRadius: 16,
+        backgroundColor: '#F5F5F5',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -279,14 +306,13 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 2,
         elevation: 2,
-        alignItems: 'center',
     },
     featureTitle: {
-        fontSize: 14,
-        fontWeight: '600',
+        fontSize: 15,
+        fontWeight: '700',
         color: '#333',
-        marginTop: 8,
-        marginBottom: 4,
+        marginTop: 6,
+        marginBottom: 2,
         textAlign: 'center',
     },
     featureText: {
@@ -294,6 +320,7 @@ const styles = StyleSheet.create({
         color: '#666',
         lineHeight: 16,
         textAlign: 'center',
+        fontStyle: 'italic',
     },
     timeline: {
         marginBottom: 32,
@@ -449,16 +476,19 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontStyle: 'italic',
     },
-    featureIconContainer: {
-        position: 'relative',
-        marginBottom: 8,
-        padding: 4,
-    },
     checkmark: {
         position: 'absolute',
-        bottom: 0,
-        right: 0,
+        bottom: -4,
+        right: -4,
         backgroundColor: 'white',
-        borderRadius: 8,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
     },
 }); 

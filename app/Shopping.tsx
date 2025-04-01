@@ -11,6 +11,7 @@ interface ShoppingItem {
     carbs: number;
     fats: number;
     emoji: string;
+    isCompleted?: boolean;
 }
 
 const allItems: { [key: string]: ShoppingItem[] } = {
@@ -70,10 +71,29 @@ export default function Shopping() {
         Object.entries(allItems).forEach(([category, items]) => {
             // Shuffle items and take 5 random ones
             const shuffled = [...items].sort(() => Math.random() - 0.5);
-            newList[category] = shuffled.slice(0, 5);
+            newList[category] = shuffled.slice(0, 5).map(item => ({
+                ...item,
+                isCompleted: false
+            }));
         });
         
         setShoppingList(newList);
+    };
+
+    const toggleItemCompletion = (category: string, index: number) => {
+        setShoppingList(prevList => {
+            const newList = { ...prevList };
+            newList[category] = [...newList[category]];
+            newList[category][index] = {
+                ...newList[category][index],
+                isCompleted: !newList[category][index].isCompleted
+            };
+            return newList;
+        });
+    };
+
+    const isCategoryComplete = (items: ShoppingItem[]) => {
+        return items.every(item => item.isCompleted);
     };
 
     const getCategoryIcon = (category: string) => {
@@ -118,8 +138,7 @@ export default function Shopping() {
                             <Ionicons name="arrow-back" size={24} color="#333" />
                         </TouchableOpacity>
                         <View>
-                            <Text style={styles.headerTitle}>Today's Shopping List 🛒</Text>
-                            <Text style={styles.headerSubtitle}>High-calorie foods for weight gain</Text>
+                            <Text style={styles.headerTitle}>Shopping List 🛒</Text>
                         </View>
                     </View>
                     <TouchableOpacity 
@@ -144,6 +163,14 @@ export default function Shopping() {
                                         <View style={styles.itemHeader}>
                                             <Text style={styles.itemEmoji}>{item.emoji}</Text>
                                             <Text style={styles.itemName}>{item.name}</Text>
+                                            <TouchableOpacity 
+                                                style={[styles.checkbox, item.isCompleted && styles.checkboxChecked]}
+                                                onPress={() => toggleItemCompletion(category, index)}
+                                            >
+                                                {item.isCompleted && (
+                                                    <Ionicons name="checkmark-circle" size={16} color="#FFFFFF" />
+                                                )}
+                                            </TouchableOpacity>
                                         </View>
                                         <View style={styles.nutritionContainer}>
                                             <View style={styles.nutritionItem}>
@@ -246,9 +273,9 @@ const styles = StyleSheet.create({
     },
     itemCard: {
         backgroundColor: 'white',
-        padding: 16,
+        padding: 12,
         borderRadius: 16,
-        marginBottom: 12,
+        marginBottom: 8,
         borderWidth: 1,
         borderColor: 'rgba(0, 0, 0, 0.1)',
         shadowColor: '#000',
@@ -260,16 +287,30 @@ const styles = StyleSheet.create({
     itemHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: 8,
     },
     itemEmoji: {
-        fontSize: 28,
+        fontSize: 24,
         marginRight: 12,
     },
     itemName: {
+        flex: 1,
         fontSize: 16,
         fontWeight: '600',
         color: '#333',
+    },
+    checkbox: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: '#4CAF50',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 8,
+    },
+    checkboxChecked: {
+        backgroundColor: '#4CAF50',
     },
     nutritionContainer: {
         flexDirection: 'row',
