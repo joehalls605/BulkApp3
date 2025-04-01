@@ -6,10 +6,10 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from './types';
 
-type CongratulationsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Congratulations'>;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function Congratulations() {
-    const navigation = useNavigation<CongratulationsScreenNavigationProp>();
+    const navigation = useNavigation<NavigationProp>();
     const fadeAnim = new Animated.Value(0);
 
     React.useEffect(() => {
@@ -27,8 +27,8 @@ export default function Congratulations() {
                     <View style={styles.iconContainer}>
                         <Ionicons name="checkmark-circle" size={65} color="#00bf1d" />
                     </View>
-                    <Text style={styles.title}>Welcome to BulkUp! 🎉</Text>
-                    <Text style={styles.subtitle}>Your journey to a stronger, healthier you starts now 💪</Text>
+                    <Text style={styles.title}>BulkUp Member! 🎉</Text>
+                    <Text style={styles.subtitle}>Gaining weight starts now 💪</Text>
                     
                     <View style={styles.detailsContainer}>
                         <View style={styles.detailItem}>
@@ -41,40 +41,12 @@ export default function Congratulations() {
                         </View>
                     </View>
 
-                    <Text style={styles.featuresTitle}>Your tools to gain weight and more!</Text>
-                    <View style={styles.featuresGrid}>
-                        <View style={[styles.featureCard, { borderColor: '#4CAF50' }]}>
-                            <View style={[styles.featureIconContainer, { backgroundColor: '#E8F5E9' }]}>
-                                <Ionicons name="restaurant" size={24} color="#4CAF50" />
-                            </View>
-                            <Text style={styles.featureTitle}>Meal Plans</Text>
-                        </View>
-
-                        <View style={[styles.featureCard, { borderColor: '#FF9800' }]}>
-                            <View style={[styles.featureIconContainer, { backgroundColor: '#FFF3E0' }]}>
-                                <Ionicons name="barbell" size={24} color="#FF9800" />
-                            </View>
-                            <Text style={styles.featureTitle}>Custom Workouts</Text>
-                        </View>
-
-                        <View style={[styles.featureCard, { borderColor: '#2196F3' }]}>
-                            <View style={[styles.featureIconContainer, { backgroundColor: '#E3F2FD' }]}>
-                                <Ionicons name="cart" size={24} color="#2196F3" />
-                            </View>
-                            <Text style={styles.featureTitle}>Bulking Lists</Text>
-                        </View>
-
-                        <View style={[styles.featureCard, { borderColor: '#9C27B0' }]}>
-                            <View style={[styles.featureIconContainer, { backgroundColor: '#F3E5F5' }]}>
-                                <Ionicons name="bulb" size={24} color="#9C27B0" />
-                            </View>
-                            <Text style={styles.featureTitle}>Daily Tips</Text>
-                        </View>
-                    </View>
-
                     <TouchableOpacity 
                         style={styles.enterButton}
-                        onPress={() => navigation.navigate('Dashboard')}
+                        onPress={() => {
+                            // @ts-ignore
+                            navigation.navigate('Dashboard');
+                        }}
                     >
                         <Text style={styles.enterButtonText}>Start Your Journey</Text>
                         <Ionicons name="arrow-forward" size={24} color="white" style={styles.enterButtonIcon} />

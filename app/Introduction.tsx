@@ -13,14 +13,14 @@ export default function Introduction() {
                 <View style={styles.content}>
                     <View style={styles.header}>
                         <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
-                            <Ionicons name="heart" size={40} color="#FF9800" />
+                            <Ionicons name="trending-up" size={40} color="#FF9800" />
                         </View>
                         <Text style={styles.title}>First, let's get you started.</Text>
                     </View>
 
                     <View style={styles.messageContainer}>
                         <Text style={styles.message}>
-                            We've spoken to many people who struggle with gaining weight, and we know how tough it can be.
+                        Gaining weight can be tough. {'\n'} {'\n'}Let's understand your goals so we can achieve them together 📝
                         </Text>
                     </View>
 
@@ -71,13 +71,26 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         paddingHorizontal: 20,
+        marginVertical: 20,
     },
     message: {
         fontSize: 18,
-        color: '#666',
+        color: '#333333',
         lineHeight: 28,
         textAlign: 'center',
-        marginBottom: 20,
+        backgroundColor: 'white',
+        padding: 25,
+        borderRadius: 15,
+        borderWidth: 2,
+        borderColor: '#FF9800',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 3,
     },
     button: {
         backgroundColor: '#FF5722',
@@ -86,7 +99,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 40,
+        marginBottom: 120,
+        marginTop: 10,
     },
     buttonText: {
         color: 'white',
@@ -96,4 +110,4 @@ const styles = StyleSheet.create({
     buttonIcon: {
         marginLeft: 10,
     },
-}); 
+});

@@ -16,7 +16,7 @@ export default function Welcome() {
                 </View>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                     <View style={styles.featuresSection}>
-                        <Text style={styles.sectionTitle}>The playbook to gain weight </Text>
+                        <Text style={styles.sectionTitle}>Tools to make bulking easier 🛠️</Text>
                         <View style={styles.featuresGrid}>
                         <View style={styles.featureCard}>
                                 <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>

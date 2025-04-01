@@ -13,6 +13,7 @@ import Introduction from './app/Introduction';
 import MealSuggestions from './app/MealSuggestions';
 import QuickMeals from './app/QuickMeals';
 import LowAppetite from './app/LowAppetite';
+import LoadingScreen from './app/LoadingScreen';
 import { RootStackParamList } from './app/types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -31,6 +32,7 @@ export default function App() {
                 <Stack.Screen name="Questionnaire" component={Questionnaire} />
                 <Stack.Screen name="StartJourney" component={StartJourney} />
                 <Stack.Screen name="Congratulations" component={Congratulations} />
+                <Stack.Screen name="Loading" component={LoadingScreen} />
                 <Stack.Screen name="Dashboard" component={Dashboard} />
                 <Stack.Screen name="Shopping" component={Shopping} />
                 <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />

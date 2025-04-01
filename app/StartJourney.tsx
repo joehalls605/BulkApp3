@@ -134,13 +134,13 @@ export default function StartJourney() {
                 <View style={styles.content}>
                     <View style={styles.header}>
                         <Ionicons name="rocket" size={40} color="#4CAF50" />
-                        <Text style={styles.title}>You're almost ready! 💪</Text>
-                        <Text style={styles.subtitle}>Your journey to a stronger you starts here.</Text>
+                        <Text style={styles.title}>You're almost ready! 📈</Text>
+                        <Text style={styles.subtitle}>The journey to bulking starts here.</Text>
                     </View>
                     
 
                     <View style={styles.featuresContainer}>
-                        <Text style={styles.featuresTitle}>Access your bulking tools:</Text>
+                        <Text style={styles.featuresTitle}>Unlock your bulking tools:</Text>
                         <View style={styles.featuresGrid}>
                             <View style={[styles.featureCard, { borderColor: '#4CAF50', borderWidth: 1.5 }]}>
                                 <View style={[styles.featureIconContainer, { backgroundColor: '#E8F5E9' }]}>
@@ -271,33 +271,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        marginHorizontal: -6,
+        marginHorizontal: -4,
     },
     featureCard: {
         backgroundColor: 'white',
-        padding: 12,
-        borderRadius: 14,
-        margin: 6,
-        width: '46%',
+        padding: 10,
+        borderRadius: 12,
+        margin: 4,
+        width: '47%',
         borderWidth: 1,
         borderColor: '#E0E0E0',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.15,
-        shadowRadius: 4,
-        elevation: 4,
-        alignItems: 'center',
-        transform: [{ scale: 1.01 }],
-    },
-    featureIconContainer: {
-        position: 'relative',
-        marginBottom: 8,
-        padding: 8,
-        borderRadius: 16,
-        backgroundColor: '#F5F5F5',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -306,19 +289,36 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 2,
         elevation: 2,
+        alignItems: 'center',
+        transform: [{ scale: 1 }],
+    },
+    featureIconContainer: {
+        position: 'relative',
+        marginBottom: 6,
+        padding: 6,
+        borderRadius: 12,
+        backgroundColor: '#F5F5F5',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 1,
+        elevation: 1,
     },
     featureTitle: {
-        fontSize: 15,
+        fontSize: 14,
         fontWeight: '700',
         color: '#333',
-        marginTop: 6,
+        marginTop: 4,
         marginBottom: 2,
         textAlign: 'center',
     },
     featureText: {
-        fontSize: 12,
+        fontSize: 11,
         color: '#666',
-        lineHeight: 16,
+        lineHeight: 14,
         textAlign: 'center',
         fontStyle: 'italic',
     },

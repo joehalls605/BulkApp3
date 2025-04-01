@@ -137,11 +137,11 @@ export default function SubscriptionManagement() {
                                         </Text>
                                     </>
                                 )}
-
+{/* 
                                 <Text style={styles.detailLabel}>Price</Text>
                                 <Text style={styles.detailValue}>
                                     £{subscriptionDetails.subscriptionPrice}/{subscriptionDetails.subscriptionPeriod}
-                                </Text>
+                                </Text> */}
                             </View>
 
                             <TouchableOpacity 
@@ -158,7 +158,7 @@ export default function SubscriptionManagement() {
                         onPress={handleResetDetails}
                     >
                         <Ionicons name="refresh-circle" size={24} color="#FF5722" />
-                        <Text style={styles.resetButtonText}>Reset Your Details</Text>
+                        <Text style={styles.resetButtonText}>Reset Your Goals</Text>
                     </TouchableOpacity>
 
                     <View style={styles.infoSection}>
