@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, ScrollView, SafeAreaView, TouchableOpacity, Animated, Platform, TextInput } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, SafeAreaView, TouchableOpacity, Animated, Platform, TextInput, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -10,6 +10,7 @@ import You from './You';
 import { TabParamList, RootStackParamList } from './types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Workouts from './Workouts';
+import { loadWeightConfig, updateWeightConfig } from './config/weightConfig';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -54,17 +55,40 @@ function HomeScreen() {
 
     const loadUserData = async () => {
         try {
+            // Load weight configuration first
+            const config = await loadWeightConfig();
+            
+            // Load user data
             const userDataString = await SecureStore.getItemAsync('userData');
             if (userDataString) {
                 const userData = JSON.parse(userDataString);
-                setUserData(userData);
                 
-                // Calculate calories based on weight
-                const calories = calculateCalories(userData.currentWeight, userData.goalWeight, userData.useMetric);
-                setCalories(calories);
+                // Update user data with latest config values
+                const updatedUserData = {
+                    ...userData,
+                    currentWeight: config.currentWeight,
+                    goalWeight: config.goalWeight,
+                    useMetric: config.useMetric,
+                    timeframe: config.timeframe,
+                    dailyCalories: config.dailyTarget,
+                    maintenanceCalories: config.maintenanceCalories,
+                    weightGainCalories: config.weightGainCalories
+                };
+                
+                // Save updated user data
+                await SecureStore.setItemAsync('userData', JSON.stringify(updatedUserData));
+                
+                // Update state with latest values
+                setUserData(updatedUserData);
+                
+                // Set calories from config
+                setCalories({
+                    maintenance: Math.round(config.maintenanceCalories),
+                    weightGain: Math.round(config.weightGainCalories)
+                });
                 
                 // Calculate weight to gain
-                const weightToGain = calculateWeightToGain(userData.currentWeight, userData.goalWeight, userData.useMetric);
+                const weightToGain = calculateWeightToGain(config.currentWeight, config.goalWeight, config.useMetric);
                 setWeightToGain(weightToGain);
             }
         } catch (error) {
@@ -72,22 +96,14 @@ function HomeScreen() {
         }
     };
 
-    const calculateCalories = (currentWeight: number, goalWeight: number, useMetric: boolean) => {
-        // Convert to kg if using imperial units
-        const weightInKg = useMetric ? currentWeight : currentWeight * 6.35029318;
-        const goalWeightInKg = useMetric ? goalWeight : goalWeight * 6.35029318;
+    // Add focus listener to reload data when returning to Dashboard
+    useEffect(() => {
+        const subscription = navigation.addListener('focus', () => {
+            loadUserData();
+        });
 
-        // Calculate maintenance calories (30 calories per kg of body weight)
-        const maintenanceCalories = Math.round(weightInKg * 30);
-
-        // Calculate weight gain calories (maintenance + 500 calories for 0.5kg gain per week)
-        const weightGainCalories = maintenanceCalories + 500;
-
-        return {
-            maintenance: maintenanceCalories,
-            weightGain: weightGainCalories
-        };
-    };
+        return subscription;
+    }, [navigation]);
 
     const calculateWeightToGain = (currentWeight: number, goalWeight: number, useMetric: boolean) => {
         const weightInKg = useMetric ? currentWeight : currentWeight * 6.35029318;
@@ -98,14 +114,45 @@ function HomeScreen() {
 
     const handleWeightUpdate = async (newWeight: string, isCurrent: boolean) => {
         try {
+            const weight = parseFloat(newWeight);
+            if (isNaN(weight) || weight <= 0) {
+                Alert.alert('Invalid Weight', 'Please enter a valid weight');
+                return;
+            }
+
+            // Convert stone to kg if using imperial
+            const weightInKg = userData.useMetric ? weight : weight * 14 / 2.20462;
+
+            // Update weight config
+            const updatedConfig = await updateWeightConfig(
+                isCurrent ? weightInKg : userData.currentWeight,
+                isCurrent ? userData.goalWeight : weightInKg,
+                userData.useMetric,
+                userData.exerciseFrequency,
+                userData.mealsPerDay,
+                userData.foodPreference,
+                userData.timeframe
+            );
+
+            // Update user data
             const updatedData = {
                 ...userData,
-                [isCurrent ? 'currentWeight' : 'goalWeight']: parseFloat(newWeight)
+                [isCurrent ? 'currentWeight' : 'goalWeight']: weightInKg,
+                dailyCalories: Math.round(updatedConfig.dailyTarget),
+                maintenanceCalories: Math.round(updatedConfig.maintenanceCalories),
+                weightGainCalories: Math.round(updatedConfig.weightGainCalories)
             };
             await SecureStore.setItemAsync('userData', JSON.stringify(updatedData));
             setUserData(updatedData);
+
+            // Update calories display with rounded values
+            setCalories({
+                maintenance: Math.round(updatedConfig.maintenanceCalories),
+                weightGain: Math.round(updatedConfig.weightGainCalories)
+            });
         } catch (error) {
             console.error('Error updating weight:', error);
+            Alert.alert('Error', 'Failed to update weight. Please try again.');
         }
     };
 
@@ -123,38 +170,8 @@ function HomeScreen() {
                 </View>
                 <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
                     <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                   
-                        <View style={styles.goalContainer}>
-                            <Text style={styles.sectionTitle}>Overview 🎯</Text>
-                            <View style={styles.goalOptions}>
-                                <View style={[styles.goalOption, { backgroundColor: '#E8F5FF' }]}>
-                                    <View style={[styles.goalIconContainer, { backgroundColor: '#2196F3' }]}>
-                                        <Ionicons name="flame" size={24} color="white" />
-                                    </View>
-                                    <Text style={styles.goalValue}>{calories.weightGain} cal</Text>
-                                    <Text style={styles.goalText}>Gain Weight</Text>
-                                    <View style={styles.goalIndicator}>
-                                        <Ionicons name="trending-up" size={16} color="#2196F3" />
-                                        <Text style={styles.goalIndicatorText}>Active Goal</Text>
-                                    </View>
-                                </View>
-                                <View style={[styles.goalOption, { backgroundColor: '#F1F8E9' }]}>
-                                    <View style={[styles.goalIconContainer, { backgroundColor: '#4CAF50' }]}>
-                                        <Ionicons name="trending-up" size={24} color="white" />
-                                    </View>
-                                    <Text style={styles.goalValue}>{calories.maintenance} cal</Text>
-                                    <Text style={styles.goalText}>Maintain</Text>
-                                    <View style={styles.goalIndicator}>
-                                        <Ionicons name="trending-up" size={16} color="#4CAF50" />
-                                        <Text style={styles.goalIndicatorText}>Alternative</Text>
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
-
                         <View style={styles.toolsSection}>
-                            <Text style={styles.sectionTitle}>Bulking Tools 🛠️</Text>
-                            <Text style={styles.toolsNote}>Use these tools for your weight gain journey</Text>
+                            <Text style={styles.sectionTitle}>Learn how to...</Text>
                             <View style={styles.actionButtons}>
                                 <TouchableOpacity 
                                     style={styles.actionButton}
@@ -163,7 +180,7 @@ function HomeScreen() {
                                     <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
                                         <Ionicons name="barbell" size={24} color="#1976D2" />
                                     </View>
-                                    <Text style={styles.actionButtonText}>Workouts</Text>
+                                    <Text style={styles.actionButtonText}>Gain Muscle</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity 
                                     style={styles.actionButton}
@@ -172,7 +189,7 @@ function HomeScreen() {
                                     <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
                                         <Ionicons name="restaurant" size={24} color="#4CAF50" />
                                     </View>
-                                    <Text style={styles.actionButtonText}>Meals</Text>
+                                    <Text style={styles.actionButtonText}>Bulk Eat</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity 
                                     style={styles.actionButton}
@@ -181,7 +198,7 @@ function HomeScreen() {
                                     <View style={[styles.iconContainer, { backgroundColor: '#FCE4EC' }]}>
                                         <Ionicons name="heart" size={24} color="#E91E63" />
                                     </View>
-                                    <Text style={styles.actionButtonText}>Motivation</Text>
+                                    <Text style={styles.actionButtonText}>Motivate Better</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity 
                                     style={styles.actionButton}
@@ -190,37 +207,37 @@ function HomeScreen() {
                                     <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
                                         <Ionicons name="book" size={24} color="#1976D2" />
                                     </View>
-                                    <Text style={styles.actionButtonText}>Weight Guide</Text>
+                                    <Text style={styles.actionButtonText}>Bulk Educate</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
-
+                        <Text style={styles.sectionTitle}>Weight Gain Tools 🛠️</Text>
                         <TouchableOpacity 
                             style={[styles.shoppingButton, { borderColor: '#FF5722' }]}
                             onPress={() => navigation.navigate('Shopping')}
                         >
-                            <Text style={styles.shoppingButtonText}>Grocery List 📝</Text>
+                            <Text style={styles.shoppingButtonText}>Gains Grocery List 📝</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity 
                             style={[styles.shoppingButton, { borderColor: '#4CAF50' }]}
                             onPress={() => navigation.navigate('MealSuggestions')}
                         >
-                            <Text style={styles.shoppingButtonText}>Today's Meal Ideas 🍽️</Text>
+                            <Text style={styles.shoppingButtonText}>What to eat today 🍽️</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity 
                             style={[styles.shoppingButton, { borderColor: '#5975ff' }]}
                             onPress={() => navigation.navigate('QuickMeals' as never)}
                         >
-                            <Text style={styles.shoppingButtonText}>Quick Pantry Meals 🏠</Text>
+                            <Text style={styles.shoppingButtonText}>Meals from the cupboard 🏠</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity 
                             style={[styles.shoppingButton, { borderColor: '#3333ff' }]}
                             onPress={() => navigation.navigate('LowAppetite' as never)}
                         >
-                            <Text style={styles.shoppingButtonText}>Small Appetite Meals 🥤</Text>
+                            <Text style={styles.shoppingButtonText}>Small appetite meals 🥤</Text>
                         </TouchableOpacity>
 
                         <View style={styles.dailyTipSection}>

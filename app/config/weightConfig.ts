@@ -6,11 +6,11 @@ export interface WeightConfig {
     useMetric: boolean;
     dailyTarget: number;
     maintenanceCalories: number;
-    weightGainCalories: number;
     exerciseFrequency: string;
     mealsPerDay: string;
     foodPreference: string;
     timeframe: number;
+    beforePhoto?: string; // Base64 encoded photo
 }
 
 const DEFAULT_CONFIG: WeightConfig = {
@@ -19,7 +19,6 @@ const DEFAULT_CONFIG: WeightConfig = {
     useMetric: true,
     dailyTarget: 0,
     maintenanceCalories: 0,
-    weightGainCalories: 0,
     exerciseFrequency: 'Never',
     mealsPerDay: '3 times',
     foodPreference: 'A mix of all',
@@ -31,47 +30,60 @@ export const calculateCalories = (
     goalWeight: number, 
     useMetric: boolean,
     exerciseFrequency: string,
-    timeframe: number
+    timeframe: number,
+    mealsPerDay: string = '3 times',
+    foodPreference: string = 'A mix of all'
 ) => {
     // Convert to kg if using imperial units
     const weightInKg = useMetric ? currentWeight : currentWeight * 6.35029318;
     const goalWeightInKg = useMetric ? goalWeight : goalWeight * 6.35029318;
 
     // Calculate BMR using Mifflin-St Jeor Equation
-    const heightInCm = 170; // Average height
-    const age = 25; // Average age
+    // Using average values for height (170cm) and age (25) since not provided
+    const heightInCm = 170;
+    const age = 25;
     const bmr = (10 * weightInKg) + (6.25 * heightInCm) - (5 * age) + 5;
 
-    // Activity multiplier based on exercise frequency
-    let activityMultiplier = 1.2; // Default sedentary
-    switch (exerciseFrequency) {
-        case 'Never':
-            activityMultiplier = 1.2;
-            break;
-        case 'A few times a week':
-            activityMultiplier = 1.375;
-            break;
-        case 'Once a day':
-            activityMultiplier = 1.55;
-            break;
-        case 'More than once a day':
-            activityMultiplier = 1.725;
-            break;
-    }
+    // Activity multipliers based on exercise frequency
+    const activityMultipliers = {
+        'Never': 1.2,
+        'A few times a week': 1.3,
+        'Once a day': 1.4,
+        'More than once a day': 1.5
+    };
 
-    // Calculate maintenance calories
-    const maintenanceCalories = Math.round(bmr * activityMultiplier);
+    // Meal frequency multiplier
+    const mealMultipliers = {
+        '1-2 times': 0.95,
+        '3 times': 1.0,
+        '4-5 times': 1.05,
+        '6+ times': 1.1
+    };
 
-    // Calculate weight gain calories based on timeframe
-    const weightToGain = goalWeightInKg - weightInKg;
-    const weeklyGainTarget = weightToGain / (timeframe * 4); // Convert months to weeks
-    const dailyCalorieSurplus = weeklyGainTarget * 1000; // 1kg = 1000 calories
-    const weightGainCalories = maintenanceCalories + dailyCalorieSurplus;
+    // Food preference multiplier
+    const foodMultipliers = {
+        'Protein-rich foods': 1.05,
+        'Carbohydrates': 1.0,
+        'Healthy fats': 1.1,
+        'A mix of all': 1.0
+    };
+
+    // Calculate maintenance calories using all multipliers
+    const maintenanceCalories = Math.round(
+        bmr * 
+        activityMultipliers[exerciseFrequency as keyof typeof activityMultipliers] *
+        mealMultipliers[mealsPerDay as keyof typeof mealMultipliers] *
+        foodMultipliers[foodPreference as keyof typeof foodMultipliers]
+    );
+
+    // Ensure values are within reasonable ranges
+    const minMaintenance = 1500; // Minimum maintenance calories
+    const maxMaintenance = 2800; // Maximum maintenance calories
+    const finalMaintenance = Math.min(Math.max(maintenanceCalories, minMaintenance), maxMaintenance);
 
     return {
-        maintenanceCalories,
-        weightGainCalories,
-        dailyTarget: weightGainCalories
+        maintenanceCalories: finalMaintenance,
+        dailyTarget: finalMaintenance
     };
 };
 
@@ -95,7 +107,8 @@ export const updateWeightConfig = async (
     exerciseFrequency?: string,
     mealsPerDay?: string,
     foodPreference?: string,
-    timeframe?: number
+    timeframe?: number,
+    beforePhoto?: string
 ): Promise<WeightConfig> => {
     try {
         // First get the current config
@@ -110,9 +123,9 @@ export const updateWeightConfig = async (
             mealsPerDay: mealsPerDay ?? currentConfig.mealsPerDay,
             foodPreference: foodPreference ?? currentConfig.foodPreference,
             timeframe: timeframe ?? currentConfig.timeframe,
+            beforePhoto: beforePhoto ?? currentConfig.beforePhoto,
             dailyTarget: 0,
-            maintenanceCalories: 0,
-            weightGainCalories: 0
+            maintenanceCalories: 0
         };
 
         // Calculate new calories based on updated values
@@ -121,12 +134,13 @@ export const updateWeightConfig = async (
             updatedConfig.goalWeight,
             updatedConfig.useMetric,
             updatedConfig.exerciseFrequency,
-            updatedConfig.timeframe
+            updatedConfig.timeframe,
+            updatedConfig.mealsPerDay,
+            updatedConfig.foodPreference
         );
 
         // Update the config with calculated calories
         updatedConfig.maintenanceCalories = calories.maintenanceCalories;
-        updatedConfig.weightGainCalories = calories.weightGainCalories;
         updatedConfig.dailyTarget = calories.dailyTarget;
 
         // Store the updated config
@@ -145,7 +159,9 @@ export const updateWeightConfig = async (
                 mealsPerDay: updatedConfig.mealsPerDay,
                 foodPreference: updatedConfig.foodPreference,
                 timeframe: updatedConfig.timeframe,
+                beforePhoto: updatedConfig.beforePhoto,
                 dailyCalories: calories.dailyTarget,
+                maintenanceCalories: calories.maintenanceCalories,
                 completedMeals: {}
             };
             await SecureStore.setItemAsync('userData', JSON.stringify(updatedUserData));

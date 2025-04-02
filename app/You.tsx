@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, SafeAreaView, Platform } from 'react-native';
+import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
@@ -9,6 +10,7 @@ import * as SecureStore from 'expo-secure-store';
 export default function You() {
     const [currentWeight, setCurrentWeight] = useState('');
     const [goalWeight, setGoalWeight] = useState('');
+    const [timeframe, setTimeframe] = useState(12);
     const [weightConfig, setWeightConfig] = useState<WeightConfig | null>(null);
     const [useMetric, setUseMetric] = useState(true);
     const navigation = useNavigation();
@@ -41,6 +43,7 @@ export default function You() {
             setCurrentWeight(formatInputWeight(config.currentWeight, config.useMetric));
             setGoalWeight(formatInputWeight(config.goalWeight, config.useMetric));
             setUseMetric(config.useMetric);
+            setTimeframe(config.timeframe);
 
             // Load user data
             const userDataString = await SecureStore.getItemAsync('userData');
@@ -52,6 +55,7 @@ export default function You() {
                     currentWeight: config.currentWeight,
                     goalWeight: config.goalWeight,
                     useMetric: config.useMetric,
+                    timeframe: config.timeframe,
                     dailyCalories: config.dailyTarget,
                     maintenanceCalories: config.maintenanceCalories,
                     weightGainCalories: config.weightGainCalories
@@ -82,7 +86,7 @@ export default function You() {
                 weightConfig?.exerciseFrequency,
                 weightConfig?.mealsPerDay,
                 weightConfig?.foodPreference,
-                weightConfig?.timeframe
+                timeframe
             );
             setWeightConfig(updatedConfig);
 
@@ -94,6 +98,7 @@ export default function You() {
                     ...userData,
                     currentWeight: weightInKg,
                     useMetric: useMetric,
+                    timeframe: timeframe,
                     dailyCalories: updatedConfig.dailyTarget,
                     maintenanceCalories: updatedConfig.maintenanceCalories,
                     weightGainCalories: updatedConfig.weightGainCalories
@@ -103,7 +108,7 @@ export default function You() {
 
             Alert.alert(
                 'Success',
-                `Current weight updated to ${formatWeight(weightInKg, useMetric)}`,
+                `Current weight updated to ${formatWeight(weightInKg, useMetric)}. Calorie targets have been recalculated.`,
                 [{ text: 'OK' }]
             );
         } catch (error) {
@@ -142,7 +147,7 @@ export default function You() {
                 weightConfig?.exerciseFrequency,
                 weightConfig?.mealsPerDay,
                 weightConfig?.foodPreference,
-                weightConfig?.timeframe
+                timeframe
             );
             setWeightConfig(updatedConfig);
 
@@ -154,6 +159,7 @@ export default function You() {
                     ...userData,
                     goalWeight: weightInKg,
                     useMetric: useMetric,
+                    timeframe: timeframe,
                     dailyCalories: updatedConfig.dailyTarget,
                     maintenanceCalories: updatedConfig.maintenanceCalories,
                     weightGainCalories: updatedConfig.weightGainCalories
@@ -166,12 +172,51 @@ export default function You() {
 
             Alert.alert(
                 'Success',
-                `Goal weight updated to ${formatWeight(weightInKg, useMetric)}`,
+                `Goal weight updated to ${formatWeight(weightInKg, useMetric)}. Calorie targets have been recalculated.`,
                 [{ text: 'OK' }]
             );
         } catch (error) {
             console.error('Error updating goal weight:', error);
             Alert.alert('Error', 'Failed to update goal weight. Please try again.');
+        }
+    };
+
+    const updateTimeframe = async () => {
+        try {
+            // Update config with new timeframe, maintaining other values
+            const updatedConfig = await updateWeightConfig(
+                weightConfig?.currentWeight,
+                weightConfig?.goalWeight,
+                useMetric,
+                weightConfig?.exerciseFrequency,
+                weightConfig?.mealsPerDay,
+                weightConfig?.foodPreference,
+                timeframe
+            );
+            setWeightConfig(updatedConfig);
+
+            // Update userData with new values
+            const userDataString = await SecureStore.getItemAsync('userData');
+            if (userDataString) {
+                const userData = JSON.parse(userDataString);
+                const updatedUserData = {
+                    ...userData,
+                    timeframe: timeframe,
+                    dailyCalories: updatedConfig.dailyTarget,
+                    maintenanceCalories: updatedConfig.maintenanceCalories,
+                    weightGainCalories: updatedConfig.weightGainCalories
+                };
+                await SecureStore.setItemAsync('userData', JSON.stringify(updatedUserData));
+            }
+
+            Alert.alert(
+                'Success',
+                `Timeframe updated to ${timeframe} months. Your calorie targets have been recalculated.`,
+                [{ text: 'OK' }]
+            );
+        } catch (error) {
+            console.error('Error updating timeframe:', error);
+            Alert.alert('Error', 'Failed to update timeframe. Please try again.');
         }
     };
 
@@ -201,7 +246,7 @@ export default function You() {
                         weightConfig?.exerciseFrequency,
                         weightConfig?.mealsPerDay,
                         weightConfig?.foodPreference,
-                        weightConfig?.timeframe
+                        timeframe
                     );
                     setWeightConfig(updatedConfig);
 
@@ -214,6 +259,7 @@ export default function You() {
                             currentWeight: useMetric ? currentWeightNum : currentWeightNum * 14 / 2.20462,
                             goalWeight: useMetric ? goalWeightNum : goalWeightNum * 14 / 2.20462,
                             useMetric: newUseMetric,
+                            timeframe: timeframe,
                             dailyCalories: updatedConfig.dailyTarget,
                             maintenanceCalories: updatedConfig.maintenanceCalories,
                             weightGainCalories: updatedConfig.weightGainCalories
@@ -295,6 +341,34 @@ export default function You() {
                             <Text style={styles.buttonText}>Update Goal Weight</Text>
                         </TouchableOpacity>
                     </View>
+
+                    {/* <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#FF9800' }]}>
+                        <View style={styles.cardHeader}>
+                            <Text style={styles.cardTitle}>Timeframe</Text>
+                        </View>
+                        <View style={styles.timeframeContainer}>
+                            <Slider
+                                style={styles.slider}
+                                minimumValue={6}
+                                maximumValue={60}
+                                step={1}
+                                value={timeframe}
+                                onValueChange={setTimeframe}
+                                minimumTrackTintColor="#FF9800"
+                                maximumTrackTintColor="#E0E0E0"
+                                thumbTintColor="#FF9800"
+                            />
+                            <Text style={styles.timeframeText}>
+                                {timeframe} {timeframe === 1 ? 'month' : 'months'}
+                            </Text>
+                        </View>
+                        <TouchableOpacity 
+                            style={[styles.button, { backgroundColor: '#FF9800' }]} 
+                            onPress={updateTimeframe}
+                        >
+                            <Text style={styles.buttonText}>Update Timeframe</Text>
+                        </TouchableOpacity>
+                    </View> */}
                 </ScrollView>
             </LinearGradient>
         </SafeAreaView>
@@ -476,5 +550,20 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#666',
         fontWeight: '500',
+    },
+    timeframeContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    slider: {
+        flex: 1,
+        height: 40,
+        marginHorizontal: 16,
+    },
+    timeframeText: {
+        fontSize: 16,
+        fontWeight: '500',
+        marginHorizontal: 16,
     },
 }); 

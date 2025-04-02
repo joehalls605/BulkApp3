@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated, TextInput, Switch, TouchableWithoutFeedback, Keyboard, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated, TextInput, Switch, TouchableWithoutFeedback, Keyboard, ScrollView, Alert, Image } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,7 +7,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as SecureStore from 'expo-secure-store';
 import { RootStackParamList } from './types';
-import { WeightConfig, calculateCalories } from './config/weightConfig';
+import { WeightConfig, calculateCalories, updateWeightConfig } from './config/weightConfig';
+import * as ImagePicker from 'expo-image-picker';
 
 type QuestionnaireScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Questionnaire'>;
 
@@ -69,12 +70,13 @@ export default function Questionnaire() {
     const [goalWeight, setGoalWeight] = useState('');
     const [gender, setGender] = useState('');
     const [timeframe, setTimeframe] = useState(12);
+    const [beforePhoto, setBeforePhoto] = useState<string | null>(null);
 
     const processingMessages = [
-        "Creating your personalised plan...",
-        "Calculating your calorie needs...",
+        "Processing your details...",
+        "Building your weight gain coach...",
+        "Calculating your calorie targets...",
         "Preparing your meal suggestions...",
-        "Setting up your workout recommendations...",
         "Almost ready..."
     ];
 
@@ -111,76 +113,47 @@ export default function Questionnaire() {
         }
     };
 
+    const pickImage = async () => {
+        try {
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 0.8,
+                base64: true
+            });
+
+            if (!result.canceled) {
+                setBeforePhoto(result.assets[0].base64 || null);
+            }
+        } catch (error) {
+            console.error('Error picking image:', error);
+            Alert.alert('Error', 'Failed to pick image. Please try again.');
+        }
+    };
+
     const handleSubmit = async () => {
         try {
-            // Calculate daily calorie needs based on current and goal weight
-            const currentWeightNum = parseFloat(currentWeight);
-            const goalWeightNum = parseFloat(goalWeight);
-
-            // Validate that current weight is below goal weight
-            if (currentWeightNum >= goalWeightNum) {
-                Alert.alert(
-                    'Invalid Weight Goals 😟',
-                    'Your current weight must be below your goal weight. Please try again.',
-                    [{ text: 'OK' }]
-                );
-                return;
-            }
-
-            // Convert weights to kg if using imperial
-            const currentWeightInKg = useMetric ? currentWeightNum : currentWeightNum * 14 / 2.20462;
-            const goalWeightInKg = useMetric ? goalWeightNum : goalWeightNum * 14 / 2.20462;
-
-            // Initialize weight config with user's data
-            const weightConfig: WeightConfig = {
-                currentWeight: currentWeightInKg,
-                goalWeight: goalWeightInKg,
-                useMetric: useMetric,
-                exerciseFrequency: answers[1] || 'Never',
-                mealsPerDay: answers[2] || '3 times',
-                foodPreference: answers[3] || 'A mix of all',
-                timeframe: timeframe,
-                dailyTarget: 0,
-                maintenanceCalories: 0,
-                weightGainCalories: 0
-            };
-
-            // Calculate calories and update config
-            const calories = calculateCalories(
-                weightConfig.currentWeight,
-                weightConfig.goalWeight,
-                weightConfig.useMetric,
-                weightConfig.exerciseFrequency,
-                weightConfig.timeframe
-            );
-
-            weightConfig.maintenanceCalories = calories.maintenanceCalories;
-            weightConfig.weightGainCalories = calories.weightGainCalories;
-            weightConfig.dailyTarget = calories.dailyTarget;
-
-            // Store weight config
-            await SecureStore.setItemAsync('weightConfig', JSON.stringify(weightConfig));
-            
-            // Store user data securely with isSubscribed set to false by default
-            await SecureStore.setItemAsync('userData', JSON.stringify({
-                currentWeight: currentWeightInKg,
-                goalWeight: goalWeightInKg,
-                useMetric: useMetric,
-                exerciseFrequency: answers[1] || 'Never',
-                mealsPerDay: answers[2] || '3 times',
-                foodPreference: answers[3] || 'A mix of all',
-                timeframe: timeframe,
-                dailyCalories: calories.dailyTarget,
-                completedMeals: {},
-                createdAt: new Date().toISOString(),
-                isSubscribed: false
-            }));
-
             // Show processing state
             setIsProcessing(true);
+
+            // Update weight config with all values
+            await updateWeightConfig(
+                parseFloat(currentWeight),
+                parseFloat(goalWeight),
+                useMetric,
+                answers[1] || 'Never',
+                answers[2] || '3 times',
+                answers[3] || 'A mix of all',
+                timeframe,
+                beforePhoto || undefined
+            );
+
+            // Navigation will happen automatically after the progress animation completes
         } catch (error) {
-            console.error('Error saving user data:', error);
-            Alert.alert('Error', 'Failed to save your information. Please try again.');
+            console.error('Error saving questionnaire:', error);
+            Alert.alert('Error', 'Failed to save questionnaire');
+            setIsProcessing(false);
         }
     };
 
@@ -295,6 +268,23 @@ export default function Questionnaire() {
                                         </View>
                                     </View>
 
+                                    <View style={styles.section}>
+                                        <Text style={styles.sectionTitle}>Upload "Before" Photo</Text>
+                                        <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
+                                            {beforePhoto ? (
+                                                <Image 
+                                                    source={{ uri: `data:image/jpeg;base64,${beforePhoto}` }}
+                                                    style={styles.previewImage}
+                                                />
+                                            ) : (
+                                                <View style={styles.photoPlaceholder}>
+                                                    <Ionicons name="camera" size={40} color="#666" />
+                                                    <Text style={styles.photoPlaceholderText}>Tap to upload photo</Text>
+                                                </View>
+                                            )}
+                                        </TouchableOpacity>
+                                    </View>
+
                                     <TouchableOpacity
                                         style={[styles.button, (!currentWeight || !goalWeight) && styles.buttonDisabled]}
                                         onPress={handleSubmit}
@@ -404,7 +394,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
+        padding: 24,
     },
     iconContainer: {
         width: 80,
@@ -412,30 +402,42 @@ const styles = StyleSheet.create({
         borderRadius: 40,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: 24,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
     },
     processingTitle: {
         fontSize: 24,
-        fontWeight: '600',
+        fontWeight: '700',
         color: '#333',
-        marginBottom: 10,
+        marginBottom: 16,
+        textAlign: 'center',
     },
     processingText: {
-        fontSize: 16,
+        fontSize: 18,
         color: '#666',
-        marginBottom: 30,
+        textAlign: 'center',
+        marginBottom: 32,
+        fontStyle: 'italic',
     },
     progressBar: {
         width: '80%',
-        height: 8,
-        backgroundColor: '#F5F5F5',
-        borderRadius: 4,
+        height: 6,
+        backgroundColor: '#E0E0E0',
+        borderRadius: 3,
         overflow: 'hidden',
+        marginTop: 16,
     },
     progressFill: {
         height: '100%',
-        backgroundColor: '#FF5722',
-        borderRadius: 4,
+        backgroundColor: '#4CAF50',
+        borderRadius: 3,
     },
     weightContainer: {
         flex: 1,
@@ -626,4 +628,42 @@ const styles = StyleSheet.create({
         color: '#333',
         fontWeight: '500',
     },
+    section: {
+        marginBottom: 20,
+        backgroundColor: '#fff',
+        padding: 15,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        marginBottom: 10,
+        color: '#333'
+    },
+    photoButton: {
+        width: '100%',
+        height: 200,
+        backgroundColor: '#f0f0f0',
+        borderRadius: 10,
+        overflow: 'hidden',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    photoPlaceholder: {
+        alignItems: 'center'
+    },
+    photoPlaceholderText: {
+        marginTop: 10,
+        color: '#666'
+    },
+    previewImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover'
+    }
 }); 
