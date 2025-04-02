@@ -180,7 +180,7 @@ function HomeScreen() {
                                     <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
                                         <Ionicons name="barbell" size={24} color="#1976D2" />
                                     </View>
-                                    <Text style={styles.actionButtonText}>Gain Muscle</Text>
+                                    <Text style={styles.actionButtonText}>Gain Muscle Workouts</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity 
                                     style={styles.actionButton}
@@ -189,25 +189,25 @@ function HomeScreen() {
                                     <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
                                         <Ionicons name="restaurant" size={24} color="#4CAF50" />
                                     </View>
-                                    <Text style={styles.actionButtonText}>Bulk Eat</Text>
+                                    <Text style={styles.actionButtonText}>Meal Plans</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity 
                                     style={styles.actionButton}
                                     onPress={() => navigation.navigate('Motivation')}
                                 >
                                     <View style={[styles.iconContainer, { backgroundColor: '#FCE4EC' }]}>
-                                        <Ionicons name="heart" size={24} color="#E91E63" />
+                                        <Ionicons name="book" size={24} color="#E91E63" />
                                     </View>
-                                    <Text style={styles.actionButtonText}>Success Stories</Text>
+                                    <Text style={styles.actionButtonText}>Weight Gain Stories</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity 
                                     style={styles.actionButton}
                                     onPress={() => navigation.navigate('WeightGuide')}
                                 >
                                     <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
-                                        <Ionicons name="book" size={24} color="#1976D2" />
+                                        <Ionicons name="star" size={24} color="#1976D2" />
                                     </View>
-                                    <Text style={styles.actionButtonText}>Challenges</Text>
+                                    <Text style={styles.actionButtonText}>Bulk Challenges</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
