@@ -149,7 +149,7 @@ export default function StartJourney() {
                 <View style={styles.content}>
                     <View style={styles.header}>
                         <Ionicons name="rocket" size={40} color="#4CAF50" />
-                        <Text style={styles.title}>You're almost ready! 📈</Text>
+                        <Text style={styles.title}>You're almost ready!</Text>
                     </View>
 
                     {beforePhoto && (
@@ -175,7 +175,7 @@ export default function StartJourney() {
                     )}
 
                     <View style={styles.featuresContainer}>
-                        <Text style={styles.featuresTitle}>Bulk with the best tools 🛠️</Text>
+                        <Text style={styles.featuresTitle}>Start your free trial, and get 7 days of membership ⭐</Text>
                         <View style={styles.featuresGrid}>
                             <View style={[styles.featureCard, { borderColor: '#4CAF50', borderWidth: 1.5 }]}>
                                 <View style={[styles.featureIconContainer, { backgroundColor: '#E8F5E9' }]}>

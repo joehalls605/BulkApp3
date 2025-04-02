@@ -11,12 +11,12 @@ export default function Welcome() {
         <SafeAreaView style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                 <View style={styles.header}>
-                    <Text style={styles.title}>Welcome to BulkUp 💪</Text>
-                    <Text style={styles.subtitle}>Your personal weight gain companion</Text>
+                    <Text style={styles.title}>BulkUp 💪</Text>
+                    <Text style={styles.subtitle}>Gaining weight has never been easier.</Text>
                 </View>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                     <View style={styles.featuresSection}>
-                        <Text style={styles.sectionTitle}>Gaining weight, made easy 📱</Text>
+                        <Text style={styles.sectionTitle}>All the bulking tools you need, right in your pocket 📱</Text>
                         <View style={styles.featuresGrid}>
                         <View style={styles.featureCard}>
                                 <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
@@ -56,10 +56,10 @@ export default function Welcome() {
                             </View>
                             <View style={styles.featureCard}>
                                 <View style={[styles.iconContainer, { backgroundColor: '#FCE4EC' }]}>
-                                    <Ionicons name="people" size={24} color="#E91E63" />
+                                    <Ionicons name="build" size={24} color="#E91E63" />
                                 </View>
-                                <Text style={styles.featureTitle}>Community Motivation</Text>
-                                <Text style={styles.featureText}>Motivate each other</Text>
+                                <Text style={styles.featureTitle}>Log your progress</Text>
+                                <Text style={styles.featureText}>Upload your gains</Text>
                             </View>
                         </View>
                     </View>

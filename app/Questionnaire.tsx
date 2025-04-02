@@ -299,7 +299,7 @@ export default function Questionnaire() {
 
                                 <View style={styles.weightContainer}>
                                     <View style={styles.section}>
-                                        <Text style={styles.sectionTitle}>Track your progress from today 📸</Text>
+                                        <Text style={styles.sectionTitle}>Your day 1 photo 📈</Text>
                                         <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
                                             {beforePhoto ? (
                                                 <Image 
@@ -323,6 +323,10 @@ export default function Questionnaire() {
                                         <Text style={styles.buttonText}>Complete Setup</Text>
                                         <Ionicons name="checkmark-circle" size={20} color="white" style={styles.buttonIcon} />
                                     </TouchableOpacity>
+
+                                    <View style={styles.footer}>
+                                        <Text style={styles.footerText}>Made with ❤️ in London</Text>
+                                    </View>
                                 </View>
                             </View>
                         </ScrollView>
@@ -695,5 +699,16 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         resizeMode: 'cover'
-    }
+    },
+    footer: {
+        marginTop: 20,
+        alignItems: 'center',
+        paddingTop: 170,
+        paddingBottom: 20,
+    },
+    footerText: {
+        fontSize: 14,
+        color: '#666',
+        fontStyle: 'italic',
+    },
 }); 
