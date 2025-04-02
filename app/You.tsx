@@ -793,10 +793,10 @@ const styles = StyleSheet.create({
         borderRadius: 8,
     },
     activeTabBefore: {
-        backgroundColor: '#FF6B6B',
+        backgroundColor: '#ff9430',
     },
     activeTabProgress: {
-        backgroundColor: '#FFA726',
+        backgroundColor: '#009e2f',
     },
     activeTabAfter: {
         backgroundColor: '#4CAF50',

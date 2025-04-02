@@ -198,7 +198,7 @@ function HomeScreen() {
                                     <View style={[styles.iconContainer, { backgroundColor: '#FCE4EC' }]}>
                                         <Ionicons name="heart" size={24} color="#E91E63" />
                                     </View>
-                                    <Text style={styles.actionButtonText}>Motivate Better</Text>
+                                    <Text style={styles.actionButtonText}>Motivate</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity 
                                     style={styles.actionButton}
@@ -232,7 +232,7 @@ function HomeScreen() {
                                 <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
                                     <Ionicons name="restaurant" size={24} color="#4CAF50" />
                                 </View>
-                                <Text style={styles.shoppingButtonText}>What to eat today 🍽️</Text>
+                                <Text style={styles.shoppingButtonText}>What To Eat Today</Text>
                             </View>
                         </TouchableOpacity>
 
@@ -244,7 +244,7 @@ function HomeScreen() {
                                 <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
                                     <Ionicons name="home" size={24} color="#5975ff" />
                                 </View>
-                                <Text style={styles.shoppingButtonText}>Cupboard Meals 🏠</Text>
+                                <Text style={styles.shoppingButtonText}>Cupboard Meals</Text>
                             </View>
                         </TouchableOpacity>
 
@@ -256,7 +256,7 @@ function HomeScreen() {
                                 <View style={[styles.iconContainer, { backgroundColor: '#E8EAF6' }]}>
                                     <Ionicons name="nutrition" size={24} color="#3333ff" />
                                 </View>
-                                <Text style={styles.shoppingButtonText}>Small appetite meals 🥤</Text>
+                                <Text style={styles.shoppingButtonText}>Small Appetite Food</Text>
                             </View>
                         </TouchableOpacity>
                         
@@ -268,7 +268,7 @@ function HomeScreen() {
                                 <View style={[styles.iconContainer, { backgroundColor: '#F3E5F5' }]}>
                                     <Ionicons name="map" size={24} color="#9C27B0" />
                                 </View>
-                                <Text style={styles.shoppingButtonText}>Bulking Roadmap 🗺️</Text>
+                                <Text style={styles.shoppingButtonText}>Bulking Roadmap</Text>
                             </View>
                         </TouchableOpacity>
 
@@ -280,7 +280,7 @@ function HomeScreen() {
                                 <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
                                     <Ionicons name="heart" size={24} color="#FF9800" />
                                 </View>
-                                <Text style={styles.shoppingButtonText}>Bulking Mindset 💭</Text>
+                                <Text style={styles.shoppingButtonText}>Bulking Mental Health</Text>
                             </View>
                         </TouchableOpacity>
 
@@ -564,6 +564,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         textAlign: 'center',
         letterSpacing: 0.2,
+        marginTop: 8,
     },
     dailyTipSection: {
         backgroundColor: 'white',

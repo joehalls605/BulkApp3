@@ -52,12 +52,12 @@ export default function BulkingMind() {
                         <Ionicons name="arrow-back" size={24} color="#666" />
                     </TouchableOpacity>
                     <View style={styles.headerContent}>
-                        <Text style={styles.title}>Bulking Mindset</Text>
+                        <Text style={styles.title}>Bulking Mental Health</Text>
                     </View>
                 </View>
 
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-                <Text style={styles.subtitle}>Your mental health is just as important as your physical health.</Text>
+                <Text style={styles.subtitle}>Your mental health is just as important as your physical health. Please keep these steps in mind:</Text>
                     {principles.map((principle, index) => (
                         <View 
                             key={index} 
@@ -122,10 +122,11 @@ const styles = StyleSheet.create({
         paddingBottom: 40,
     },
     title: {
-        fontSize: 25,
+        fontSize: 20,
         fontWeight: '700',
         color: '#1a1a1a',
         marginBottom: 8,
+        marginTop: 10,
     },
     subtitle: {
         fontSize: 16,
