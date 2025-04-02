@@ -164,11 +164,10 @@ export default function StartJourney() {
                                 </View>
                                 <View style={styles.photoColumn}>
                                     <Text style={styles.photoLabel}>After</Text>
-                                    <View style={styles.placeholderContainer}>
-                                        <View style={styles.placeholderBackground}>
-                                            <Ionicons name="camera" size={40} color="#666" />
-                                        </View>
-                                    </View>
+                                    <Image 
+                                        source={require('../assets/images/blur-journey.png') as any}
+                                        style={styles.beforePhoto}
+                                    />
                                 </View>
                             </View>
                         </View>

@@ -460,7 +460,7 @@ export default function You() {
         <SafeAreaView style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Your Journey 📈</Text>
+                    <Text style={styles.headerTitle}>Your Bulk Journey 📈</Text>
                 </View>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                     <View style={styles.photoTabs}>
