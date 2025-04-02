@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Platform, Animated } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Platform, Animated, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as SecureStore from 'expo-secure-store';
 import { RootStackParamList } from './types';
+import { WeightConfig, loadWeightConfig } from './config/weightConfig';
 
 type StartJourneyScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'StartJourney'>;
 
 export default function StartJourney() {
     const navigation = useNavigation<StartJourneyScreenNavigationProp>();
     const [showSuccess, setShowSuccess] = useState(false);
+    const [beforePhoto, setBeforePhoto] = useState<string | null>(null);
     const fadeAnim = new Animated.Value(0);
 
     useEffect(() => {
@@ -24,6 +26,19 @@ export default function StartJourney() {
             }
         };
         clearExistingSubscription();
+
+        // Load the before photo from config
+        const loadBeforePhoto = async () => {
+            try {
+                const config = await loadWeightConfig();
+                if (config.beforePhoto) {
+                    setBeforePhoto(config.beforePhoto);
+                }
+            } catch (error) {
+                console.error('Error loading before photo:', error);
+            }
+        };
+        loadBeforePhoto();
     }, []);
 
     const startTrial = async () => {
@@ -135,12 +150,32 @@ export default function StartJourney() {
                     <View style={styles.header}>
                         <Ionicons name="rocket" size={40} color="#4CAF50" />
                         <Text style={styles.title}>You're almost ready! 📈</Text>
-                        <Text style={styles.subtitle}>The journey to bulking starts here.</Text>
                     </View>
-                    
+
+                    {beforePhoto && (
+                        <View style={styles.photoContainer}>
+                            <View style={styles.photoRow}>
+                                <View style={styles.photoColumn}>
+                                    <Text style={styles.photoLabel}>Before</Text>
+                                    <Image 
+                                        source={{ uri: `data:image/jpeg;base64,${beforePhoto}` }}
+                                        style={styles.beforePhoto}
+                                    />
+                                </View>
+                                <View style={styles.photoColumn}>
+                                    <Text style={styles.photoLabel}>After</Text>
+                                    <View style={styles.placeholderContainer}>
+                                        <View style={styles.placeholderBackground}>
+                                            <Ionicons name="camera" size={40} color="#666" />
+                                        </View>
+                                    </View>
+                                </View>
+                            </View>
+                        </View>
+                    )}
 
                     <View style={styles.featuresContainer}>
-                        <Text style={styles.featuresTitle}>Unlock your bulking tools:</Text>
+                        <Text style={styles.featuresTitle}>Bulk with the best tools 🛠️</Text>
                         <View style={styles.featuresGrid}>
                             <View style={[styles.featureCard, { borderColor: '#4CAF50', borderWidth: 1.5 }]}>
                                 <View style={[styles.featureIconContainer, { backgroundColor: '#E8F5E9' }]}>
@@ -176,24 +211,6 @@ export default function StartJourney() {
                                 </View>
                                 <Text style={styles.featureTitle}>Daily Tips</Text>
                                 <Text style={styles.featureText}>Bulking guidance</Text>
-                            </View>
-
-                            <View style={[styles.featureCard, { borderColor: '#FF5722', borderWidth: 1.5 }]}>
-                                <View style={[styles.featureIconContainer, { backgroundColor: '#FBE9E7' }]}>
-                                    <Ionicons name="people" size={32} color="#FF5722" />
-                                    <Ionicons name="checkmark-circle" size={18} color="#4CAF50" style={styles.checkmark} />
-                                </View>
-                                <Text style={styles.featureTitle}>Community</Text>
-                                <Text style={styles.featureText}>Motivation from the community</Text>
-                            </View>
-
-                            <View style={[styles.featureCard, { borderColor: '#607D8B', borderWidth: 1.5 }]}>
-                                <View style={[styles.featureIconContainer, { backgroundColor: '#ECEFF1' }]}>
-                                    <Ionicons name="compass" size={32} color="#607D8B" />
-                                    <Ionicons name="checkmark-circle" size={18} color="#4CAF50" style={styles.checkmark} />
-                                </View>
-                                <Text style={styles.featureTitle}>Bulking Roadmap</Text>
-                                <Text style={styles.featureText}>For guided success</Text>
                             </View>
                         </View>
                     </View>
@@ -490,5 +507,68 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 2,
         elevation: 2,
+    },
+    photoContainer: {
+        marginBottom: 24,
+        alignItems: 'center',
+    },
+    photoTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#333',
+        marginBottom: 12,
+        textAlign: 'center',
+    },
+    photoRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        gap: 12,
+        width: '100%',
+    },
+    photoColumn: {
+        width: '45%',
+        alignItems: 'center',
+    },
+    photoLabel: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#333',
+        marginBottom: 8,
+    },
+    beforePhoto: {
+        width: '100%',
+        height: 200,
+        borderRadius: 12,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    placeholderContainer: {
+        width: '100%',
+        height: 200,
+        borderRadius: 12,
+        overflow: 'hidden',
+        backgroundColor: '#F5F5F5',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    placeholderBackground: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F5F5F5',
     },
 }); 

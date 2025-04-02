@@ -206,7 +206,7 @@ export default function Questionnaire() {
                         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                             <View style={styles.content}>
                                 <View style={styles.header}>
-                                    <Text style={styles.questionNumber}>Final Step</Text>
+                                    <Text style={styles.questionNumber}>Question 4/4</Text>
                                     <Text style={styles.question}>Let's set your weight goals</Text>
                                 </View>
 
@@ -268,8 +268,38 @@ export default function Questionnaire() {
                                         </View>
                                     </View>
 
+                                    <TouchableOpacity
+                                        style={[styles.button, (!currentWeight || !goalWeight) && styles.buttonDisabled]}
+                                        onPress={() => setCurrentQuestion(prev => prev + 1)}
+                                        disabled={!currentWeight || !goalWeight}
+                                    >
+                                        <Text style={styles.buttonText}>Next</Text>
+                                        <Ionicons name="chevron-forward" size={20} color="white" style={styles.buttonIcon} />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </ScrollView>
+                    </LinearGradient>
+                </SafeAreaView>
+            </TouchableWithoutFeedback>
+        );
+    }
+
+    if (currentQuestion === questions.length + 1) {
+        return (
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <SafeAreaView style={styles.container}>
+                    <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
+                        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+                            <View style={styles.content}>
+                                <View style={styles.header}>
+                                    <Text style={styles.questionNumber}>Final Step</Text>
+                                    <Text style={styles.question}>Upload your 'Before' Photo</Text>
+                                </View>
+
+                                <View style={styles.weightContainer}>
                                     <View style={styles.section}>
-                                        <Text style={styles.sectionTitle}>Upload "Before" Photo</Text>
+                                        <Text style={styles.sectionTitle}>Track your progress from today 📸</Text>
                                         <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
                                             {beforePhoto ? (
                                                 <Image 
@@ -286,9 +316,9 @@ export default function Questionnaire() {
                                     </View>
 
                                     <TouchableOpacity
-                                        style={[styles.button, (!currentWeight || !goalWeight) && styles.buttonDisabled]}
+                                        style={[styles.button, !beforePhoto && styles.buttonDisabled]}
                                         onPress={handleSubmit}
-                                        disabled={!currentWeight || !goalWeight}
+                                        disabled={!beforePhoto}
                                     >
                                         <Text style={styles.buttonText}>Complete Setup</Text>
                                         <Ionicons name="checkmark-circle" size={20} color="white" style={styles.buttonIcon} />
