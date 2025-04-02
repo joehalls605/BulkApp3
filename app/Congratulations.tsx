@@ -26,7 +26,7 @@ export default function Congratulations() {
     const startLoadingAnimation = () => {
         setIsLoading(true);
         const messages = [
-            { text: 'Unlocking your dashboard 🔓', duration: 1500 },
+            { text: 'Preparing your resources 📚', duration: 1500 },
             { text: 'Loading in your details 📊', duration: 1500 },
             { text: 'Building your tools 🛠️', duration: 1500 }
         ];
@@ -66,7 +66,7 @@ export default function Congratulations() {
                 <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                     <Animated.View style={[styles.loadingContent, { opacity: fadeAnim }]}>
                         <Text style={styles.loadingEmoji}>🚀</Text>
-                        <Text style={styles.loadingTitle}>Setting up your journey</Text>
+                        <Text style={styles.loadingTitle}>Unlocking your dashboard 🔓</Text>
                         <Text style={styles.loadingMessage}>{loadingMessage}</Text>
                        
                     </Animated.View>

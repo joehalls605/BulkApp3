@@ -480,7 +480,7 @@ export default function You() {
                             ]}
                             onPress={() => setActiveTab('progress')}
                         >
-                            <Text style={[styles.tabText, activeTab === 'progress' && styles.activeTabText]}>Progress</Text>
+                            <Text style={[styles.tabText, activeTab === 'progress' && styles.activeTabText]}>After</Text>
                         </TouchableOpacity>
                 
                     </View>
