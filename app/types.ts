@@ -18,6 +18,7 @@ export type RootStackParamList = {
     LowAppetite: undefined;
     TermsAndConditions: undefined;
     TermsOfUse: undefined;
+    Roadmap: undefined;
 };
 
 export type TabParamList = {

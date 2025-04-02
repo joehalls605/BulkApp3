@@ -207,7 +207,7 @@ function HomeScreen() {
                                     <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
                                         <Ionicons name="book" size={24} color="#1976D2" />
                                     </View>
-                                    <Text style={styles.actionButtonText}>Bulk Educate</Text>
+                                    <Text style={styles.actionButtonText}>Challenges</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -239,6 +239,15 @@ function HomeScreen() {
                         >
                             <Text style={styles.shoppingButtonText}>Small appetite meals 🥤</Text>
                         </TouchableOpacity>
+                        
+                        <TouchableOpacity 
+                            style={[styles.shoppingButton, { borderColor: '#9C27B0' }]}
+                            onPress={() => navigation.navigate('Roadmap')}
+                        >
+                            <View style={styles.roadmapHeader}>
+                                <Text style={styles.shoppingButtonText}>Bulking Roadmap 🗺️</Text>
+                            </View>
+                        </TouchableOpacity>
 
                         <View style={styles.dailyTipSection}>
                             <View style={styles.tipHeader}>
@@ -247,6 +256,7 @@ function HomeScreen() {
                             </View>
                             <Text style={styles.tipText}>{dailyTip}</Text>
                         </View>
+
                     </ScrollView>
                 </Animated.View>
             </LinearGradient>
@@ -591,5 +601,16 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         letterSpacing: 0.5,
         color: '#1a1a1a',
+    },
+    roadmapHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    roadmapSubtext: {
+        fontSize: 14,
+        color: '#666',
+        marginTop: 4,
+        fontStyle: 'italic',
     },
 });

@@ -1,106 +1,272 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, Animated, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
+const { width } = Dimensions.get('window');
+
+const tips = [
+    {
+        title: "Start Small",
+        icon: "trending-up",
+        color: "#4CAF50",
+        tip: "Begin with 300 extra calories daily. Add more as your appetite grows. No need to rush!",
+        emoji: "🌱"
+    },
+    {
+        title: "Make It Easy",
+        icon: "restaurant",
+        color: "#FF9800",
+        tip: "Keep high-calorie snacks ready (nuts, protein bars, shakes). Perfect for when you're not hungry for a full meal.",
+        emoji: "🍎"
+    },
+    {
+        title: "Stay Consistent",
+        icon: "calendar",
+        color: "#2196F3",
+        tip: "Set reminders for meals and track your progress weekly. Small steps lead to big gains!",
+        emoji: "📅"
+    },
+    {
+        title: "Drink Your Calories",
+        icon: "water",
+        color: "#9C27B0",
+        tip: "Smoothies and shakes are your friend! Blend milk, banana, peanut butter, and protein powder for an easy 500+ calories.",
+        emoji: "🥤"
+    },
+    {
+        title: "Prep Ahead",
+        icon: "time",
+        color: "#FF5722",
+        tip: "Cook in bulk and freeze meals. Having healthy, calorie-rich food ready makes it much easier to stay on track!",
+        emoji: "🍳"
+    },
+    {
+        title: "Track Smart",
+        icon: "analytics",
+        color: "#795548",
+        tip: "Use a food tracking app for the first few weeks. It helps you learn portion sizes and calorie content of foods.",
+        emoji: "📊"
+    }
+];
+
+const challenges = [
+    {
+        title: "Not Hungry?",
+        icon: "nutrition",
+        color: "#E91E63",
+        tip: "Start with liquid calories (smoothies, shakes) and gradually add solid foods. Your appetite will build up!",
+        emoji: "🥤"
+    },
+    {
+        title: "Can't Eat Enough?",
+        icon: "flash",
+        color: "#FF5722",
+        tip: "Add calorie-dense foods: olive oil, peanut butter, nuts, avocados. A tablespoon of oil adds 120 calories!",
+        emoji: "⚡"
+    },
+    {
+        title: "Getting Full Too Fast?",
+        icon: "time",
+        color: "#9C27B0",
+        tip: "Eat smaller meals more often (5-6 times daily) instead of 3 large ones. Much easier on your stomach!",
+        emoji: "⏰"
+    },
+    {
+        title: "No Time to Cook?",
+        icon: "fast-food",
+        color: "#4CAF50",
+        tip: "Stock up on healthy ready meals, canned tuna, and quick-cook rice. Quick meals don't have to be unhealthy!",
+        emoji: "🍱"
+    },
+    {
+        title: "Struggling with Protein?",
+        icon: "barbell",
+        color: "#2196F3",
+        tip: "Try protein shakes between meals. One shake can add 30g protein and 200+ calories to your daily total!",
+        emoji: "💪"
+    },
+    {
+        title: "Budget Concerns?",
+        icon: "wallet",
+        color: "#795548",
+        tip: "Focus on affordable staples: eggs, rice, oats, peanut butter. These are cheap but packed with calories and nutrients!",
+        emoji: "💰"
+    }
+];
+
+const basics = [
+    {
+        title: "Your Daily Target",
+        icon: "calculator",
+        color: "#FF5722",
+        tip: "Add 300-500 calories to your maintenance. That's about 1-2 extra snacks or a bigger meal!",
+        emoji: "🎯"
+    },
+    {
+        title: "Protein Power",
+        icon: "barbell",
+        color: "#2196F3",
+        tip: "Aim for 1.6-2.2g protein per kg of body weight. This helps build muscle, not just fat!",
+        emoji: "💪"
+    },
+    {
+        title: "Rest & Grow",
+        icon: "bed",
+        color: "#795548",
+        tip: "Sleep 7-9 hours. Your body needs rest to build muscle and recover properly!",
+        emoji: "😴"
+    },
+    {
+        title: "Meal Timing",
+        icon: "time",
+        color: "#4CAF50",
+        tip: "Eat every 3-4 hours. This keeps your energy up and helps you hit your calorie goals!",
+        emoji: "⏰"
+    },
+    {
+        title: "Smart Carbs",
+        icon: "nutrition",
+        color: "#9C27B0",
+        tip: "Choose complex carbs: oats, rice, potatoes. They're filling and provide steady energy throughout the day.",
+        emoji: "🍚"
+    },
+    {
+        title: "Healthy Fats",
+        icon: "heart",
+        color: "#E91E63",
+        tip: "Include healthy fats: olive oil, avocados, nuts. They're calorie-dense and good for your health!",
+        emoji: "🥑"
+    }
+];
+
 export default function WeightGuide() {
     const router = useRouter();
+    const [scrollY] = useState(new Animated.Value(0));
+    const [activeSection, setActiveSection] = useState('basics');
+
+    const headerScale = scrollY.interpolate({
+        inputRange: [0, 100],
+        outputRange: [1, 0.8],
+        extrapolate: 'clamp',
+    });
+
+    const headerTranslateY = scrollY.interpolate({
+        inputRange: [0, 100],
+        outputRange: [0, -20],
+        extrapolate: 'clamp',
+    });
 
     return (
         <View style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
-                <View style={styles.header}>
+                <Animated.View style={[styles.header, {
+                    transform: [
+                        { scale: headerScale },
+                        { translateY: headerTranslateY }
+                    ]
+                }]}>
                     <TouchableOpacity 
                         style={styles.backButton}
                         onPress={() => router.back()}
                     >
                         <Ionicons name="arrow-back" size={24} color="#333" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>How to Gain Weight</Text>
+                    <Text style={styles.headerTitle}>Challenges</Text>
+                </Animated.View>
+
+                <View style={styles.tabContainer}>
+                    <TouchableOpacity 
+                        style={[styles.tab, activeSection === 'basics' && styles.activeTab]}
+                        onPress={() => setActiveSection('basics')}
+                    >
+                        <Text style={[styles.tabText, activeSection === 'basics' && styles.activeTabText]}>Basics</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={[styles.tab, activeSection === 'challenges' && styles.activeTab]}
+                        onPress={() => setActiveSection('challenges')}
+                    >
+                        <Text style={[styles.tabText, activeSection === 'challenges' && styles.activeTabText]}>Challenges</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={[styles.tab, activeSection === 'tips' && styles.activeTab]}
+                        onPress={() => setActiveSection('tips')}
+                    >
+                        <Text style={[styles.tabText, activeSection === 'tips' && styles.activeTabText]}>Pro Tips</Text>
+                    </TouchableOpacity>
                 </View>
-                <ScrollView contentContainerStyle={styles.scrollContent}>
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Basic Steps</Text>
-                        <View style={styles.stepCard}>
-                            <View style={styles.stepHeader}>
-                                <Ionicons name="calculator-outline" size={24} color="#FF5722" />
-                                <Text style={styles.stepTitle}>Calculate Your Needs</Text>
-                            </View>
-                            <Text style={styles.stepText}>Start by calculating your daily calorie needs and add 500 calories for steady weight gain.</Text>
-                        </View>
 
-                        <View style={styles.stepCard}>
-                            <View style={styles.stepHeader}>
-                                <Ionicons name="time-outline" size={24} color="#FF5722" />
-                                <Text style={styles.stepTitle}>Eat More Frequently</Text>
-                            </View>
-                            <Text style={styles.stepText}>Aim for 5-6 meals throughout the day instead of 3 large meals.</Text>
+                <Animated.ScrollView 
+                    style={styles.scrollView} 
+                    contentContainerStyle={styles.scrollContent}
+                    onScroll={Animated.event(
+                        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                        { useNativeDriver: true }
+                    )}
+                    scrollEventThrottle={16}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {activeSection === 'basics' && (
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>The Essentials</Text>
+                            {basics.map((basic, index) => (
+                                <View key={index} style={styles.stepCard}>
+                                    <View style={styles.stepHeader}>
+                                        <View style={[styles.iconContainer, { backgroundColor: `${basic.color}20` }]}>
+                                            <Text style={styles.stepEmoji}>{basic.emoji}</Text>
+                                            <Ionicons name={basic.icon as any} size={24} color={basic.color} />
+                                        </View>
+                                        <View style={styles.stepTitleContainer}>
+                                            <Text style={styles.stepTitle}>{basic.title}</Text>
+                                            <Text style={styles.stepSubtitle}>{basic.tip}</Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            ))}
                         </View>
+                    )}
 
-                        <View style={styles.stepCard}>
-                            <View style={styles.stepHeader}>
-                                <Ionicons name="barbell-outline" size={24} color="#FF5722" />
-                                <Text style={styles.stepTitle}>Strength Training</Text>
-                            </View>
-                            <Text style={styles.stepText}>Focus on compound exercises to build muscle mass effectively.</Text>
+                    {activeSection === 'challenges' && (
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Common Challenges</Text>
+                            {challenges.map((challenge, index) => (
+                                <View key={index} style={styles.challengeCard}>
+                                    <View style={styles.challengeHeader}>
+                                        <View style={[styles.iconContainer, { backgroundColor: `${challenge.color}20` }]}>
+                                            <Text style={styles.challengeEmoji}>{challenge.emoji}</Text>
+                                            <Ionicons name={challenge.icon as any} size={24} color={challenge.color} />
+                                        </View>
+                                        <View style={styles.challengeTitleContainer}>
+                                            <Text style={styles.challengeTitle}>{challenge.title}</Text>
+                                            <Text style={styles.challengeTip}>{challenge.tip}</Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            ))}
                         </View>
-                    </View>
+                    )}
 
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Common Challenges</Text>
-                        <View style={styles.challengeCard}>
-                            <View style={styles.challengeHeader}>
-                                <Text style={styles.challengeEmoji}>🍽️</Text>
-                                <Text style={styles.challengeTitle}>Small Appetite</Text>
-                            </View>
-                            <Text style={styles.challengeText}>"I struggled to eat enough calories at first. Starting with smaller, more frequent meals helped me build up my appetite gradually." - Mike, gained 15kg</Text>
+                    {activeSection === 'tips' && (
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Pro Tips</Text>
+                            {tips.map((tip, index) => (
+                                <View key={index} style={styles.tipCard}>
+                                    <View style={styles.tipHeader}>
+                                        <View style={[styles.iconContainer, { backgroundColor: `${tip.color}20` }]}>
+                                            <Text style={styles.tipEmoji}>{tip.emoji}</Text>
+                                            <Ionicons name={tip.icon as any} size={24} color={tip.color} />
+                                        </View>
+                                        <View style={styles.tipTitleContainer}>
+                                            <Text style={styles.tipTitle}>{tip.title}</Text>
+                                            <Text style={styles.tipText}>{tip.tip}</Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            ))}
                         </View>
-
-                        <View style={styles.challengeCard}>
-                            <View style={styles.challengeHeader}>
-                                <Text style={styles.challengeEmoji}>⚡</Text>
-                                <Text style={styles.challengeTitle}>Fast Metabolism</Text>
-                            </View>
-                            <Text style={styles.challengeText}>"Adding calorie-dense foods like nuts and avocados to my meals made it easier to meet my calorie goals." - Sarah, gained 10kg</Text>
-                        </View>
-
-                        <View style={styles.challengeCard}>
-                            <View style={styles.challengeHeader}>
-                                <Text style={styles.challengeEmoji}>🎯</Text>
-                                <Text style={styles.challengeTitle}>Staying Consistent</Text>
-                            </View>
-                            <Text style={styles.challengeText}>"Meal prep was a game-changer. Having healthy, calorie-rich meals ready made it much easier to stay on track." - Alex, gained 12kg</Text>
-                        </View>
-                    </View>
-
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Pro Tips</Text>
-                        <View style={styles.tipCard}>
-                            <View style={styles.tipHeader}>
-                                <Ionicons name="bulb-outline" size={24} color="#FF5722" />
-                                <Text style={styles.tipTitle}>Smart Eating</Text>
-                            </View>
-                            <Text style={styles.tipText}>"I started adding olive oil to my meals and drinking whole milk instead of skim. These small changes added up to 500 extra calories daily!" - James, gained 8kg</Text>
-                        </View>
-
-                        <View style={styles.tipCard}>
-                            <View style={styles.tipHeader}>
-                                <Ionicons name="trending-up-outline" size={24} color="#FF5722" />
-                                <Text style={styles.tipTitle}>Track Progress</Text>
-                            </View>
-                            <Text style={styles.tipText}>"Using a food tracking app helped me ensure I was consistently hitting my calorie goals. It made all the difference!" - Emma, gained 7kg</Text>
-                        </View>
-
-                        <View style={styles.tipCard}>
-                            <View style={styles.tipHeader}>
-                                <Ionicons name="restaurant-outline" size={24} color="#FF5722" />
-                                <Text style={styles.tipTitle}>Meal Timing</Text>
-                            </View>
-                            <Text style={styles.tipText}>"Eating a large meal right after my workout helped me pack on muscle. The post-workout window is crucial!" - Tom, gained 13kg</Text>
-                        </View>
-                    </View>
-                </ScrollView>
+                    )}
+                </Animated.ScrollView>
             </LinearGradient>
         </View>
     );
@@ -117,101 +283,209 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 20,
-        paddingTop: 40,
-        backgroundColor: 'transparent',
+        paddingTop: Platform.OS === 'ios' ? 60 : 20,
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0, 0, 0, 0.06)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 3,
     },
     backButton: {
-        marginRight: 15,
+        padding: 8,
+        marginRight: 12,
     },
     headerTitle: {
         fontSize: 24,
         fontWeight: '700',
-        color: '#333',
+        color: '#1a1a1a',
+        letterSpacing: -0.5,
+    },
+    tabContainer: {
+        flexDirection: 'row',
+        padding: 16,
+        backgroundColor: 'white',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0, 0, 0, 0.06)',
+    },
+    tab: {
+        flex: 1,
+        paddingVertical: 12,
+        alignItems: 'center',
+        borderRadius: 8,
+        marginHorizontal: 4,
+    },
+    activeTab: {
+        backgroundColor: '#4CAF50',
+    },
+    tabText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#666',
+    },
+    activeTabText: {
+        color: 'white',
+    },
+    scrollView: {
+        flex: 1,
     },
     scrollContent: {
-        padding: 20,
+        padding: 24,
+        paddingBottom: 40,
     },
     section: {
-        marginBottom: 30,
+        marginBottom: 24,
     },
     sectionTitle: {
         fontSize: 20,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 15,
+        fontWeight: '700',
+        color: '#1a1a1a',
+        marginBottom: 16,
+        letterSpacing: -0.5,
     },
     stepCard: {
         backgroundColor: 'white',
-        padding: 15,
-        borderRadius: 12,
-        marginBottom: 15,
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.08)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
         elevation: 2,
     },
     stepHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 10,
+    },
+    iconContainer: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+        position: 'relative',
+    },
+    stepEmoji: {
+        position: 'absolute',
+        top: -8,
+        right: -8,
+        fontSize: 24,
+        backgroundColor: 'white',
+        borderRadius: 12,
+        padding: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    stepTitleContainer: {
+        flex: 1,
     },
     stepTitle: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: '600',
-        color: '#333',
-        marginLeft: 10,
+        color: '#1a1a1a',
+        marginBottom: 4,
     },
-    stepText: {
+    stepSubtitle: {
         fontSize: 14,
         color: '#666',
-        lineHeight: 20,
     },
     challengeCard: {
         backgroundColor: 'white',
-        padding: 15,
-        borderRadius: 12,
-        marginBottom: 15,
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.08)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
         elevation: 2,
     },
     challengeHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 10,
     },
     challengeEmoji: {
+        position: 'absolute',
+        top: -8,
+        right: -8,
         fontSize: 24,
-        marginRight: 10,
+        backgroundColor: 'white',
+        borderRadius: 12,
+        padding: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    challengeTitleContainer: {
+        flex: 1,
     },
     challengeTitle: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: '600',
-        color: '#333',
+        color: '#1a1a1a',
+        marginBottom: 4,
     },
-    challengeText: {
+    challengeTip: {
         fontSize: 14,
         color: '#666',
         lineHeight: 20,
-        fontStyle: 'italic',
     },
     tipCard: {
         backgroundColor: 'white',
-        padding: 15,
-        borderRadius: 12,
-        marginBottom: 15,
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.08)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
         elevation: 2,
     },
     tipHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 10,
+    },
+    tipEmoji: {
+        position: 'absolute',
+        top: -8,
+        right: -8,
+        fontSize: 24,
+        backgroundColor: 'white',
+        borderRadius: 12,
+        padding: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    tipTitleContainer: {
+        flex: 1,
     },
     tipTitle: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: '600',
-        color: '#333',
-        marginLeft: 10,
+        color: '#1a1a1a',
+        marginBottom: 4,
     },
     tipText: {
         fontSize: 14,
         color: '#666',
         lineHeight: 20,
-        fontStyle: 'italic',
     },
 }); 
