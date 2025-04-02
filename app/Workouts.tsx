@@ -267,8 +267,7 @@ export default function Workouts() {
                         <Text style={styles.backButtonText}>Back</Text>
                     </TouchableOpacity>
                     <View style={styles.headerContent}>
-                        <Text style={styles.headerTitle}>Workouts 💪</Text>
-                        <Text style={styles.headerSubtitle}>For muscle gain</Text>
+                        <Text style={styles.headerTitle}>Workouts</Text>
                     </View>
                     <TouchableOpacity 
                         style={styles.headerButton}

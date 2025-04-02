@@ -11,6 +11,8 @@ export interface WeightConfig {
     foodPreference: string;
     timeframe: number;
     beforePhoto?: string; // Base64 encoded photo
+    progressPhotos?: string[]; // Array of Base64 encoded photos
+    afterPhoto?: string; // Base64 encoded photo
 }
 
 const DEFAULT_CONFIG: WeightConfig = {
@@ -22,7 +24,8 @@ const DEFAULT_CONFIG: WeightConfig = {
     exerciseFrequency: 'Never',
     mealsPerDay: '3 times',
     foodPreference: 'A mix of all',
-    timeframe: 12
+    timeframe: 12,
+    progressPhotos: []
 };
 
 export const calculateCalories = (
@@ -87,11 +90,29 @@ export const calculateCalories = (
     };
 };
 
+export const clearWeightConfig = async () => {
+    try {
+        await SecureStore.deleteItemAsync('weightConfig');
+        await SecureStore.deleteItemAsync('userData');
+        return DEFAULT_CONFIG;
+    } catch (error) {
+        console.error('Error clearing weight config:', error);
+        return DEFAULT_CONFIG;
+    }
+};
+
 export const loadWeightConfig = async (): Promise<WeightConfig> => {
     try {
         const configData = await SecureStore.getItemAsync('weightConfig');
         if (configData) {
-            return JSON.parse(configData);
+            const config = JSON.parse(configData);
+            // Ensure photos are properly initialized
+            return {
+                ...config,
+                beforePhoto: config.beforePhoto || undefined,
+                afterPhoto: config.afterPhoto || undefined,
+                progressPhotos: config.progressPhotos || []
+            };
         }
         return DEFAULT_CONFIG;
     } catch (error) {
@@ -108,7 +129,8 @@ export const updateWeightConfig = async (
     mealsPerDay?: string,
     foodPreference?: string,
     timeframe?: number,
-    beforePhoto?: string
+    beforePhoto?: string | undefined,
+    afterPhoto?: string | undefined
 ): Promise<WeightConfig> => {
     try {
         // First get the current config
@@ -123,7 +145,9 @@ export const updateWeightConfig = async (
             mealsPerDay: mealsPerDay ?? currentConfig.mealsPerDay,
             foodPreference: foodPreference ?? currentConfig.foodPreference,
             timeframe: timeframe ?? currentConfig.timeframe,
-            beforePhoto: beforePhoto ?? currentConfig.beforePhoto,
+            beforePhoto: beforePhoto === undefined ? currentConfig.beforePhoto : beforePhoto,
+            afterPhoto: afterPhoto === undefined ? currentConfig.afterPhoto : afterPhoto,
+            progressPhotos: currentConfig.progressPhotos ?? [],
             dailyTarget: 0,
             maintenanceCalories: 0
         };
@@ -160,6 +184,8 @@ export const updateWeightConfig = async (
                 foodPreference: updatedConfig.foodPreference,
                 timeframe: updatedConfig.timeframe,
                 beforePhoto: updatedConfig.beforePhoto,
+                afterPhoto: updatedConfig.afterPhoto,
+                progressPhotos: updatedConfig.progressPhotos,
                 dailyCalories: calories.dailyTarget,
                 maintenanceCalories: calories.maintenanceCalories,
                 completedMeals: {}

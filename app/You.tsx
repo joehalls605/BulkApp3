@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, SafeAreaView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, SafeAreaView, Platform, Image } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { WeightConfig, loadWeightConfig, updateWeightConfig, formatWeight, convertWeight } from './config/weightConfig';
 import * as SecureStore from 'expo-secure-store';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function You() {
     const [currentWeight, setCurrentWeight] = useState('');
@@ -13,6 +14,7 @@ export default function You() {
     const [timeframe, setTimeframe] = useState(12);
     const [weightConfig, setWeightConfig] = useState<WeightConfig | null>(null);
     const [useMetric, setUseMetric] = useState(true);
+    const [activeTab, setActiveTab] = useState<'before' | 'progress' | 'after'>('before');
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -37,13 +39,22 @@ export default function You() {
         try {
             // Load weight configuration first
             const config = await loadWeightConfig();
-            setWeightConfig(config);
+            
+            // Ensure photos are properly initialized
+            const cleanConfig = {
+                ...config,
+                beforePhoto: config.beforePhoto || undefined,
+                afterPhoto: config.afterPhoto || undefined,
+                progressPhotos: config.progressPhotos || []
+            };
+            
+            setWeightConfig(cleanConfig);
             
             // Set the input values from the config
-            setCurrentWeight(formatInputWeight(config.currentWeight, config.useMetric));
-            setGoalWeight(formatInputWeight(config.goalWeight, config.useMetric));
-            setUseMetric(config.useMetric);
-            setTimeframe(config.timeframe);
+            setCurrentWeight(formatInputWeight(cleanConfig.currentWeight, cleanConfig.useMetric));
+            setGoalWeight(formatInputWeight(cleanConfig.goalWeight, cleanConfig.useMetric));
+            setUseMetric(cleanConfig.useMetric);
+            setTimeframe(cleanConfig.timeframe);
 
             // Load user data
             const userDataString = await SecureStore.getItemAsync('userData');
@@ -52,13 +63,15 @@ export default function You() {
                 // Ensure user data matches config
                 const updatedUserData = {
                     ...userData,
-                    currentWeight: config.currentWeight,
-                    goalWeight: config.goalWeight,
-                    useMetric: config.useMetric,
-                    timeframe: config.timeframe,
-                    dailyCalories: config.dailyTarget,
-                    maintenanceCalories: config.maintenanceCalories,
-                    weightGainCalories: config.weightGainCalories
+                    currentWeight: cleanConfig.currentWeight,
+                    goalWeight: cleanConfig.goalWeight,
+                    useMetric: cleanConfig.useMetric,
+                    timeframe: cleanConfig.timeframe,
+                    dailyCalories: cleanConfig.dailyTarget,
+                    maintenanceCalories: cleanConfig.maintenanceCalories,
+                    beforePhoto: cleanConfig.beforePhoto,
+                    afterPhoto: cleanConfig.afterPhoto,
+                    progressPhotos: cleanConfig.progressPhotos
                 };
                 await SecureStore.setItemAsync('userData', JSON.stringify(updatedUserData));
             }
@@ -86,7 +99,8 @@ export default function You() {
                 weightConfig?.exerciseFrequency,
                 weightConfig?.mealsPerDay,
                 weightConfig?.foodPreference,
-                timeframe
+                timeframe,
+                weightConfig?.beforePhoto
             );
             setWeightConfig(updatedConfig);
 
@@ -100,8 +114,7 @@ export default function You() {
                     useMetric: useMetric,
                     timeframe: timeframe,
                     dailyCalories: updatedConfig.dailyTarget,
-                    maintenanceCalories: updatedConfig.maintenanceCalories,
-                    weightGainCalories: updatedConfig.weightGainCalories
+                    maintenanceCalories: updatedConfig.maintenanceCalories
                 };
                 await SecureStore.setItemAsync('userData', JSON.stringify(updatedUserData));
             }
@@ -147,7 +160,8 @@ export default function You() {
                 weightConfig?.exerciseFrequency,
                 weightConfig?.mealsPerDay,
                 weightConfig?.foodPreference,
-                timeframe
+                timeframe,
+                weightConfig?.beforePhoto
             );
             setWeightConfig(updatedConfig);
 
@@ -161,8 +175,7 @@ export default function You() {
                     useMetric: useMetric,
                     timeframe: timeframe,
                     dailyCalories: updatedConfig.dailyTarget,
-                    maintenanceCalories: updatedConfig.maintenanceCalories,
-                    weightGainCalories: updatedConfig.weightGainCalories
+                    maintenanceCalories: updatedConfig.maintenanceCalories
                 };
                 await SecureStore.setItemAsync('userData', JSON.stringify(updatedUserData));
             }
@@ -191,7 +204,8 @@ export default function You() {
                 weightConfig?.exerciseFrequency,
                 weightConfig?.mealsPerDay,
                 weightConfig?.foodPreference,
-                timeframe
+                timeframe,
+                weightConfig?.beforePhoto
             );
             setWeightConfig(updatedConfig);
 
@@ -203,8 +217,7 @@ export default function You() {
                     ...userData,
                     timeframe: timeframe,
                     dailyCalories: updatedConfig.dailyTarget,
-                    maintenanceCalories: updatedConfig.maintenanceCalories,
-                    weightGainCalories: updatedConfig.weightGainCalories
+                    maintenanceCalories: updatedConfig.maintenanceCalories
                 };
                 await SecureStore.setItemAsync('userData', JSON.stringify(updatedUserData));
             }
@@ -246,7 +259,8 @@ export default function You() {
                         weightConfig?.exerciseFrequency,
                         weightConfig?.mealsPerDay,
                         weightConfig?.foodPreference,
-                        timeframe
+                        timeframe,
+                        weightConfig?.beforePhoto
                     );
                     setWeightConfig(updatedConfig);
 
@@ -261,8 +275,7 @@ export default function You() {
                             useMetric: newUseMetric,
                             timeframe: timeframe,
                             dailyCalories: updatedConfig.dailyTarget,
-                            maintenanceCalories: updatedConfig.maintenanceCalories,
-                            weightGainCalories: updatedConfig.weightGainCalories
+                            maintenanceCalories: updatedConfig.maintenanceCalories
                         };
                         await SecureStore.setItemAsync('userData', JSON.stringify(updatedUserData));
                     }
@@ -273,47 +286,210 @@ export default function You() {
         }
     };
 
+    const pickImage = async (type: 'before' | 'progress' | 'after') => {
+        try {
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 0.8,
+                base64: true
+            });
+
+            if (!result.canceled) {
+                const base64Image = result.assets[0].base64;
+                if (!base64Image) return;
+
+                let updatedConfig: WeightConfig = { ...weightConfig! };
+
+                switch (type) {
+                    case 'before':
+                        updatedConfig.beforePhoto = base64Image;
+                        break;
+                    case 'after':
+                        updatedConfig.afterPhoto = base64Image;
+                        break;
+                    case 'progress':
+                        if (!updatedConfig.progressPhotos) {
+                            updatedConfig.progressPhotos = [];
+                        }
+                        if (updatedConfig.progressPhotos.length >= 10) {
+                            Alert.alert('Maximum Photos Reached', 'You can only have up to 10 progress photos.');
+                            return;
+                        }
+                        updatedConfig.progressPhotos.push(base64Image);
+                        break;
+                }
+
+                const newConfig = await updateWeightConfig(
+                    updatedConfig.currentWeight,
+                    updatedConfig.goalWeight,
+                    updatedConfig.useMetric,
+                    updatedConfig.exerciseFrequency,
+                    updatedConfig.mealsPerDay,
+                    updatedConfig.foodPreference,
+                    updatedConfig.timeframe,
+                    type === 'before' ? base64Image : updatedConfig.beforePhoto,
+                    type === 'after' ? base64Image : updatedConfig.afterPhoto
+                );
+
+                // Update the config with the new values
+                if (type === 'progress') {
+                    newConfig.progressPhotos = updatedConfig.progressPhotos;
+                }
+
+                setWeightConfig(newConfig);
+            }
+        } catch (error) {
+            console.error('Error picking image:', error);
+            Alert.alert('Error', 'Failed to pick image. Please try again.');
+        }
+    };
+
+    const deletePhoto = async (type: 'before' | 'progress' | 'after', index?: number) => {
+        try {
+            let updatedConfig: WeightConfig = { ...weightConfig! };
+
+            switch (type) {
+                case 'before':
+                    updatedConfig.beforePhoto = undefined;
+                    break;
+                case 'after':
+                    updatedConfig.afterPhoto = undefined;
+                    break;
+                case 'progress':
+                    if (index !== undefined && updatedConfig.progressPhotos) {
+                        updatedConfig.progressPhotos = updatedConfig.progressPhotos.filter((_, i) => i !== index);
+                    }
+                    break;
+            }
+
+            const newConfig = await updateWeightConfig(
+                updatedConfig.currentWeight,
+                updatedConfig.goalWeight,
+                updatedConfig.useMetric,
+                updatedConfig.exerciseFrequency,
+                updatedConfig.mealsPerDay,
+                updatedConfig.foodPreference,
+                updatedConfig.timeframe,
+                type === 'before' ? undefined : updatedConfig.beforePhoto,
+                type === 'after' ? undefined : updatedConfig.afterPhoto
+            );
+
+            // Update the config with the new values
+            if (type === 'progress' && index !== undefined) {
+                newConfig.progressPhotos = updatedConfig.progressPhotos;
+            }
+
+            setWeightConfig(newConfig);
+            
+            if (type === 'after') {
+                Alert.alert(
+                    'Photo Deleted',
+                    'Your after photo has been removed. You can upload a new one whenever you\'re ready.',
+                    [{ text: 'OK' }]
+                );
+            }
+        } catch (error) {
+            console.error('Error deleting photo:', error);
+            Alert.alert('Error', 'Failed to delete photo. Please try again.');
+        }
+    };
+
+    const renderPhotoTab = () => {
+        switch (activeTab) {
+            case 'before':
+                return (
+                    <View style={styles.photoContainer}>
+                        {weightConfig?.beforePhoto ? (
+                            <View style={styles.photoWrapper}>
+                                <Image 
+                                    source={{ uri: `data:image/jpeg;base64,${weightConfig.beforePhoto}` }}
+                                    style={styles.photo}
+                                />
+                            </View>
+                        ) : (
+                            <TouchableOpacity 
+                                style={styles.uploadButton}
+                                onPress={() => pickImage('before')}
+                            >
+                                <Ionicons name="camera" size={40} color="#666" />
+                                <Text style={styles.uploadText}>Upload Before Photo</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                );
+
+            case 'progress':
+                return (
+                    <View style={styles.photoContainer}>
+                        <View style={styles.progressGrid}>
+                            {weightConfig?.progressPhotos?.map((photo, index) => (
+                                <View key={index} style={styles.progressPhotoWrapper}>
+                                    <Image 
+                                        source={{ uri: `data:image/jpeg;base64,${photo}` }}
+                                        style={styles.progressPhoto}
+                                    />
+                                    <TouchableOpacity 
+                                        style={styles.deleteButton}
+                                        onPress={() => deletePhoto('progress', index)}
+                                    >
+                                        <Ionicons name="trash" size={20} color="white" />
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                            {(!weightConfig?.progressPhotos || weightConfig.progressPhotos.length < 10) && (
+                                <TouchableOpacity 
+                                    style={styles.uploadButton}
+                                    onPress={() => pickImage('progress')}
+                                >
+                                    <Ionicons name="add-circle" size={40} color="#666" />
+                                    <Text style={styles.uploadText}>Add your progress photos 📸</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    </View>
+                );
+
+          
+        
+        }
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Your Details 📝</Text>
+                    <Text style={styles.headerTitle}>Your Journey 📈</Text>
                 </View>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-                    <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#306eff' }]}>
-                        <View style={styles.cardHeader}>
-                            <Text style={styles.cardTitle}>Current Weight</Text>
-                            <TouchableOpacity 
-                                style={[styles.unitToggle, { backgroundColor: useMetric ? '#E3F2FD' : '#FFF3E0' }]} 
-                                onPress={toggleUnit}
-                            >
-                                <Text style={[styles.unitToggleText, { color: useMetric ? '#1976D2' : '#FF9800' }]}>
-                                    {useMetric ? 'Metric' : 'Imperial'}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.inputContainer}>
-                            <TextInput
-                                style={[styles.input, { borderColor: '#306eff' }]}
-                                value={currentWeight}
-                                onChangeText={setCurrentWeight}
-                                keyboardType="numeric"
-                                placeholder="Enter your weight"
-                                placeholderTextColor="#999"
-                            />
-                            <Text style={[styles.unit, { color: '#306eff' }]}>{useMetric ? 'kg' : 'st'}</Text>
-                        </View>
+                    <View style={styles.photoTabs}>
                         <TouchableOpacity 
-                            style={[styles.button, { backgroundColor: '#306eff' }]} 
-                            onPress={updateWeight}
+                            style={[
+                                styles.tab, 
+                                activeTab === 'before' && styles.activeTabBefore
+                            ]}
+                            onPress={() => setActiveTab('before')}
                         >
-                            <Text style={styles.buttonText}>Update Current Weight</Text>
+                            <Text style={[styles.tabText, activeTab === 'before' && styles.activeTabText]}>Before</Text>
                         </TouchableOpacity>
+                        <TouchableOpacity 
+                            style={[
+                                styles.tab, 
+                                activeTab === 'progress' && styles.activeTabProgress
+                            ]}
+                            onPress={() => setActiveTab('progress')}
+                        >
+                            <Text style={[styles.tabText, activeTab === 'progress' && styles.activeTabText]}>Progress</Text>
+                        </TouchableOpacity>
+                
                     </View>
 
-                    <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#4CAF50' }]}>
+                    {renderPhotoTab()}
+
+                    <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#c4c4c4' }]}>
                         <View style={styles.cardHeader}>
-                            <Text style={styles.cardTitle}>Goal Weight</Text>
+                            <Text style={styles.cardTitle}>Weight Goals 🎯</Text>
                             <TouchableOpacity 
                                 style={[styles.unitToggle, { backgroundColor: useMetric ? '#E3F2FD' : '#FFF3E0' }]} 
                                 onPress={toggleUnit}
@@ -323,23 +499,50 @@ export default function You() {
                                 </Text>
                             </TouchableOpacity>
                         </View>
-                        <View style={styles.inputContainer}>
-                            <TextInput
-                                style={[styles.input, { borderColor: '#4CAF50' }]}
-                                value={goalWeight}
-                                onChangeText={setGoalWeight}
-                                keyboardType="numeric"
-                                placeholder="Enter your goal weight"
-                                placeholderTextColor="#999"
-                            />
-                            <Text style={[styles.unit, { color: '#4CAF50' }]}>{useMetric ? 'kg' : 'st'}</Text>
+                        
+                        <View style={styles.weightInputsContainer}>
+                            <View style={styles.weightInputWrapper}>
+                                <Text style={styles.weightLabel}>Current Weight</Text>
+                                <View style={styles.inputContainer}>
+                                    <TextInput
+                                        style={[styles.input, { borderColor: '#306eff' }]}
+                                        value={currentWeight}
+                                        onChangeText={setCurrentWeight}
+                                        keyboardType="numeric"
+                                        placeholder="Enter your weight"
+                                        placeholderTextColor="#999"
+                                    />
+                                    <Text style={[styles.unit, { color: '#306eff' }]}>{useMetric ? 'kg' : 'st'}</Text>
+                                </View>
+                                <TouchableOpacity 
+                                    style={[styles.button, { backgroundColor: '#306eff' }]} 
+                                    onPress={updateWeight}
+                                >
+                                    <Text style={styles.buttonText}>Update</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={styles.weightInputWrapper}>
+                                <Text style={styles.weightLabel}>Goal Weight</Text>
+                                <View style={styles.inputContainer}>
+                                    <TextInput
+                                        style={[styles.input, { borderColor: '#4CAF50' }]}
+                                        value={goalWeight}
+                                        onChangeText={setGoalWeight}
+                                        keyboardType="numeric"
+                                        placeholder="Enter your goal weight"
+                                        placeholderTextColor="#999"
+                                    />
+                                    <Text style={[styles.unit, { color: '#4CAF50' }]}>{useMetric ? 'kg' : 'st'}</Text>
+                                </View>
+                                <TouchableOpacity 
+                                    style={[styles.button, { backgroundColor: '#4CAF50' }]} 
+                                    onPress={updateGoalWeight}
+                                >
+                                    <Text style={styles.buttonText}>Update</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                        <TouchableOpacity 
-                            style={[styles.button, { backgroundColor: '#4CAF50' }]} 
-                            onPress={updateGoalWeight}
-                        >
-                            <Text style={styles.buttonText}>Update Goal Weight</Text>
-                        </TouchableOpacity>
                     </View>
 
                     {/* <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#FF9800' }]}>
@@ -369,6 +572,8 @@ export default function You() {
                             <Text style={styles.buttonText}>Update Timeframe</Text>
                         </TouchableOpacity>
                     </View> */}
+
+                    {/* Photo Tabs */}
                 </ScrollView>
             </LinearGradient>
         </SafeAreaView>
@@ -565,5 +770,124 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '500',
         marginHorizontal: 16,
+    },
+    photoTabs: {
+        flexDirection: 'row',
+        backgroundColor: 'white',
+        borderRadius: 12,
+        padding: 4,
+        marginBottom: 20,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    tab: {
+        flex: 1,
+        paddingVertical: 12,
+        alignItems: 'center',
+        borderRadius: 8,
+    },
+    activeTabBefore: {
+        backgroundColor: '#FF6B6B',
+    },
+    activeTabProgress: {
+        backgroundColor: '#FFA726',
+    },
+    activeTabAfter: {
+        backgroundColor: '#4CAF50',
+    },
+    tabText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#666',
+    },
+    activeTabText: {
+        color: 'white',
+    },
+    photoContainer: {
+        backgroundColor: 'white',
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 20,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    photoWrapper: {
+        position: 'relative',
+        width: '100%',
+        height: 300,
+        borderRadius: 8,
+        overflow: 'hidden',
+    },
+    photo: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    progressGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+    },
+    progressPhotoWrapper: {
+        position: 'relative',
+        width: '48%',
+        height: 150,
+        borderRadius: 8,
+        overflow: 'hidden',
+    },
+    progressPhoto: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    uploadButton: {
+        width: '100%',
+        height: 300,
+        backgroundColor: '#f5f5f5',
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: '#ddd',
+        borderStyle: 'dashed',
+    },
+    uploadText: {
+        marginTop: 8,
+        fontSize: 16,
+        color: '#666',
+    },
+    deleteButton: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        borderRadius: 20,
+        padding: 8,
+    },
+    weightInputsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 16,
+    },
+    weightInputWrapper: {
+        flex: 1,
+    },
+    weightLabel: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#666',
+        marginBottom: 8,
     },
 }); 

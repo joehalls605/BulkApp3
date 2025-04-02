@@ -402,8 +402,7 @@ export default function Meals() {
                         <Text style={styles.backButtonText}>Back</Text>
                     </TouchableOpacity>
                     <View style={styles.headerContent}>
-                        <Text style={styles.headerTitle}>Meals</Text>
-                        <Text style={styles.headerSubtitle}>For weight gain</Text>
+                        <Text style={styles.headerTitle}>Bulk Meals</Text>
                     </View>
                     <TouchableOpacity 
                         style={styles.headerButton}

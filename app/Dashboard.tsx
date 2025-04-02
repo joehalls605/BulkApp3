@@ -211,7 +211,7 @@ function HomeScreen() {
                                 </TouchableOpacity>
                             </View>
                         </View>
-                        <Text style={styles.sectionTitle}>Weight Gain Tools 🛠️</Text>
+                        <Text style={styles.sectionTitle}>Bulk with the tools 🛠️</Text>
                         <TouchableOpacity 
                             style={[styles.shoppingButton, { borderColor: '#FF5722' }]}
                             onPress={() => navigation.navigate('Shopping')}
