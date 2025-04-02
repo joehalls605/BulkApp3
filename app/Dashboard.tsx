@@ -171,7 +171,7 @@ function HomeScreen() {
                 <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
                     <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                         <View style={styles.toolsSection}>
-                            <Text style={styles.sectionTitle}>Learn how to...</Text>
+                            <Text style={styles.sectionTitle}>Your Tools 🛠️</Text>
                             <View style={styles.actionButtons}>
                                 <TouchableOpacity 
                                     style={styles.actionButton}
@@ -198,7 +198,7 @@ function HomeScreen() {
                                     <View style={[styles.iconContainer, { backgroundColor: '#FCE4EC' }]}>
                                         <Ionicons name="heart" size={24} color="#E91E63" />
                                     </View>
-                                    <Text style={styles.actionButtonText}>Motivate</Text>
+                                    <Text style={styles.actionButtonText}>Success Stories</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity 
                                     style={styles.actionButton}
@@ -211,7 +211,9 @@ function HomeScreen() {
                                 </TouchableOpacity>
                             </View>
                         </View>
-                        <Text style={styles.sectionTitle}>Bulk with the tools 🛠️</Text>
+                        <View style={styles.scrollIndicator}>
+                            <Text style={styles.scrollIndicatorText}>Scroll for more tools</Text>
+                        </View>
                         <TouchableOpacity 
                             style={[styles.shoppingButton, { borderColor: '#FF5722' }]}
                             onPress={() => navigation.navigate('Shopping')}
@@ -286,7 +288,7 @@ function HomeScreen() {
 
                         <View style={styles.dailyTipSection}>
                             <View style={styles.tipHeader}>
-                                <Ionicons name="bulb" size={24} color="#FF9800" />
+                                <Ionicons name="bulb" size={20} color="#FF9800" />
                                 <Text style={styles.tipTitle}>Daily Tip</Text>
                             </View>
                             <Text style={styles.tipText}>{dailyTip}</Text>
@@ -521,7 +523,7 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
     },
     toolsSection: {
-        marginBottom: 36,
+        marginBottom: 10,
     },
     actionButtons: {
         flexDirection: 'row',
@@ -568,32 +570,37 @@ const styles = StyleSheet.create({
     },
     dailyTipSection: {
         backgroundColor: 'white',
-        padding: 24,
-        borderRadius: 20,
+        padding: 16,
+        borderRadius: 16,
         borderWidth: 1,
-        borderColor: 'rgba(0, 0, 0, 0.08)',
+        borderColor: 'rgba(0, 0, 0, 0.06)',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 6,
-        elevation: 4,
-        marginTop: 12,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 2,
+        marginTop: 8,
     },
     tipHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: 8,
+        backgroundColor: '#FFF8E7',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 8,
+        alignSelf: 'flex-start',
     },
     tipTitle: {
-        fontSize: 20,
+        fontSize: 14,
         fontWeight: '600',
         color: '#1a1a1a',
-        marginLeft: 12,
+        marginLeft: 8,
     },
     tipText: {
-        fontSize: 16,
+        fontSize: 14,
         color: '#666',
-        lineHeight: 26,
+        lineHeight: 20,
         letterSpacing: 0.2,
     },
     progressEmojiContainer: {
@@ -663,5 +670,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 12,
+    },
+    scrollIndicator: {
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    scrollIndicatorText: {
+        fontSize: 13,
+        color: '#666',
     },
 });

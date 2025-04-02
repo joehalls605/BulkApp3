@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,14 +11,69 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 export default function Congratulations() {
     const navigation = useNavigation<NavigationProp>();
     const fadeAnim = new Animated.Value(0);
+    const [isLoading, setIsLoading] = useState(false);
+    const progress = new Animated.Value(0);
+    const [loadingMessage, setLoadingMessage] = useState('Unlocking your dashboard 🔓');
 
-    React.useEffect(() => {
+    useEffect(() => {
         Animated.timing(fadeAnim, {
             toValue: 1,
             duration: 1000,
             useNativeDriver: true,
         }).start();
     }, []);
+
+    const startLoadingAnimation = () => {
+        setIsLoading(true);
+        const messages = [
+            { text: 'Unlocking your dashboard 🔓', duration: 1500 },
+            { text: 'Loading in your details 📊', duration: 1500 },
+            { text: 'Building your tools 🛠️', duration: 1500 }
+        ];
+
+        let currentIndex = 0;
+        const updateMessage = () => {
+            if (currentIndex < messages.length) {
+                setLoadingMessage(messages[currentIndex].text);
+                // Animate progress to the next segment
+                Animated.timing(progress, {
+                    toValue: (currentIndex + 1) / messages.length,
+                    duration: messages[currentIndex].duration,
+                    useNativeDriver: false,
+                }).start();
+                
+                setTimeout(updateMessage, messages[currentIndex].duration);
+                currentIndex++;
+            } else {
+                // Fade out before navigating
+                Animated.timing(fadeAnim, {
+                    toValue: 0,
+                    duration: 500,
+                    useNativeDriver: true,
+                }).start(() => {
+                    // @ts-ignore
+                    navigation.navigate('Dashboard');
+                });
+            }
+        };
+
+        updateMessage();
+    };
+
+    if (isLoading) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
+                    <Animated.View style={[styles.loadingContent, { opacity: fadeAnim }]}>
+                        <Text style={styles.loadingEmoji}>🚀</Text>
+                        <Text style={styles.loadingTitle}>Setting up your journey</Text>
+                        <Text style={styles.loadingMessage}>{loadingMessage}</Text>
+                       
+                    </Animated.View>
+                </LinearGradient>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -43,10 +98,7 @@ export default function Congratulations() {
 
                     <TouchableOpacity 
                         style={styles.enterButton}
-                        onPress={() => {
-                            // @ts-ignore
-                            navigation.navigate('Dashboard');
-                        }}
+                        onPress={startLoadingAnimation}
                     >
                         <Text style={styles.enterButtonText}>Start Your Journey</Text>
                         <Ionicons name="arrow-forward" size={24} color="white" style={styles.enterButtonIcon} />
@@ -188,5 +240,51 @@ const styles = StyleSheet.create({
     },
     enterButtonIcon: {
         marginLeft: 12,
+    },
+    loadingContent: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 24,
+    },
+    loadingEmoji: {
+        fontSize: 60,
+        marginBottom: 16,
+    },
+    loadingTitle: {
+        fontSize: 24,
+        fontWeight: '700',
+        color: '#333',
+        marginBottom: 8,
+        textAlign: 'center',
+    },
+    loadingMessage: {
+        fontSize: 18,
+        color: '#666',
+        textAlign: 'center',
+        marginBottom: 32,
+    },
+    progressContainer: {
+        width: '100%',
+        height: 8,
+        backgroundColor: '#E0E0E0',
+        borderRadius: 4,
+        overflow: 'hidden',
+        marginTop: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+    },
+    progressBar: {
+        height: '100%',
+        backgroundColor: '#00bf1d',
+        borderRadius: 4,
+        shadowColor: '#00bf1d',
+        shadowOffset: {
+            width: 0,
+            height: 0,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 4,
     },
 }); 

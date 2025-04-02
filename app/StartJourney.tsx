@@ -148,11 +148,7 @@ export default function StartJourney() {
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                 <View style={styles.content}>
                     <View style={styles.header}>
-                        <View style={styles.headerIconContainer}>
-                        <Text style={{ fontSize: 40 }}>🚀</Text>
-
-
-                        </View>
+                        <Text style={styles.headerEmoji}>🚀</Text>
                         <Text style={styles.title}>You're Almost Ready!</Text>
                     </View>
 
@@ -185,7 +181,7 @@ export default function StartJourney() {
                                     <Ionicons name="restaurant" size={32} color="#4CAF50" />
                                     <Ionicons name="checkmark-circle" size={18} color="#4CAF50" style={styles.checkmark} />
                                 </View>
-                                <Text style={styles.featureTitle}>Weight Gain Meals</Text>
+                                <Text style={styles.featureTitle}>Meal Plans</Text>
                                 <Text style={styles.featureText}>Calorie-rich recipes</Text>
                             </View>
 
@@ -203,7 +199,7 @@ export default function StartJourney() {
                                     <Ionicons name="cart" size={32} color="#2196F3" />
                                     <Ionicons name="checkmark-circle" size={18} color="#4CAF50" style={styles.checkmark} />
                                 </View>
-                                <Text style={styles.featureTitle}>Bulking Shopping List</Text>
+                                <Text style={styles.featureTitle}>Grocery List</Text>
                                 <Text style={styles.featureText}>Ready made shopping</Text>
                             </View>
 
@@ -212,8 +208,8 @@ export default function StartJourney() {
                                     <Ionicons name="bulb" size={32} color="#9C27B0" />
                                     <Ionicons name="checkmark-circle" size={18} color="#4CAF50" style={styles.checkmark} />
                                 </View>
-                                <Text style={styles.featureTitle}>Easy Roadmap</Text>
-                                <Text style={styles.featureText}>Guided Bulking & More!</Text>
+                                <Text style={styles.featureTitle}>Bulking Roadmap</Text>
+                                <Text style={styles.featureText}>Guided Journey and more!</Text>
                             </View>
                         </View>
                     </View>
@@ -257,10 +253,12 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         padding: 24,
+        paddingTop: 12,
     },
     header: {
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: 13,
+        marginTop: -8,
         padding: 12,
         borderRadius: 16,
         shadowColor: '#000',
@@ -271,42 +269,28 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 3,
         elevation: 3,
-       
     },
-    headerIconContainer: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        backgroundColor: '#ffdb80',
-        justifyContent: 'center',
-        alignItems: 'center',
+    headerEmoji: {
+        fontSize: 40,
         marginBottom: 8,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-        elevation: 3,
     },
     title: {
         fontSize: 20,
         fontWeight: '700',
         color: '#333',
-        marginBottom: 2,
+        marginBottom: 4,
         textAlign: 'center',
         letterSpacing: -0.5,
     },
     subtitle: {
-        fontSize: 13,
+        fontSize: 14,
         color: '#666',
         textAlign: 'center',
         fontStyle: 'italic',
-        lineHeight: 18,
+        lineHeight: 20,
     },
     featuresContainer: {
-        marginBottom: 24,
+        marginBottom: 32,
     },
     featuresTitle: {
         fontSize: 16,
