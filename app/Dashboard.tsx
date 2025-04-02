@@ -216,36 +216,71 @@ function HomeScreen() {
                             style={[styles.shoppingButton, { borderColor: '#FF5722' }]}
                             onPress={() => navigation.navigate('Shopping')}
                         >
-                            <Text style={styles.shoppingButtonText}>Gains Grocery List 📝</Text>
+                            <View style={styles.buttonContent}>
+                                <View style={[styles.iconContainer, { backgroundColor: '#FFEBEE' }]}>
+                                    <Ionicons name="cart" size={24} color="#FF5722" />
+                                </View>
+                                <Text style={styles.shoppingButtonText}>Gains Grocery List 📝</Text>
+                            </View>
                         </TouchableOpacity>
 
                         <TouchableOpacity 
                             style={[styles.shoppingButton, { borderColor: '#4CAF50' }]}
                             onPress={() => navigation.navigate('MealSuggestions')}
                         >
-                            <Text style={styles.shoppingButtonText}>What to eat today 🍽️</Text>
+                            <View style={styles.buttonContent}>
+                                <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
+                                    <Ionicons name="restaurant" size={24} color="#4CAF50" />
+                                </View>
+                                <Text style={styles.shoppingButtonText}>What to eat today 🍽️</Text>
+                            </View>
                         </TouchableOpacity>
 
                         <TouchableOpacity 
                             style={[styles.shoppingButton, { borderColor: '#5975ff' }]}
                             onPress={() => navigation.navigate('QuickMeals' as never)}
                         >
-                            <Text style={styles.shoppingButtonText}>Meals from the cupboard 🏠</Text>
+                            <View style={styles.buttonContent}>
+                                <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
+                                    <Ionicons name="home" size={24} color="#5975ff" />
+                                </View>
+                                <Text style={styles.shoppingButtonText}>Cupboard Meals 🏠</Text>
+                            </View>
                         </TouchableOpacity>
 
                         <TouchableOpacity 
                             style={[styles.shoppingButton, { borderColor: '#3333ff' }]}
                             onPress={() => navigation.navigate('LowAppetite' as never)}
                         >
-                            <Text style={styles.shoppingButtonText}>Small appetite meals 🥤</Text>
+                            <View style={styles.buttonContent}>
+                                <View style={[styles.iconContainer, { backgroundColor: '#E8EAF6' }]}>
+                                    <Ionicons name="nutrition" size={24} color="#3333ff" />
+                                </View>
+                                <Text style={styles.shoppingButtonText}>Small appetite meals 🥤</Text>
+                            </View>
                         </TouchableOpacity>
                         
                         <TouchableOpacity 
                             style={[styles.shoppingButton, { borderColor: '#9C27B0' }]}
                             onPress={() => navigation.navigate('Roadmap')}
                         >
-                            <View style={styles.roadmapHeader}>
+                            <View style={styles.buttonContent}>
+                                <View style={[styles.iconContainer, { backgroundColor: '#F3E5F5' }]}>
+                                    <Ionicons name="map" size={24} color="#9C27B0" />
+                                </View>
                                 <Text style={styles.shoppingButtonText}>Bulking Roadmap 🗺️</Text>
+                            </View>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity 
+                            style={[styles.shoppingButton, { borderColor: '#FF9800' }]}
+                            onPress={() => navigation.navigate('BulkingMind')}
+                        >
+                            <View style={styles.buttonContent}>
+                                <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
+                                    <Ionicons name="heart" size={24} color="#FF9800" />
+                                </View>
+                                <Text style={styles.shoppingButtonText}>Bulking Mindset 💭</Text>
                             </View>
                         </TouchableOpacity>
 
@@ -497,7 +532,7 @@ const styles = StyleSheet.create({
     actionButton: {
         width: '47%',
         backgroundColor: 'white',
-        padding: 20,
+        padding: 24,
         borderRadius: 20,
         marginBottom: 16,
         alignItems: 'center',
@@ -508,11 +543,12 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 6,
         elevation: 4,
+        transform: [{ scale: 1 }],
     },
     iconContainer: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 16,
@@ -527,6 +563,7 @@ const styles = StyleSheet.create({
         color: '#1a1a1a',
         fontWeight: '600',
         textAlign: 'center',
+        letterSpacing: 0.2,
     },
     dailyTipSection: {
         backgroundColor: 'white',
@@ -612,5 +649,18 @@ const styles = StyleSheet.create({
         color: '#666',
         marginTop: 4,
         fontStyle: 'italic',
+    },
+    buttonContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    iconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
     },
 });

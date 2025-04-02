@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 
-type WorkoutType = 'All' | 'Strength' | 'Quick' | 'Beginner';
+type WorkoutType = 'All' | 'Strength' | 'Beginner';
 type EquipmentType = 'All' | 'With Equipment' | 'No Equipment';
 
 interface Workout {
@@ -29,7 +29,7 @@ export default function Workouts() {
     const [showRefreshMessage, setShowRefreshMessage] = useState(false);
     const navigation = useNavigation();
 
-    const workoutTypes: WorkoutType[] = ['All', 'Strength', 'Quick', 'Beginner'];
+    const workoutTypes: WorkoutType[] = ['All', 'Strength', 'Beginner'];
     const equipmentTypes: EquipmentType[] = ['All', 'With Equipment', 'No Equipment'];
 
     const getRandomWorkout = () => {
@@ -38,9 +38,19 @@ export default function Workouts() {
     };
 
     const refreshWorkouts = () => {
-        // Shuffle the filtered workouts array
-        const shuffled = [...filteredWorkouts].sort(() => Math.random() - 0.5);
-        setFilteredWorkouts(shuffled);
+        // Create a copy of the filtered workouts array
+        const shuffledWorkouts = [...filteredWorkouts];
+        
+        // Fisher-Yates shuffle algorithm
+        for (let i = shuffledWorkouts.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledWorkouts[i], shuffledWorkouts[j]] = [shuffledWorkouts[j], shuffledWorkouts[i]];
+        }
+        
+        // Update the filtered workouts with the shuffled array
+        setFilteredWorkouts(shuffledWorkouts);
+        
+        // Show refresh message
         setShowRefreshMessage(true);
         setTimeout(() => setShowRefreshMessage(false), 3000);
     };
@@ -49,7 +59,6 @@ export default function Workouts() {
         const colors = {
             All: '#666666',
             Strength: '#FF5722',
-            Quick: '#FF9800',
             Beginner: '#4CAF50',
             'With Equipment': '#9C27B0',
             'No Equipment': '#FF9800'
@@ -66,8 +75,6 @@ export default function Workouts() {
                 return 'grid';
             case 'Strength':
                 return 'barbell';
-            case 'Quick':
-                return 'flash';
             case 'Beginner':
                 return 'school';
             case 'With Equipment':
@@ -80,53 +87,6 @@ export default function Workouts() {
     };
 
     const workouts: Workout[] = [
-        // Quick Workouts
-        {
-            title: '15-Min Full Body Blast',
-            type: 'Quick',
-            equipment: 'No Equipment',
-            duration: '15 min',
-            difficulty: 'Intermediate',
-            description: 'A high-intensity full body workout perfect for when you\'re short on time.',
-            tips: [
-                'Keep movements explosive but controlled',
-                'Minimize rest between exercises',
-                'Focus on form over speed'
-            ],
-            restBetweenSets: '30 seconds',
-            exercises: [
-                '• Burpees: 3 sets x 10 reps',
-                '• Mountain Climbers: 3 sets x 30 seconds',
-                '• Jump Squats: 3 sets x 15 reps',
-                '• Push-ups: 3 sets x max reps',
-                '• Plank to Downward Dog: 3 sets x 10 reps'
-            ],
-            targetMuscles: ['Full Body', 'Core', 'Legs', 'Chest'],
-            emoji: '⚡'
-        },
-        {
-            title: 'Express Upper Body Power',
-            type: 'Quick',
-            equipment: 'With Equipment',
-            duration: '20 min',
-            difficulty: 'Intermediate',
-            description: 'A quick but effective upper body workout focusing on compound movements.',
-            tips: [
-                'Use moderate weights',
-                'Keep rest periods short',
-                'Focus on explosive movements'
-            ],
-            restBetweenSets: '45 seconds',
-            exercises: [
-                '• Dumbbell Press: 3 sets x 12 reps',
-                '• Pull-ups: 3 sets x max reps',
-                '• Push-ups: 3 sets x max reps',
-                '• Dumbbell Rows: 3 sets x 12 reps',
-                '• Tricep Dips: 3 sets x 15 reps'
-            ],
-            targetMuscles: ['Chest', 'Back', 'Shoulders', 'Arms'],
-            emoji: '💪'
-        },
         // Beginner Workouts
         {
             title: 'First Time Full Body',
@@ -174,7 +134,30 @@ export default function Workouts() {
             targetMuscles: ['Full Body', 'Arms', 'Legs', 'Back'],
             emoji: '🌱'
         },
-        // Existing Strength Workouts
+        {
+            title: 'Core Foundation',
+            type: 'Beginner',
+            equipment: 'No Equipment',
+            duration: '25 min',
+            difficulty: 'Beginner',
+            description: 'Build a strong core foundation with these basic exercises.',
+            tips: [
+                'Keep your core engaged throughout',
+                'Breathe steadily during exercises',
+                'Start with shorter holds and build up'
+            ],
+            restBetweenSets: '1 minute',
+            exercises: [
+                '• Plank: 3 sets x 30 seconds',
+                '• Dead Bug: 3 sets x 10 reps each side',
+                '• Bird Dog: 3 sets x 10 reps each side',
+                '• Glute Bridge: 3 sets x 12 reps',
+                '• Side Plank: 2 sets x 20 seconds each side'
+            ],
+            targetMuscles: ['Core', 'Abs', 'Lower Back'],
+            emoji: '💫'
+        },
+        // Strength Workouts
         {
             title: 'Upper Body Strength',
             type: 'Strength',
@@ -243,6 +226,75 @@ export default function Workouts() {
             ],
             targetMuscles: ['Full Body', 'Back', 'Legs', 'Chest', 'Shoulders'],
             emoji: '💪'
+        },
+        {
+            title: 'Push Day',
+            type: 'Strength',
+            equipment: 'With Equipment',
+            duration: '60 min',
+            difficulty: 'Intermediate',
+            description: 'Focus on pushing movements for chest, shoulders, and triceps.',
+            tips: [
+                'Warm up your shoulders thoroughly',
+                'Keep your core tight during presses',
+                'Control the weight on the way down'
+            ],
+            restBetweenSets: '2-3 minutes',
+            exercises: [
+                '• Bench Press: 4 sets x 8-10 reps',
+                '• Overhead Press: 4 sets x 8-10 reps',
+                '• Incline Dumbbell Press: 3 sets x 10-12 reps',
+                '• Lateral Raises: 3 sets x 12-15 reps',
+                '• Tricep Pushdowns: 3 sets x 12-15 reps'
+            ],
+            targetMuscles: ['Chest', 'Shoulders', 'Triceps'],
+            emoji: '💪'
+        },
+        {
+            title: 'Pull Day',
+            type: 'Strength',
+            equipment: 'With Equipment',
+            duration: '60 min',
+            difficulty: 'Intermediate',
+            description: 'Focus on pulling movements for back and biceps.',
+            tips: [
+                'Keep your back straight during rows',
+                'Squeeze your shoulder blades together',
+                'Control the weight throughout the movement'
+            ],
+            restBetweenSets: '2-3 minutes',
+            exercises: [
+                '• Barbell Rows: 4 sets x 8-10 reps',
+                '• Pull-ups: 4 sets x max reps',
+                '• Face Pulls: 3 sets x 12-15 reps',
+                '• Bicep Curls: 3 sets x 12-15 reps',
+                '• Hammer Curls: 3 sets x 12-15 reps'
+            ],
+            targetMuscles: ['Back', 'Biceps', 'Rear Delts'],
+            emoji: '💪'
+        },
+        {
+            title: 'Leg Day',
+            type: 'Strength',
+            equipment: 'With Equipment',
+            duration: '60 min',
+            difficulty: 'Intermediate',
+            description: 'Focus on building strong legs with compound movements.',
+            tips: [
+                'Warm up thoroughly before heavy lifts',
+                'Keep your core tight during squats',
+                'Focus on proper form over weight'
+            ],
+            restBetweenSets: '2-3 minutes',
+            exercises: [
+                '• Barbell Squats: 4 sets x 8-10 reps',
+                '• Romanian Deadlifts: 4 sets x 8-10 reps',
+                '• Bulgarian Split Squats: 3 sets x 10 reps each leg',
+                '• Calf Raises: 4 sets x 15-20 reps',
+                '• Leg Curls: 3 sets x 12-15 reps'
+            ],
+            targetMuscles: ['Legs', 'Glutes', 'Calves'],
+            emoji: '��'
         }
     ];
 
