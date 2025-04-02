@@ -120,7 +120,19 @@ const allMeals: Meal[] = [
         calories: 500,
         ingredients: ["Greek Yogurt", "Granola", "Mixed Berries", "Honey", "Almonds"],
         emojis: ["🥛", "🌾", "🫐", "🍯", "🥜"],
-        time: "Breakfast"
+        time: "Breakfast",
+        prepSteps: [
+            "Layer 1 cup Greek yogurt in a bowl",
+            "Add 1/2 cup granola",
+            "Top with mixed berries",
+            "Drizzle with honey",
+            "Sprinkle with chopped almonds"
+        ],
+        portions: [
+            { size: "Small", calories: 350 },
+            { size: "Medium", calories: 500 },
+            { size: "Large", calories: 650 }
+        ]
     },
     {
         id: 6,
@@ -128,7 +140,19 @@ const allMeals: Meal[] = [
         calories: 650,
         ingredients: ["Eggs", "Cheese", "Spinach", "Whole Wheat Tortilla", "Salsa"],
         emojis: ["🌯", "🥚", "🧀", "🥬", "🍅"],
-        time: "Breakfast"
+        time: "Breakfast",
+        prepSteps: [
+            "Scramble 2 eggs with spinach",
+            "Place tortilla in a pan",
+            "Add scrambled eggs and cheese",
+            "Fold and cook until golden",
+            "Serve with salsa"
+        ],
+        portions: [
+            { size: "Small", calories: 450 },
+            { size: "Medium", calories: 650 },
+            { size: "Large", calories: 850 }
+        ]
     },
     // Lunch Meals
     {
@@ -177,7 +201,19 @@ const allMeals: Meal[] = [
         calories: 750,
         ingredients: ["Quinoa", "Chickpeas", "Kale", "Sweet Potato", "Tahini Dressing"],
         emojis: ["🌾", "🫘", "🥬", "🍠", "🥄"],
-        time: "Lunch"
+        time: "Lunch",
+        prepSteps: [
+            "Cook 1 cup quinoa",
+            "Roast chickpeas with spices",
+            "Steam kale and sweet potato",
+            "Make tahini dressing",
+            "Assemble bowl and drizzle with dressing"
+        ],
+        portions: [
+            { size: "Small", calories: 500 },
+            { size: "Medium", calories: 750 },
+            { size: "Large", calories: 1000 }
+        ]
     },
     {
         id: 10,
@@ -185,7 +221,19 @@ const allMeals: Meal[] = [
         calories: 650,
         ingredients: ["Turkey Breast", "Whole Wheat Wrap", "Hummus", "Mixed Greens", "Cucumber"],
         emojis: ["🥪", "🦃", "🥫", "🥬", "🥒"],
-        time: "Lunch"
+        time: "Lunch",
+        prepSteps: [
+            "Warm the wrap slightly",
+            "Spread hummus on wrap",
+            "Layer turkey slices",
+            "Add greens and cucumber",
+            "Roll tightly and cut diagonally"
+        ],
+        portions: [
+            { size: "Small", calories: 450 },
+            { size: "Medium", calories: 650 },
+            { size: "Large", calories: 850 }
+        ]
     },
     {
         id: 11,
@@ -193,7 +241,19 @@ const allMeals: Meal[] = [
         calories: 600,
         ingredients: ["Salmon", "Mixed Greens", "Avocado", "Cherry Tomatoes", "Olive Oil"],
         emojis: ["🐟", "🥬", "🥑", "🍅", "🫒"],
-        time: "Lunch"
+        time: "Lunch",
+        prepSteps: [
+            "Grill salmon fillet",
+            "Wash and dry mixed greens",
+            "Slice avocado and tomatoes",
+            "Flake salmon over greens",
+            "Drizzle with olive oil"
+        ],
+        portions: [
+            { size: "Small", calories: 400 },
+            { size: "Medium", calories: 600 },
+            { size: "Large", calories: 800 }
+        ]
     },
     {
         id: 12,
@@ -201,7 +261,19 @@ const allMeals: Meal[] = [
         calories: 700,
         ingredients: ["Brown Rice", "Grilled Chicken", "Feta", "Olives", "Cucumber"],
         emojis: ["🍚", "🍗", "🧀", "🫒", "🥒"],
-        time: "Lunch"
+        time: "Lunch",
+        prepSteps: [
+            "Cook brown rice",
+            "Grill chicken breast",
+            "Chop cucumber and olives",
+            "Crumble feta cheese",
+            "Assemble bowl with all ingredients"
+        ],
+        portions: [
+            { size: "Small", calories: 500 },
+            { size: "Medium", calories: 700 },
+            { size: "Large", calories: 900 }
+        ]
     },
     // Dinner Meals
     {
@@ -250,7 +322,19 @@ const allMeals: Meal[] = [
         calories: 800,
         ingredients: ["Whole Grain Pasta", "Chicken Breast", "Pesto", "Cherry Tomatoes", "Parmesan"],
         emojis: ["🍝", "🍗", "🌿", "🍅", "🧀"],
-        time: "Dinner"
+        time: "Dinner",
+        prepSteps: [
+            "Cook pasta according to package",
+            "Grill chicken breast",
+            "Halve cherry tomatoes",
+            "Mix pasta with pesto",
+            "Top with chicken, tomatoes, and parmesan"
+        ],
+        portions: [
+            { size: "Small", calories: 600 },
+            { size: "Medium", calories: 800 },
+            { size: "Large", calories: 1000 }
+        ]
     },
     {
         id: 16,
@@ -258,7 +342,19 @@ const allMeals: Meal[] = [
         calories: 700,
         ingredients: ["Shrimp", "Brown Rice", "Mixed Vegetables", "Soy Sauce", "Ginger"],
         emojis: ["🦐", "🍚", "🥬", "🥫", "🧄"],
-        time: "Dinner"
+        time: "Dinner",
+        prepSteps: [
+            "Cook brown rice",
+            "Stir-fry shrimp until pink",
+            "Add vegetables and stir-fry",
+            "Mix in soy sauce and ginger",
+            "Serve over rice"
+        ],
+        portions: [
+            { size: "Small", calories: 500 },
+            { size: "Medium", calories: 700 },
+            { size: "Large", calories: 900 }
+        ]
     },
     {
         id: 17,
@@ -266,7 +362,19 @@ const allMeals: Meal[] = [
         calories: 750,
         ingredients: ["Ground Turkey", "Whole Grain Pasta", "Marinara", "Parmesan", "Basil"],
         emojis: ["🦃", "🍝", "🍅", "🧀", "🌿"],
-        time: "Dinner"
+        time: "Dinner",
+        prepSteps: [
+            "Form turkey into meatballs",
+            "Bake meatballs until cooked",
+            "Cook pasta according to package",
+            "Heat marinara sauce",
+            "Combine and top with parmesan and basil"
+        ],
+        portions: [
+            { size: "Small", calories: 550 },
+            { size: "Medium", calories: 750 },
+            { size: "Large", calories: 950 }
+        ]
     },
     {
         id: 18,
@@ -274,7 +382,19 @@ const allMeals: Meal[] = [
         calories: 650,
         ingredients: ["Salmon", "Brown Rice", "Broccoli", "Lemon", "Olive Oil"],
         emojis: ["🐟", "🍚", "🥦", "🍋", "🫒"],
-        time: "Dinner"
+        time: "Dinner",
+        prepSteps: [
+            "Season salmon with lemon and oil",
+            "Bake salmon until flaky",
+            "Cook brown rice",
+            "Steam broccoli",
+            "Serve salmon over rice with broccoli"
+        ],
+        portions: [
+            { size: "Small", calories: 450 },
+            { size: "Medium", calories: 650 },
+            { size: "Large", calories: 850 }
+        ]
     },
     // Snack Meals
     {
@@ -323,7 +443,19 @@ const allMeals: Meal[] = [
         calories: 600,
         ingredients: ["Mixed Nuts", "Dried Fruit", "Dark Chocolate", "Seeds", "Coconut"],
         emojis: ["🥜", "🍇", "🍫", "🌱", "🥥"],
-        time: "Snack"
+        time: "Snack",
+        prepSteps: [
+            "Mix equal parts nuts and dried fruit",
+            "Add dark chocolate chunks",
+            "Sprinkle with seeds",
+            "Add shredded coconut",
+            "Portion into serving sizes"
+        ],
+        portions: [
+            { size: "Small", calories: 400 },
+            { size: "Medium", calories: 600 },
+            { size: "Large", calories: 800 }
+        ]
     },
     {
         id: 22,
@@ -331,7 +463,19 @@ const allMeals: Meal[] = [
         calories: 450,
         ingredients: ["Protein Powder", "Oats", "Peanut Butter", "Honey", "Chia Seeds"],
         emojis: ["⚪", "🌾", "🥜", "🍯", "🌱"],
-        time: "Snack"
+        time: "Snack",
+        prepSteps: [
+            "Mix protein powder with oats",
+            "Add peanut butter and honey",
+            "Stir in chia seeds",
+            "Form into balls",
+            "Refrigerate for 30 minutes"
+        ],
+        portions: [
+            { size: "Small", calories: 300 },
+            { size: "Medium", calories: 450 },
+            { size: "Large", calories: 600 }
+        ]
     },
     {
         id: 23,
@@ -339,7 +483,19 @@ const allMeals: Meal[] = [
         calories: 500,
         ingredients: ["Greek Yogurt", "Granola", "Banana", "Honey", "Almonds"],
         emojis: ["🥛", "🌾", "🍌", "🍯", "🥜"],
-        time: "Snack"
+        time: "Snack",
+        prepSteps: [
+            "Scoop Greek yogurt into bowl",
+            "Add granola layer",
+            "Slice banana on top",
+            "Drizzle with honey",
+            "Sprinkle with chopped almonds"
+        ],
+        portions: [
+            { size: "Small", calories: 350 },
+            { size: "Medium", calories: 500 },
+            { size: "Large", calories: 650 }
+        ]
     },
     {
         id: 24,
@@ -347,7 +503,19 @@ const allMeals: Meal[] = [
         calories: 550,
         ingredients: ["Protein Powder", "Banana", "Almond Milk", "Cocoa Powder", "Peanut Butter"],
         emojis: ["🍦", "🍌", "🥛", "🍫", "🥜"],
-        time: "Snack"
+        time: "Snack",
+        prepSteps: [
+            "Freeze banana slices",
+            "Blend with protein powder",
+            "Add almond milk and cocoa",
+            "Swirl in peanut butter",
+            "Freeze until desired consistency"
+        ],
+        portions: [
+            { size: "Small", calories: 350 },
+            { size: "Medium", calories: 550 },
+            { size: "Large", calories: 750 }
+        ]
     }
 ];
 
@@ -769,6 +937,15 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         marginBottom: 15,
         elevation: 2,
+        borderWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.05)',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
     },
     mealHeader: {
         flexDirection: 'row',
