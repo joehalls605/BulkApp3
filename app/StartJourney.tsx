@@ -148,8 +148,12 @@ export default function StartJourney() {
             <LinearGradient colors={['#FFF8E7', '#FFF5E0']} style={styles.gradient}>
                 <View style={styles.content}>
                     <View style={styles.header}>
-                        <Ionicons name="rocket" size={40} color="#4CAF50" />
-                        <Text style={styles.title}>You're almost ready!</Text>
+                        <View style={styles.headerIconContainer}>
+                        <Text style={{ fontSize: 40 }}>🚀</Text>
+
+
+                        </View>
+                        <Text style={styles.title}>You're Almost Ready!</Text>
                     </View>
 
                     {beforePhoto && (
@@ -181,7 +185,7 @@ export default function StartJourney() {
                                     <Ionicons name="restaurant" size={32} color="#4CAF50" />
                                     <Ionicons name="checkmark-circle" size={18} color="#4CAF50" style={styles.checkmark} />
                                 </View>
-                                <Text style={styles.featureTitle}>Meal Plans</Text>
+                                <Text style={styles.featureTitle}>Weight Gain Meals</Text>
                                 <Text style={styles.featureText}>Calorie-rich recipes</Text>
                             </View>
 
@@ -199,7 +203,7 @@ export default function StartJourney() {
                                     <Ionicons name="cart" size={32} color="#2196F3" />
                                     <Ionicons name="checkmark-circle" size={18} color="#4CAF50" style={styles.checkmark} />
                                 </View>
-                                <Text style={styles.featureTitle}>Grocery List</Text>
+                                <Text style={styles.featureTitle}>Bulking Shopping List</Text>
                                 <Text style={styles.featureText}>Ready made shopping</Text>
                             </View>
 
@@ -208,8 +212,8 @@ export default function StartJourney() {
                                     <Ionicons name="bulb" size={32} color="#9C27B0" />
                                     <Ionicons name="checkmark-circle" size={18} color="#4CAF50" style={styles.checkmark} />
                                 </View>
-                                <Text style={styles.featureTitle}>Daily Tips</Text>
-                                <Text style={styles.featureText}>Bulking guidance</Text>
+                                <Text style={styles.featureTitle}>Easy Roadmap</Text>
+                                <Text style={styles.featureText}>Guided Bulking & More!</Text>
                             </View>
                         </View>
                     </View>
@@ -256,24 +260,53 @@ const styles = StyleSheet.create({
     },
     header: {
         alignItems: 'center',
-        marginBottom: 32,
+        marginBottom: 16,
+        padding: 12,
+        borderRadius: 16,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 3,
+       
+    },
+    headerIconContainer: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: '#ffdb80',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 8,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 3,
     },
     title: {
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: '700',
         color: '#333',
-        marginTop: 16,
+        marginBottom: 2,
         textAlign: 'center',
+        letterSpacing: -0.5,
     },
     subtitle: {
-        fontSize: 18,
+        fontSize: 13,
         color: '#666',
-        marginTop: 8,
         textAlign: 'center',
         fontStyle: 'italic',
+        lineHeight: 18,
     },
     featuresContainer: {
-        marginBottom: 32,
+        marginBottom: 24,
     },
     featuresTitle: {
         fontSize: 16,
